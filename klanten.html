@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>TBC Klanten – Daniël Knott</title>
+<meta name="theme-color" content="#0B1F3A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<style>
+:root{--navy:#0B1F3A;--navy2:#112240;--card:#1E3A5F;--card2:#162F50;--teal:#4FD1A5;--teal2:#3ab891;--text:#E8F0FE;--muted:#7a9bb5;--red:#FF6B6B;--orange:#FFA94D;--blue:#74B9FF;--border:#1a3558;--purple:#b39ddb;--green:#4FD1A5}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--navy);color:var(--text);font-family:Arial,sans-serif;overscroll-behavior:none}
+
+/* NAV */
+.nav{background:var(--navy2);border-bottom:3px solid var(--teal);display:flex;align-items:center;justify-content:space-between;padding:0 16px;height:54px;position:sticky;top:0;z-index:100;gap:12px}
+.nav-logo{font-family:'Arial Black',sans-serif;font-size:13px;font-weight:900;color:var(--teal);letter-spacing:2px;flex-shrink:0}
+.nav-tabs{display:flex;gap:3px;overflow-x:auto;scrollbar-width:none}
+.nav-tabs::-webkit-scrollbar{display:none}
+.nav-tab{padding:7px 11px;border-radius:7px;border:none;background:none;color:var(--muted);font-size:12px;cursor:pointer;font-weight:600;white-space:nowrap;transition:.15s}
+.nav-tab.active{background:var(--teal);color:var(--navy)}
+.nav-tab:hover:not(.active){background:var(--card);color:var(--text)}
+
+/* PAGES */
+.page{display:none;height:calc(100vh - 54px);overflow-y:auto}
+.page.active{display:block}
+
+/* STATS BAR */
+.stats-bar{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--border)}
+.stat-box{background:var(--navy2);padding:11px 8px;text-align:center;cursor:pointer;transition:.1s}
+.stat-box:hover{background:var(--card2)}
+.stat-num{font-size:20px;font-weight:900;color:var(--teal);font-family:'Arial Black',sans-serif;line-height:1}
+.stat-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+.stat-box.s-urgent .stat-num{color:var(--red)}
+.stat-box.s-warn .stat-num{color:var(--orange)}
+
+/* VANDAAG BANNER */
+.vandaag-banner{background:var(--card);border-bottom:2px solid var(--teal);padding:12px 16px}
+.vb-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--teal);margin-bottom:8px}
+.vb-items{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.vb-items::-webkit-scrollbar{display:none}
+.vb-chip{background:var(--navy2);border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-size:12px;white-space:nowrap;cursor:pointer;flex-shrink:0;transition:.1s}
+.vb-chip:hover{border-color:var(--teal);color:var(--teal)}
+.vb-chip.vb-taak{border-color:rgba(255,169,77,.4);color:var(--orange)}
+.vb-chip.vb-afspraak{border-color:rgba(79,209,165,.4);color:var(--teal)}
+.vb-empty{font-size:12px;color:var(--muted);font-style:italic}
+
+/* CONTROLS */
+.controls{padding:10px 14px;display:flex;gap:7px;flex-wrap:wrap;align-items:center;background:var(--navy2);border-bottom:1px solid var(--border)}
+.sw{position:relative;flex:1;min-width:150px}
+.sw input{width:100%;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 10px 8px 32px;color:var(--text);font-size:13px;outline:none}
+.sw input:focus{border-color:var(--teal)}
+.si{position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:13px;color:var(--muted)}
+select{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 9px;color:var(--text);font-size:12px;outline:none;cursor:pointer}
+.fb{padding:6px 11px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--muted);font-size:11px;cursor:pointer;font-weight:600;white-space:nowrap;transition:.15s}
+.fb.active{background:var(--teal);color:var(--navy);border-color:var(--teal)}
+.import-btn{padding:6px 12px;border-radius:8px;border:1px solid rgba(79,209,165,.3);background:var(--card);color:var(--teal);font-size:11px;font-weight:700;cursor:pointer}
+.cb{background:var(--teal);color:var(--navy);border-radius:20px;padding:2px 9px;font-size:11px;font-weight:700}
+
+/* TABLE */
+table{width:100%;border-collapse:collapse}
+thead th{background:var(--card);color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:1px;padding:9px 11px;text-align:left;cursor:pointer;white-space:nowrap;position:sticky;top:0;z-index:5}
+thead th:hover{color:var(--teal)}
+tbody tr{border-bottom:1px solid var(--border);cursor:pointer;transition:.1s}
+tbody tr:hover{background:var(--card2)}
+tbody tr.is-new{border-left:3px solid var(--teal)}
+td{padding:10px 11px;font-size:12px;vertical-align:middle}
+.kn{font-weight:700;font-size:13px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.kp{font-size:10px;color:var(--muted);margin-top:1px}
+.new-b{background:var(--teal);color:var(--navy);border-radius:3px;padding:1px 5px;font-size:9px;font-weight:900}
+
+/* BADGES */
+.sb{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.3px;text-transform:uppercase}
+.s-a{background:rgba(79,209,165,.12);color:var(--teal);border:1px solid rgba(79,209,165,.2)}
+.s-o{background:rgba(255,169,77,.12);color:var(--orange);border:1px solid rgba(255,169,77,.2)}
+.s-u{background:rgba(255,107,107,.12);color:var(--red);border:1px solid rgba(255,107,107,.2)}
+.s-k{background:rgba(116,185,255,.12);color:var(--blue);border:1px solid rgba(116,185,255,.2)}
+.dc{padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700}
+.d-ok{background:rgba(79,209,165,.1);color:var(--teal)}
+.d-w{background:rgba(255,169,77,.1);color:var(--orange)}
+.d-d{background:rgba(255,107,107,.1);color:var(--red)}
+.omzet-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:4px}
+.o-hoog{background:var(--teal)}
+.o-mid{background:var(--orange)}
+.o-laag{background:var(--red)}
+
+/* PAGINATION */
+.pag{display:flex;justify-content:center;align-items:center;gap:5px;padding:14px;flex-wrap:wrap}
+.pb{background:var(--card);border:1px solid var(--border);color:var(--text);padding:5px 10px;border-radius:7px;cursor:pointer;font-size:12px}
+.pb:hover,.pb.active{background:var(--teal);color:var(--navy);border-color:var(--teal);font-weight:700}
+.pb:disabled{opacity:.4;cursor:default}
+.pi{color:var(--muted);font-size:11px}
+
+/* ── KLANT DETAIL PAGE ── */
+.kd-header{background:var(--card);border-bottom:2px solid var(--teal);padding:16px 20px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.kd-back{background:none;border:none;color:var(--teal);font-size:13px;cursor:pointer;padding:0;font-weight:700;flex-shrink:0}
+.kd-naam{font-size:20px;font-weight:900;font-family:'Arial Black',sans-serif}
+.kd-sub{font-size:12px;color:var(--muted);margin-top:3px}
+.kd-actions{display:flex;gap:8px;flex-shrink:0;flex-wrap:wrap}
+.btn-teal{background:var(--teal);color:var(--navy);border:none;border-radius:8px;padding:8px 14px;font-weight:700;cursor:pointer;font-size:12px}
+.btn-teal:hover{background:var(--teal2)}
+.btn-ghost{background:var(--card2);color:var(--muted);border:1px solid var(--border);border-radius:8px;padding:8px 12px;cursor:pointer;font-size:12px}
+.btn-ghost:hover{border-color:var(--teal);color:var(--teal)}
+.btn-red{background:rgba(255,107,107,.15);color:var(--red);border:1px solid rgba(255,107,107,.3);border-radius:8px;padding:8px 12px;cursor:pointer;font-size:12px}
+
+.kd-body{padding:16px 20px;display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:700px){.kd-body{grid-template-columns:1fr}}
+.kd-col{}
+.kd-section{margin-bottom:18px}
+.sec-title{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--teal);font-weight:700;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.sec-add{background:none;border:none;color:var(--teal);font-size:18px;cursor:pointer;line-height:1}
+
+/* INFO GRID */
+.ig{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ii{background:var(--card);border-radius:8px;padding:10px 12px}
+.il{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px}
+.iv{font-size:13px;font-weight:700}
+.iv a{color:var(--teal);text-decoration:none}
+.iv-edit{width:100%;background:transparent;border:none;color:var(--text);font-size:13px;font-weight:700;outline:none;cursor:text;font-family:Arial,sans-serif}
+.ii.editing{border-color:var(--teal);border:1px solid var(--teal)}
+
+/* STATUS OPTS */
+.so{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.sopt{padding:6px 12px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:var(--muted);font-size:11px;cursor:pointer;font-weight:600;transition:.15s}
+.sopt.sa{background:rgba(79,209,165,.2);color:var(--teal);border-color:var(--teal)}
+.sopt.so2{background:rgba(255,169,77,.2);color:var(--orange);border-color:var(--orange)}
+.sopt.su{background:rgba(255,107,107,.2);color:var(--red);border-color:var(--red)}
+.sopt.sk{background:rgba(116,185,255,.2);color:var(--blue);border-color:var(--blue)}
+
+/* CONTACTEN */
+.contact-card{background:var(--card);border-radius:8px;padding:10px 12px;margin-bottom:6px;display:flex;align-items:center;gap:10px}
+.cc-avatar{width:34px;height:34px;border-radius:50%;background:var(--teal);color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:13px;flex-shrink:0}
+.cc-info{flex:1}
+.cc-naam{font-weight:700;font-size:13px}
+.cc-sub{font-size:11px;color:var(--muted)}
+.cc-actions{display:flex;gap:6px}
+.icon-btn{background:none;border:none;cursor:pointer;font-size:15px;padding:4px;color:var(--muted);transition:.1s}
+.icon-btn:hover{color:var(--teal)}
+.icon-btn.del:hover{color:var(--red)}
+
+/* TAKEN */
+.taak-item{background:var(--card);border-radius:8px;padding:10px 12px;margin-bottom:6px;border-left:3px solid var(--border);display:flex;align-items:flex-start;gap:10px}
+.taak-item.p-urgent{border-left-color:var(--red)}
+.taak-item.p-hoog{border-left-color:var(--orange)}
+.taak-item.p-normaal{border-left-color:var(--blue)}
+.taak-item.done{opacity:.5}
+.taak-check{width:18px;height:18px;border-radius:4px;border:2px solid var(--muted);cursor:pointer;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:.15s}
+.taak-check.checked{background:var(--teal);border-color:var(--teal);color:var(--navy)}
+.taak-body{flex:1}
+.taak-type{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:2px}
+.taak-desc{font-size:13px;font-weight:600}
+.taak-dead{font-size:10px;color:var(--muted);margin-top:2px}
+.taak-dead.overdue{color:var(--red);font-weight:700}
+
+/* NOTITIES */
+.note-item{background:var(--card);border-radius:8px;padding:10px 12px;border-left:3px solid var(--teal);margin-bottom:6px}
+.note-meta{font-size:10px;color:var(--muted);margin-bottom:3px;display:flex;justify-content:space-between}
+.note-text{font-size:12px;line-height:1.5}
+.del-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:12px}
+.del-btn:hover{color:var(--red)}
+.add-row{display:flex;gap:8px;margin-top:8px}
+.add-inp{flex:1;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-size:12px;outline:none;font-family:Arial,sans-serif;resize:vertical;min-height:56px}
+.add-inp:focus{border-color:var(--teal)}
+.add-btn{background:var(--teal);color:var(--navy);border:none;border-radius:8px;padding:8px 12px;font-weight:700;cursor:pointer;font-size:12px;align-self:flex-end;white-space:nowrap}
+.add-btn:hover{background:var(--teal2)}
+
+/* BEL */
+.bel-item{background:var(--card);border-radius:8px;padding:8px 12px;margin-bottom:5px;display:flex;align-items:center;gap:8px}
+.bel-icon{font-size:14px}
+.bel-info{flex:1}
+.bel-date{font-size:10px;color:var(--muted)}
+.bel-note{font-size:12px}
+
+/* AFSPRAKEN in detail */
+.af-item{background:var(--card);border-radius:8px;padding:10px 12px;margin-bottom:6px;display:flex;align-items:center;gap:10px}
+.af-date{font-size:20px;font-weight:900;color:var(--teal);font-family:'Arial Black',sans-serif;min-width:36px;text-align:center;line-height:1}
+.af-month{font-size:9px;color:var(--muted);text-transform:uppercase}
+.af-info{flex:1}
+.af-klant{font-weight:700;font-size:13px}
+.af-note{font-size:11px;color:var(--muted)}
+
+/* TAKEN PAGE */
+.taken-page{padding:16px 20px}
+.taken-filter{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.taak-row{background:var(--card);border-radius:10px;padding:12px 14px;margin-bottom:8px;border-left:3px solid var(--border);display:flex;align-items:flex-start;gap:12px;cursor:pointer;transition:.1s}
+.taak-row:hover{background:var(--card2)}
+.taak-row.p-urgent{border-left-color:var(--red)}
+.taak-row.p-hoog{border-left-color:var(--orange)}
+.taak-row.p-normaal{border-left-color:var(--blue)}
+.taak-klant{font-size:11px;color:var(--teal);font-weight:700;margin-bottom:2px}
+.taak-omsch{font-size:13px;font-weight:600}
+.taak-meta{font-size:10px;color:var(--muted);margin-top:3px}
+
+/* KALENDER */
+.cal-wrap{padding:16px}
+.cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.cal-nav{display:flex;gap:6px;align-items:center}
+.cal-nav button{background:var(--card);border:1px solid var(--border);color:var(--text);padding:7px 12px;border-radius:8px;cursor:pointer;font-size:13px}
+.cal-nav button:hover{border-color:var(--teal);color:var(--teal)}
+.cal-month{font-size:18px;font-weight:900;font-family:'Arial Black',sans-serif}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--border);border-radius:10px;overflow:hidden}
+.cal-dow{background:var(--card);padding:7px;text-align:center;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted)}
+.cal-day{background:var(--navy2);min-height:80px;padding:5px;cursor:pointer;transition:.1s;position:relative}
+.cal-day:hover{background:var(--card2)}
+.cal-day.other-month{opacity:.35}
+.cal-day.today{background:rgba(79,209,165,.06);outline:1px solid rgba(79,209,165,.3)}
+.cal-day-num{font-size:11px;font-weight:700;color:var(--muted);margin-bottom:3px}
+.cal-day.today .cal-day-num{color:var(--teal)}
+.cal-ev{border-radius:3px;padding:2px 5px;font-size:9px;font-weight:700;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cal-ev.af{background:rgba(79,209,165,.2);color:var(--teal)}
+.cal-ev.tk{background:rgba(255,169,77,.2);color:var(--orange)}
+.cal-ev.tk-u{background:rgba(255,107,107,.2);color:var(--red)}
+.cal-add{position:absolute;top:3px;right:3px;background:none;border:none;color:transparent;font-size:14px;cursor:pointer}
+.cal-day:hover .cal-add{color:var(--teal)}
+
+/* AGENDA LIST */
+.agenda-wrap{padding:16px 20px}
+.ag-section{margin-bottom:20px}
+.ag-date-header{font-size:12px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid var(--border)}
+.ag-item{background:var(--card);border-radius:8px;padding:10px 14px;margin-bottom:5px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:.1s}
+.ag-item:hover{background:var(--card2)}
+.ag-dot{width:8px;height:8px;border-radius:50%;background:var(--teal);flex-shrink:0}
+.ag-dot.d-u{background:var(--red)}
+.ag-dot.d-o{background:var(--orange)}
+.ag-dot.d-t{background:var(--orange)}
+.ag-info{flex:1}
+.ag-klant{font-weight:700;font-size:13px}
+.ag-note{font-size:11px;color:var(--muted);margin-top:1px}
+.ag-time{font-size:11px;color:var(--muted);white-space:nowrap}
+.ag-del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;padding:4px}
+.ag-del:hover{color:var(--red)}
+
+/* MODAL OVERLAYS */
+.ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;align-items:center;justify-content:center;padding:12px}
+.ov.open{display:flex}
+.modal-box{background:var(--navy2);border:1px solid var(--teal);border-radius:12px;width:480px;max-width:100%;max-height:92vh;overflow-y:auto;padding:22px}
+.modal-box h3{font-size:15px;font-weight:700;color:var(--teal);margin-bottom:16px}
+.form-row{margin-bottom:11px}
+.form-lbl{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:4px;display:block}
+.form-inp{width:100%;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:9px 11px;color:var(--text);font-size:13px;outline:none;font-family:Arial,sans-serif}
+.form-inp:focus{border-color:var(--teal)}
+.form-sel{width:100%;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:9px 11px;color:var(--text);font-size:13px;outline:none}
+.form-sel:focus{border-color:var(--teal)}
+.form-actions{display:flex;gap:8px;margin-top:16px}
+.btn-primary{flex:1;background:var(--teal);color:var(--navy);border:none;border-radius:8px;padding:10px;font-weight:700;cursor:pointer;font-size:13px}
+.btn-primary:hover{background:var(--teal2)}
+.btn-cancel{background:var(--card);color:var(--muted);border:1px solid var(--border);border-radius:8px;padding:10px 16px;cursor:pointer;font-size:13px}
+.search-results{background:var(--card);border-radius:8px;margin-top:4px;max-height:150px;overflow-y:auto}
+.sr-item{padding:8px 11px;cursor:pointer;font-size:12px;border-bottom:1px solid var(--border);transition:.1s}
+.sr-item:hover{background:var(--card2);color:var(--teal)}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--teal);color:var(--navy);padding:10px 20px;border-radius:10px;font-weight:700;font-size:13px;z-index:999;opacity:0;transition:.3s;pointer-events:none;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.toast.err{background:var(--red);color:#fff}
+
+.loading{display:flex;align-items:center;justify-content:center;height:200px;color:var(--muted);gap:10px;font-size:14px}
+.spin{width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--teal);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty-state{text-align:center;color:var(--muted);font-size:13px;padding:24px;font-style:italic}
+
+@media(max-width:600px){
+  .nav-tab{padding:6px 8px;font-size:11px}
+  td:nth-child(4),th:nth-child(4){display:none}
+  .cal-day{min-height:55px}
+  .kd-body{padding:12px}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-logo">TBC</div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('overzicht',this)">📋 Overzicht</button>
+    <button class="nav-tab" onclick="showPage('taken',this)">✅ Taken</button>
+    <button class="nav-tab" onclick="showPage('kalender',this)">📅 Kalender</button>
+    <button class="nav-tab" onclick="showPage('agenda',this)">🗒️ Agenda</button>
+  </div>
+</nav>
+
+<!-- OVERZICHT -->
+<div class="page active" id="page-overzicht">
+  <div class="stats-bar">
+    <div class="stat-box" onclick="setF('all',null)"><div class="stat-num" id="st-total">–</div><div class="stat-lbl">Klanten</div></div>
+    <div class="stat-box s-urgent" onclick="setF('urgent',null)"><div class="stat-num" id="st-urgent">–</div><div class="stat-lbl">Urgent</div></div>
+    <div class="stat-box s-warn" onclick="setF('opvolgen',null)"><div class="stat-num" id="st-opvolgen">–</div><div class="stat-lbl">Opvolgen</div></div>
+    <div class="stat-box" onclick="showPage('taken',document.querySelectorAll('.nav-tab')[1])"><div class="stat-num" id="st-taken">–</div><div class="stat-lbl">Open taken</div></div>
+    <div class="stat-box" onclick="showPage('agenda',document.querySelectorAll('.nav-tab')[3])"><div class="stat-num" id="st-afspraken">–</div><div class="stat-lbl">Afspraken</div></div>
+  </div>
+
+  <div class="vandaag-banner" id="vandaag-banner"></div>
+
+  <div class="controls">
+    <div class="sw"><span class="si">🔍</span><input type="text" id="search" placeholder="Zoek klant, plaats, contact..."></div>
+    <select id="sort-sel">
+      <option value="ld">Laatste order ↓</option>
+      <option value="lc">Laatste contact ↓</option>
+      <option value="wd">Waarde ↓</option>
+      <option value="na">Naam A–Z</option>
+      <option value="dagen">Langst stil</option>
+    </select>
+    <select id="br-sel"><option value="">Alle branches</option>
+      <option value="Horeca">Horeca</option>
+      <option value="Restaurants">Restaurants</option>
+      <option value="Winkels">Winkels</option>
+      <option value="Vrije tijd">Vrije tijd</option>
+      <option value="Overig">Overig</option>
+    </select>
+    <button class="fb active" onclick="setF('all',this)">Alle</button>
+    <button class="fb" onclick="setF('urgent',this)">🔴</button>
+    <button class="fb" onclick="setF('opvolgen',this)">🟠</button>
+    <button class="fb" onclick="setF('actief',this)">🟢</button>
+    <button class="fb" onclick="setF('klaar',this)">🔵</button>
+    <span class="cb" id="rc">–</span>
+    <label class="import-btn">📂 CSV<input type="file" accept=".csv" style="display:none" onchange="importCSV(this)"></label>
+  </div>
+
+  <div id="loading-ov" class="loading"><div class="spin"></div> Laden...</div>
+  <div id="table-wrap" style="display:none">
+    <table>
+      <thead><tr>
+        <th onclick="sortBy('naam')">Klant</th>
+        <th onclick="sortBy('lo')">Laatste order</th>
+        <th onclick="sortBy('dagen')">Stil</th>
+        <th onclick="sortBy('waarde')">Omzet</th>
+        <th>Status</th>
+        <th>Taken / Notities</th>
+      </tr></thead>
+      <tbody id="tb"></tbody>
+    </table>
+    <div class="pag" id="pag"></div>
+  </div>
+</div>
+
+<!-- KLANT DETAIL -->
+<div class="page" id="page-detail">
+  <div class="kd-header">
+    <div>
+      <button class="kd-back" onclick="backToOverzicht()">← Terug</button>
+      <div class="kd-naam" id="kd-naam">–</div>
+      <div class="kd-sub" id="kd-sub">–</div>
+    </div>
+    <div class="kd-actions">
+      <button class="btn-teal" onclick="openBelModal()">📞 Gebeld</button>
+      <button class="btn-teal" onclick="openAfspraakModal()">📅 Afspraak</button>
+      <button class="btn-ghost" id="edit-btn" onclick="toggleEdit()">✏️ Bewerken</button>
+    </div>
+  </div>
+  <div class="kd-body">
+    <div class="kd-col">
+      <!-- INFO -->
+      <div class="kd-section">
+        <div class="sec-title">Bedrijfsinfo</div>
+        <div class="ig" id="kd-ig"></div>
+      </div>
+      <!-- STATUS -->
+      <div class="kd-section">
+        <div class="sec-title">Status</div>
+        <div class="so">
+          <button class="sopt" data-s="actief" onclick="setStatus('actief')">🟢 Actief</button>
+          <button class="sopt" data-s="opvolgen" onclick="setStatus('opvolgen')">🟠 Opvolgen</button>
+          <button class="sopt" data-s="urgent" onclick="setStatus('urgent')">🔴 Urgent</button>
+          <button class="sopt" data-s="klaar" onclick="setStatus('klaar')">🔵 Klaar</button>
+        </div>
+      </div>
+      <!-- TAKEN -->
+      <div class="kd-section">
+        <div class="sec-title">Taken <button class="sec-add" onclick="openTaakModal()">+</button></div>
+        <div id="kd-taken"></div>
+      </div>
+      <!-- AFSPRAKEN -->
+      <div class="kd-section">
+        <div class="sec-title">Afspraken <button class="sec-add" onclick="openAfspraakModal()">+</button></div>
+        <div id="kd-afspraken"></div>
+      </div>
+    </div>
+    <div class="kd-col">
+      <!-- CONTACTEN -->
+      <div class="kd-section">
+        <div class="sec-title">Contactpersonen <button class="sec-add" onclick="openContactModal()">+</button></div>
+        <div id="kd-contacten"></div>
+      </div>
+      <!-- BELGESCHIEDENIS -->
+      <div class="kd-section">
+        <div class="sec-title">Belgeschiedenis</div>
+        <div id="kd-bel"></div>
+      </div>
+      <!-- NOTITIES -->
+      <div class="kd-section">
+        <div class="sec-title">Notities <button class="sec-add" onclick="focusNote()">+</button></div>
+        <div id="kd-notities"></div>
+        <div class="add-row">
+          <textarea class="add-inp" id="note-inp" placeholder="Nieuwe notitie..."></textarea>
+          <button class="add-btn" onclick="addNote()">Toevoegen</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TAKEN PAGE -->
+<div class="page" id="page-taken">
+  <div class="taken-page">
+    <div class="taken-filter">
+      <button class="fb active" onclick="setTakenFilter('open',this)">Open</button>
+      <button class="fb" onclick="setTakenFilter('vandaag',this)">📅 Vandaag</button>
+      <button class="fb" onclick="setTakenFilter('urgent',this)">🔴 Urgent</button>
+      <button class="fb" onclick="setTakenFilter('gedaan',this)">✅ Gedaan</button>
+      <button class="fb" onclick="setTakenFilter('all',this)">Alle</button>
+      <button class="btn-teal" style="margin-left:auto" onclick="openTaakModal(null)">+ Nieuwe taak</button>
+    </div>
+    <div id="taken-list"><div class="loading"><div class="spin"></div> Laden...</div></div>
+  </div>
+</div>
+
+<!-- KALENDER -->
+<div class="page" id="page-kalender">
+  <div class="cal-wrap">
+    <div class="cal-header">
+      <div class="cal-nav">
+        <button onclick="calNav(-1)">‹</button>
+        <div class="cal-month" id="cal-lbl">–</div>
+        <button onclick="calNav(1)">›</button>
+      </div>
+      <button class="fb" onclick="calNav(0)">Vandaag</button>
+    </div>
+    <div class="cal-grid" id="cal-grid">
+      <div class="cal-dow">Ma</div><div class="cal-dow">Di</div><div class="cal-dow">Wo</div>
+      <div class="cal-dow">Do</div><div class="cal-dow">Vr</div><div class="cal-dow">Za</div><div class="cal-dow">Zo</div>
+    </div>
+  </div>
+</div>
+
+<!-- AGENDA -->
+<div class="page" id="page-agenda">
+  <div class="agenda-wrap" id="agenda-content"><div class="loading"><div class="spin"></div></div></div>
+</div>
+
+<!-- MODALS -->
+<!-- Contact Modal -->
+<div class="ov" id="ov-contact" onclick="closeOv('ov-contact',event)">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <h3>👤 Contactpersoon toevoegen</h3>
+    <div class="form-row"><label class="form-lbl">Naam</label><input class="form-inp" id="c-naam" placeholder="Voor- en achternaam"></div>
+    <div class="form-row"><label class="form-lbl">Functie</label><input class="form-inp" id="c-functie" placeholder="bijv. Inkoper, Eigenaar"></div>
+    <div class="form-row"><label class="form-lbl">Telefoon</label><input class="form-inp" id="c-tel" type="tel" placeholder="+31 6 ..."></div>
+    <div class="form-row"><label class="form-lbl">E-mail</label><input class="form-inp" id="c-email" type="email" placeholder="naam@bedrijf.nl"></div>
+    <div class="form-actions">
+      <button class="btn-cancel" onclick="closeOv('ov-contact')">Annuleren</button>
+      <button class="btn-primary" onclick="saveContact()">Opslaan</button>
+    </div>
+  </div>
+</div>
+
+<!-- Taak Modal -->
+<div class="ov" id="ov-taak" onclick="closeOv('ov-taak',event)">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <h3>✅ Taak toevoegen</h3>
+    <div class="form-row" id="taak-klant-row">
+      <label class="form-lbl">Klant</label>
+      <input class="form-inp" id="t-klant-search" placeholder="Zoek klant..." oninput="taakKlantSearch(this.value)" autocomplete="off">
+      <div class="search-results" id="t-klant-results"></div>
+    </div>
+    <div class="form-row">
+      <label class="form-lbl">Type</label>
+      <select class="form-sel" id="t-type">
+        <option value="levertijd">📦 Levertijd uitzoeken</option>
+        <option value="klacht">😤 Klacht behandelen</option>
+        <option value="terugbellen">📞 Terugbellen</option>
+        <option value="offerte">📋 Offerte maken</option>
+        <option value="opvolgen">🔄 Opvolgen</option>
+        <option value="overig">✏️ Overig</option>
+      </select>
+    </div>
+    <div class="form-row"><label class="form-lbl">Omschrijving</label><input class="form-inp" id="t-omsch" placeholder="Wat moet er gedaan worden?"></div>
+    <div class="form-row">
+      <label class="form-lbl">Prioriteit</label>
+      <select class="form-sel" id="t-prio">
+        <option value="normaal">Normaal</option>
+        <option value="hoog">Hoog</option>
+        <option value="urgent">🔴 Urgent</option>
+      </select>
+    </div>
+    <div class="form-row"><label class="form-lbl">Deadline</label><input class="form-inp" id="t-dead" type="date"></div>
+    <div class="form-actions">
+      <button class="btn-cancel" onclick="closeOv('ov-taak')">Annuleren</button>
+      <button class="btn-primary" onclick="saveTaak()">Opslaan</button>
+    </div>
+  </div>
+</div>
+
+<!-- Afspraak Modal -->
+<div class="ov" id="ov-afspraak" onclick="closeOv('ov-afspraak',event)">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <h3>📅 Afspraak inplannen</h3>
+    <div class="form-row" id="af-klant-row">
+      <label class="form-lbl">Klant</label>
+      <input class="form-inp" id="af-klant-search" placeholder="Zoek klant..." oninput="afKlantSearch(this.value)" autocomplete="off">
+      <div class="search-results" id="af-klant-results"></div>
+    </div>
+    <div class="form-row"><label class="form-lbl">Datum</label><input class="form-inp" id="af-datum" type="date"></div>
+    <div class="form-row"><label class="form-lbl">Tijd</label><input class="form-inp" id="af-tijd" type="time" value="10:00"></div>
+    <div class="form-row"><label class="form-lbl">Onderwerp</label><input class="form-inp" id="af-onderwerp" placeholder="bijv. voorraad check, kennismaking"></div>
+    <div class="form-actions">
+      <button class="btn-cancel" onclick="closeOv('ov-afspraak')">Annuleren</button>
+      <button class="btn-primary" onclick="saveAfspraak()">Opslaan</button>
+    </div>
+  </div>
+</div>
+
+<!-- Bel Modal -->
+<div class="ov" id="ov-bel" onclick="closeOv('ov-bel',event)">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <h3>📞 Gesprek vastleggen</h3>
+    <div class="form-row"><label class="form-lbl">Notitie (optioneel)</label><textarea class="form-inp" id="bel-note" rows="3" placeholder="Wat is er besproken?"></textarea></div>
+    <div class="form-actions">
+      <button class="btn-cancel" onclick="closeOv('ov-bel')">Annuleren</button>
+      <button class="btn-primary" onclick="saveBel()">Vastleggen</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SB='https://okjfpjrcvbttlkuqjsvu.supabase.co';
+const KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9ramZwanJjdmJ0dGxrdXFqc3Z1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI3MzAyNTQsImV4cCI6MjA5ODMwNjI1NH0.ZDMBBIt9_W6qzrdagDMahKw_xFoI3QVNIHWMoX0hZWM';
+const H={'Content-Type':'application/json','apikey':KEY,'Authorization':'Bearer '+KEY,'Prefer':'return=representation'};
+const TODAY='2026-06-29';
+const TODAYD=new Date(TODAY);
+
+async function sb(path,opts={}){
+  const r=await fetch(SB+'/rest/v1/'+path,{headers:H,...opts});
+  if(!r.ok){const e=await r.text();throw new Error(e)}
+  if(r.status===204)return null;
+  return r.json();
+}
+
+// STATE
+let klanten=[],notities={},afspraken=[],taken=[],contacten={},belgesc={};
+let activeId=null,editMode=false;
+let taakKlantId=null,afKlantId=null;
+let filter='all',sortKey='ld',search='',branche='',page=1;
+const PER=30;
+let calYear,calMonth,takenFilter='open';
+let calAfspraakDatum='';
+
+// BOOT
+async function boot(){
+  const n=new Date(TODAY);calYear=n.getFullYear();calMonth=n.getMonth();
+  try{
+    await Promise.all([loadKlanten(),loadNotities(),loadAfspraken(),loadTaken(),loadContacten(),loadBel()]);
+  }catch(e){
+    await seedKlanten();
+    await Promise.all([loadNotities(),loadAfspraken(),loadTaken(),loadContacten(),loadBel()]);
+  }
+  buildBranche();render();renderTaken();renderCalendar();renderAgenda();updateStats();renderVandaag();
+  document.getElementById('loading-ov').style.display='none';
+  document.getElementById('table-wrap').style.display='block';
+}
+
+async function loadKlanten(){
+  const d=await sb('klanten?select=*&order=laatste_order.desc.nullslast&limit=2000');
+  if(!d||d.length===0)throw new Error('empty');
+  klanten=d.map(k=>({...k,dagen:daysSince(k.laatste_order)}));
+}
+async function loadNotities(){try{const d=await sb('notities?select=*&order=created_at.desc&limit=5000');notities={};(d||[]).forEach(n=>{if(!notities[n.klant_id])notities[n.klant_id]=[];notities[n.klant_id].push(n);});}catch(e){notities={};}}
+async function loadAfspraken(){try{const d=await sb('afspraken?select=*&order=datum.asc,tijd.asc&limit=1000');afspraken=d||[];}catch(e){afspraken=[];}}
+async function loadTaken(){try{const d=await sb('taken?select=*&order=deadline.asc.nullslast,created_at.desc&limit=2000');taken=d||[];}catch(e){taken=[];}}
+async function loadContacten(){try{const d=await sb('contactpersonen?select=*&order=naam.asc&limit=2000');contacten={};(d||[]).forEach(c=>{if(!contacten[c.klant_id])contacten[c.klant_id]=[];contacten[c.klant_id].push(c);});}catch(e){contacten={};}}
+async function loadBel(){try{const d=await sb('belgeschiedenis?select=*&order=created_at.desc&limit=2000');belgesc={};(d||[]).forEach(b=>{if(!belgesc[b.klant_id])belgesc[b.klant_id]=[];belgesc[b.klant_id].push(b);});}catch(e){belgesc={};}}
+
+// SEED
+async function seedKlanten(){
+  const raw=[{"id":"28655050986","naam":"IJgenweisStreekbos","telefoon":"1185020728","plaats":"'s-Hertogenbosch","branche":"Restaurants","waarde":2828,"laatste_activiteit":"2026-06-26","laatste_order":"2026-06-26"},{"id":"9923870928","naam":"The Happiness Café Eindhoven","telefoon":"+31 6 34118130","plaats":"Eindhoven","branche":"Restaurants","waarde":22310,"laatste_activiteit":"2026-06-26","laatste_order":"2026-06-26"},{"id":"433152842958","naam":"Bedrukken.nl","telefoon":"+31315200010","plaats":"Ulft","branche":"Winkels","waarde":602,"laatste_activiteit":"2026-06-24","laatste_order":"2026-06-25"},{"id":"9923851495","naam":"OK retail","telefoon":"+31 85 077 2844","plaats":"Hoogblokland","branche":"Winkels","waarde":214120,"laatste_activiteit":"2026-05-29","laatste_order":"2026-05-29"},{"id":"9921483234","naam":"Wieck Bar & Grill","telefoon":"+31 475 476 899","plaats":"Roermond","branche":"Horeca","waarde":49545,"laatste_activiteit":"2026-05-19","laatste_order":"2026-05-19"},{"id":"9923369193","naam":"International Wellness Resorts","telefoon":"+31 88 006 4800","plaats":"Emst","branche":"Horeca","waarde":53730,"laatste_activiteit":"2026-03-18","laatste_order":"2026-03-18"},{"id":"9923786969","naam":"Thermae 2000 Wellness","telefoon":"+31 43 609 2000","plaats":"Valkenburg LB","branche":"Vrije tijd","waarde":55145,"laatste_activiteit":"2026-05-02","laatste_order":"2025-10-25"},{"id":"9923599293","naam":"Kreeftenbar","telefoon":"+31 40 236 4228","plaats":"Eindhoven","branche":"Horeca","waarde":40637,"laatste_activiteit":"2026-03-25","laatste_order":"2025-09-24"},{"id":"9921482730","naam":"Macono Exploitatie EL FUEGO","telefoon":"+31 43 601 1402","plaats":"Valkenburg LB","branche":"Horeca","waarde":39507,"laatste_activiteit":"2026-04-17","laatste_order":"2025-10-17"},{"id":"12830820538","naam":"Kokkie Kweekweg","telefoon":"+31 55 521 7138","plaats":"Apeldoorn","branche":"Horeca","waarde":46940,"laatste_activiteit":"2026-06-05","laatste_order":"2025-12-05"},{"id":"9923786477","naam":"Frites Boutique","telefoon":"+31 475 729 060","plaats":"Roermond","branche":"Restaurants","waarde":103627,"laatste_activiteit":"2026-06-29","laatste_order":"2025-12-29"},{"id":"9923744486","naam":"Just Promo","telefoon":"+31 6 11407782","plaats":"Doetinchem","branche":"Winkels","waarde":18858,"laatste_activiteit":"2026-05-31","laatste_order":"2026-05-31"},{"id":"9923851478","naam":"Maes 21","telefoon":"+31 77 477 2515","plaats":"Baarlo LB","branche":"Horeca","waarde":19408,"laatste_activiteit":"2026-03-11","laatste_order":"2026-06-09"},{"id":"141875836137","naam":"De Kornuiten","telefoon":"+31 53 300 1738","plaats":"Haaksbergen","branche":"Restaurants","waarde":19218,"laatste_activiteit":"2026-06-09","laatste_order":"2026-06-09"},{"id":"9921482724","naam":"De Staet","telefoon":"+31 6 34384477","plaats":"Bladel","branche":"Restaurants","waarde":10813,"laatste_activiteit":"2026-06-23","laatste_order":"2026-06-19"},{"id":"9923769060","naam":"Herberghe De Coeckepanne","telefoon":"+31 492 331 317","plaats":"Veghel","branche":"Horeca","waarde":18178,"laatste_activiteit":"2026-06-17","laatste_order":"2026-06-17"},{"id":"9923816405","naam":"Graaf van Buren","telefoon":"+31 6 12264245","plaats":"Veghel","branche":"Restaurants","waarde":5539,"laatste_activiteit":"2026-06-25","laatste_order":"2026-06-22"},{"id":"9923619532","naam":"El Sueño Food Drinks & More","telefoon":"+31 164 858 000","plaats":"Hoogerheide","branche":"Restaurants","waarde":2714,"laatste_activiteit":"2026-06-22","laatste_order":"2026-06-22"},{"id":"9923879885","naam":"Mias Restaurant en Lounge","telefoon":"+31 115 561 396","plaats":"Veghel","branche":"Horeca","waarde":14760,"laatste_activiteit":"2026-05-20","laatste_order":"2026-05-20"},{"id":"9923619527","naam":"Bikke","telefoon":"+31 6 28394288","plaats":"Maastricht","branche":"Restaurants","waarde":12343,"laatste_activiteit":"2026-05-26","laatste_order":"2026-05-26"},{"id":"9923816403","naam":"Grand Cafe Samen","telefoon":"+31 570 601 231","plaats":"Deventer","branche":"Horeca","waarde":16790,"laatste_activiteit":"2026-05-15","laatste_order":"2026-05-15"},{"id":"9923619830","naam":"Vijf Ds VOF Heksenboom","telefoon":"+31 485 388 566","plaats":"Sint Anthonis","branche":"Horeca","waarde":16516,"laatste_activiteit":"2026-05-05","laatste_order":"2026-05-05"},{"id":"9923598824","naam":"Bruin Kafee 2.0","telefoon":"+31 6 23527172","plaats":"Tilburg","branche":"Horeca","waarde":21856,"laatste_activiteit":"2026-05-11","laatste_order":"2026-03-20"},{"id":"9923786226","naam":"Burgers Enzo","telefoon":"+31 6 21161025","plaats":"Ede","branche":"Restaurants","waarde":15389,"laatste_activiteit":"2026-05-07","laatste_order":"2026-05-07"},{"id":"9923527154","naam":"Tapas Oss BV","telefoon":"+31 412 744 116","plaats":"Oss","branche":"Horeca","waarde":10396,"laatste_activiteit":"2026-05-18","laatste_order":"2025-11-17"},{"id":"13213944279","naam":"Frans Hinzen Holding BV","telefoon":"+49221250993300","plaats":"Maasbracht","branche":"Horeca","waarde":17819,"laatste_activiteit":"2026-05-15","laatste_order":"2025-11-14"},{"id":"9923369194","naam":"Villa Welgelegen bv","telefoon":"+31 544 842 233","plaats":"Groenlo","branche":"Horeca","waarde":32568,"laatste_activiteit":"2026-03-17","laatste_order":"2026-03-17"},{"id":"429476188396","naam":"Dudok Retail Holding BV","telefoon":"+31 10 436 1563","plaats":"Rotterdam","branche":"Restaurants","waarde":31045,"laatste_activiteit":"2026-05-26","laatste_order":"2025-10-15"},{"id":"9923851487","naam":"Oakwood Grill Restaurant","telefoon":"+31 40 230 0654","plaats":"Veldhoven","branche":"Restaurants","waarde":28550,"laatste_activiteit":"2026-05-15","laatste_order":"2025-08-27"},{"id":"9923786964","naam":"Thbx-Cafe","telefoon":"+31 6 14275717","plaats":"Roermond","branche":"Horeca","waarde":13028,"laatste_activiteit":"2026-02-12","laatste_order":"2025-11-14"},{"id":"9923870442","naam":"Eetcafe t Keershuys","telefoon":"+31 73 612 8087","plaats":"s-Hertogenbosch","branche":"Restaurants","waarde":20114,"laatste_activiteit":"2026-05-26","laatste_order":"2025-11-25"},{"id":"9923526628","naam":"Hotel Parkzicht","telefoon":"+31 598 666 888","plaats":"Veendam","branche":"Horeca","waarde":10807,"laatste_activiteit":"2026-03-11","laatste_order":"2026-03-11"},{"id":"9923769277","naam":"BAS Beers and Steaks","telefoon":"+31 55 576 1384","plaats":"Barneveld","branche":"Restaurants","waarde":13283,"laatste_activiteit":"2026-05-07","laatste_order":"2025-11-06"},{"id":"9923744224","naam":"Buiten Bij De Sluis","telefoon":"+31 6 43027227","plaats":"Utrecht","branche":"Horeca","waarde":11994,"laatste_activiteit":"2026-03-19","laatste_order":"2026-02-20"},{"id":"9923879627","naam":"Eetcafe Zout Camping Vlugtenburg","telefoon":"7507781140","plaats":"Veghel","branche":"Horeca","waarde":18775,"laatste_activiteit":"2026-03-30","laatste_order":"2026-03-30"},{"id":"9923598792","naam":"De Rechter","telefoon":"+31 6 51109063","plaats":"Boxtel","branche":"Restaurants","waarde":7715,"laatste_activiteit":"2026-05-15","laatste_order":"2025-11-28"},{"id":"9923486454","naam":"Mr en Mrs","telefoon":"+31 6 47466742","plaats":"Panningen","branche":"Restaurants","waarde":9532,"laatste_activiteit":"2026-05-05","laatste_order":"2026-05-05"},{"id":"9923769575","naam":"Restaurant De Loreley","telefoon":"+31 578 612 614","plaats":"Epe","branche":"Restaurants","waarde":9789,"laatste_activiteit":"2026-04-03","laatste_order":"2026-04-03"},{"id":"9923816140","naam":"Bistro-Bar De Bosrand","telefoon":"8389562260","plaats":"Sint Geertruid","branche":"Horeca","waarde":9510,"laatste_activiteit":"2026-03-20","laatste_order":"2026-03-20"},{"id":"9923870673","naam":"Slavante","telefoon":"+31 43 321 0015","plaats":"Maastricht","branche":"Horeca","waarde":7997,"laatste_activiteit":"2026-04-21","laatste_order":"2026-03-11"},{"id":"9923619811","naam":"De Wietsjaf","telefoon":"+31 6 43540190","plaats":"Kerkrade","branche":"Restaurants","waarde":4788,"laatste_activiteit":"2026-03-03","laatste_order":"2026-03-03"},{"id":"9923909104","naam":"Koffiehuis Samen Hooiberg","telefoon":"6512262811","plaats":"Schipluiden","branche":"Horeca","waarde":6371,"laatste_activiteit":"2026-06-01","laatste_order":"2026-04-15"},{"id":"9923816410","naam":"Hotel Restaurant De Posthoorn","telefoon":"+31 45 535 1526","plaats":"Veghel","branche":"Horeca","waarde":3638,"laatste_activiteit":"2026-05-28","laatste_order":"2026-05-28"},{"id":"9923526640","naam":"De Borgh","telefoon":"+31 495 491 750","plaats":"Budel","branche":"Horeca","waarde":4382,"laatste_activiteit":"2026-05-13","laatste_order":"2026-05-06"},{"id":"9923368925","naam":"Fretz","telefoon":"+31 43 321 7846","plaats":"Maastricht","branche":"Restaurants","waarde":5537,"laatste_activiteit":"2025-12-26","laatste_order":"2026-05-26"},{"id":"13773125614","naam":"LUKOIL","telefoon":"+7 495 627-44-44","plaats":"Maastricht","branche":"Overig","waarde":7292,"laatste_activiteit":"2026-05-25","laatste_order":"2026-05-25"},{"id":"9923879625","naam":"Baroef","telefoon":"+31 493 745 008","plaats":"Deurne","branche":"Horeca","waarde":1245,"laatste_activiteit":"2026-06-17","laatste_order":"2025-10-17"},{"id":"9923486138","naam":"Faubourg St. Jacques","telefoon":"+31 475 330 092","plaats":"Roermond","branche":"Horeca","waarde":8313,"laatste_activiteit":"2026-06-24","laatste_order":"2025-12-24"},{"id":"9923851214","naam":"Nena","telefoon":"+31 6 20989420","plaats":"Venlo","branche":"Restaurants","waarde":5739,"laatste_activiteit":"2026-06-22","laatste_order":"2025-12-22"},{"id":"340464098518","naam":"Thermen Goirle","telefoon":"+31135341949","plaats":"Goirle","branche":"Vrije tijd","waarde":5103,"laatste_activiteit":"2026-06-19","laatste_order":"2025-12-19"},{"id":"9923486407","naam":"De Buren","telefoon":"+31 6 11265763","plaats":"Terheijden","branche":"Restaurants","waarde":2714,"laatste_activiteit":"2026-03-30","laatste_order":"2026-03-30"},{"id":"9923850727","naam":"Cafe 100 Watt","telefoon":"+31 40 842 8000","plaats":"Eindhoven","branche":"Horeca","waarde":6978,"laatste_activiteit":"2026-05-15","laatste_order":"2026-05-07"},{"id":"9921482486","naam":"Grote Markt Nijmegen Moenen","telefoon":"+31 24 365 6546","plaats":"Nijmegen","branche":"Horeca","waarde":20327,"laatste_activiteit":"2026-03-03","laatste_order":"2026-02-18"},{"id":"9923744701","naam":"Kitchenbypj Sligro","telefoon":"+31 6 57867525","plaats":"Roermond","branche":"Horeca","waarde":5467,"laatste_activiteit":"2026-05-28","laatste_order":"2025-11-27"},{"id":"9923527159","naam":"The Streetfood Club 053","telefoon":"+31 53 200 5565","plaats":"Enschede","branche":"Horeca","waarde":25271,"laatste_activiteit":"2025-12-17","laatste_order":"2025-12-17"},{"id":"9921482701","naam":"Kasteel Daelenbroeck","telefoon":"+31 475 532 465","plaats":"Herkenbosch","branche":"Horeca","waarde":14290,"laatste_activiteit":"2026-03-04","laatste_order":"2025-09-03"},{"id":"9923369200","naam":"WINDRAAK31 BV","telefoon":"+31 46 850 8150","plaats":"Windraak","branche":"Horeca","waarde":1850,"laatste_activiteit":"2026-05-28","laatste_order":"2025-11-27"},{"id":"9923870938","naam":"Secret Bar And Kitchen","telefoon":"+31 6 42040619","plaats":"s-Hertogenbosch","branche":"Horeca","waarde":7120,"laatste_activiteit":"2026-06-03","laatste_order":"2025-12-03"},{"id":"9923619812","naam":"Eethuis De Diepen","telefoon":"+31 485 516 404","plaats":"Milsbeek","branche":"Horeca","waarde":4550,"laatste_activiteit":"2026-05-07","laatste_order":"2025-11-06"},{"id":"11086482116","naam":"Hofsteenge Grolloo","telefoon":"+31592501226","plaats":"Grolloo","branche":"Horeca","waarde":21793,"laatste_activiteit":"2026-06-03","laatste_order":"2025-10-16"},{"id":"9923526366","naam":"Albertos Italian Nijkerk","telefoon":"+31 33 258 5774","plaats":"Nijkerk GLD","branche":"Horeca","waarde":5696,"laatste_activiteit":"2026-05-07","laatste_order":"2025-11-06"},{"id":"9921482724b","naam":"Bella Ciao Harderwijk","telefoon":"+31 6 15047367","plaats":"Harderwijk","branche":"Restaurants","waarde":12222,"laatste_activiteit":"2026-04-24","laatste_order":"2026-05-06"},{"id":"9923598833","naam":"Burggolf Herkenbosch","telefoon":"+31 475 529 529","plaats":"Herkenbosch","branche":"Vrije tijd","waarde":10567,"laatste_activiteit":"2026-03-24","laatste_order":"2026-03-24"},{"id":"12197486823","naam":"Cox en Co","telefoon":"+31 475 329 966","plaats":"Roermond","branche":"Restaurants","waarde":10764,"laatste_activiteit":"2026-06-18","laatste_order":"2026-05-04"},{"id":"9923744242","naam":"Eetcafe En Restaurant De Buren Sittard","telefoon":"+31 46 451 5904","plaats":"Sittard","branche":"Restaurants","waarde":10398,"laatste_activiteit":"2026-02-19","laatste_order":"2026-02-19"},{"id":"9923369162","naam":"Tapas Cantina","telefoon":"+31 46 451 5225","plaats":"Ede","branche":"Restaurants","waarde":22122,"laatste_activiteit":"2026-03-30","laatste_order":"2026-03-30"},{"id":"9923786704","naam":"Pizzeria Ristorante Sole Ditalia","telefoon":"+31 318 611 650","plaats":"Ede","branche":"Restaurants","waarde":11212,"laatste_activiteit":"2026-03-26","laatste_order":"2026-03-26"},{"id":"13240552440","naam":"Restaurant Kanazawa","telefoon":"+31 76 886 5045","plaats":"Etten-Leur","branche":"Restaurants","waarde":13629,"laatste_activiteit":"2026-03-19","laatste_order":"2026-02-27"},{"id":"11017007066","naam":"GJD BV","telefoon":"+31 492 200 020","plaats":"Veghel","branche":"Overig","waarde":17675,"laatste_activiteit":"2026-03-19","laatste_order":"2026-02-27"},{"id":"9923786222","naam":"de Kort Bairro Alto","telefoon":"+31 10 416 3473","plaats":"Nijmegen","branche":"Restaurants","waarde":10996,"laatste_activiteit":"2026-05-19","laatste_order":"2026-05-19"},{"id":"9923909598","naam":"The Racing Store","telefoon":"+31 174 528 038","plaats":"Delft","branche":"Winkels","waarde":10575,"laatste_activiteit":"2026-04-22","laatste_order":"2026-04-22"},{"id":"186720392412","naam":"LaVie Catering","telefoon":"+31485335210","plaats":"Cuijk","branche":"Horeca","waarde":12750,"laatste_activiteit":"2026-02-25","laatste_order":"2026-02-25"},{"id":"9923851213","naam":"Harvey Kitchen Bar BV","telefoon":"+31 6 52304892","plaats":"s-Hertogenbosch","branche":"Horeca","waarde":14720,"laatste_activiteit":"2026-05-04","laatste_order":"2026-06-15"},{"id":"9923786941","naam":"Scholengemeenschap De Rooi Pannen","telefoon":"+31652418431","plaats":"Veghel","branche":"Overig","waarde":4756,"laatste_activiteit":"2026-06-29","laatste_order":"2026-06-15"}];
+  for(let i=0;i<raw.length;i+=50){
+    try{await sb('klanten',{method:'POST',body:JSON.stringify(raw.slice(i,i+50).map(k=>({...k,status:'actief',is_new:false})))});}catch(e){}
+  }
+  await loadKlanten();
+}
+
+// HELPERS
+function daysSince(d){if(!d)return 9999;return Math.floor((TODAYD-new Date(d))/86400000)}
+function fmt(v){return'€ '+Number(v||0).toLocaleString('nl-NL',{minimumFractionDigits:0,maximumFractionDigits:0})}
+function fmtD(d){if(!d)return'–';return new Date(d).toLocaleDateString('nl-NL')}
+function fmtDT(d){if(!d)return'–';return new Date(d).toLocaleString('nl-NL',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}
+function initials(n){return n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()}
+function omzetClass(v){return v>15000?'o-hoog':v>5000?'o-mid':'o-laag'}
+function statusBadge(s){const m={actief:['s-a','Actief'],opvolgen:['s-o','Opvolgen'],urgent:['s-u','Urgent'],klaar:['s-k','Klaar']};const[c,l]=m[s||'actief']||m.actief;return`<span class="sb ${c}">${l}</span>`}
+function daysChip(d){if(d>=9999)return'–';const c=d>=180?'d-d':d>=90?'d-w':'d-ok';return`<span class="dc ${c}">${d}d</span>`}
+function taakIcon(t){return{levertijd:'📦',klacht:'😤',terugbellen:'📞',offerte:'📋',opvolgen:'🔄',overig:'✏️'}[t]||'✏️'}
+
+function buildBranche(){} // uses fixed options
+
+// VANDAAG BANNER
+function renderVandaag(){
+  const banner=document.getElementById('vandaag-banner');
+  const afVandaag=afspraken.filter(a=>a.datum===TODAY);
+  const takenVandaag=taken.filter(t=>t.status==='open'&&t.deadline===TODAY);
+  const urgent=taken.filter(t=>t.status==='open'&&t.prioriteit==='urgent');
+  if(!afVandaag.length&&!takenVandaag.length&&!urgent.length){banner.style.display='none';return;}
+  banner.style.display='block';
+  let h='<div class="vb-title">📅 Vandaag</div><div class="vb-items">';
+  afVandaag.forEach(a=>h+=`<div class="vb-chip vb-afspraak" onclick="openDetail('${a.klant_id}')">📅 ${a.klant_naam}${a.tijd?' '+a.tijd:''}</div>`);
+  takenVandaag.forEach(t=>h+=`<div class="vb-chip vb-taak" onclick="openDetail('${t.klant_id}')">📌 ${t.klant_naam}: ${t.omschrijving}</div>`);
+  urgent.slice(0,3).forEach(t=>h+=`<div class="vb-chip vb-taak" onclick="openDetail('${t.klant_id}')">🔴 ${t.klant_naam}: ${t.omschrijving}</div>`);
+  if(!afVandaag.length&&!takenVandaag.length&&!urgent.length)h+='<span class="vb-empty">Geen acties vandaag. Goede dag!</span>';
+  h+='</div>';
+  banner.innerHTML=h;
+}
+
+// STATS
+function updateStats(){
+  document.getElementById('st-total').textContent=klanten.length;
+  document.getElementById('st-urgent').textContent=klanten.filter(k=>k.status==='urgent').length;
+  document.getElementById('st-opvolgen').textContent=klanten.filter(k=>k.status==='opvolgen').length;
+  document.getElementById('st-taken').textContent=taken.filter(t=>t.status==='open').length;
+  document.getElementById('st-afspraken').textContent=afspraken.filter(a=>a.datum>=TODAY).length;
+}
+
+// FILTER / SORT
+function filtered(){
+  return klanten.filter(k=>{
+    if(filter!=='all'&&(k.status||'actief')!==filter)return false;
+    if(branche){
+      const br=k.branche||'';
+      if(branche==='Horeca'&&!br.toLowerCase().includes('horec')&&!br.toLowerCase().includes('hospit'))return false;
+      else if(branche!=='Horeca'&&br!==branche)return false;
+    }
+    if(search){
+      const q=search.toLowerCase();
+      const inKlant=k.naam.toLowerCase().includes(q)||(k.plaats||'').toLowerCase().includes(q);
+      const inContact=(contacten[k.id]||[]).some(c=>c.naam.toLowerCase().includes(q));
+      if(!inKlant&&!inContact)return false;
+    }
+    return true;
+  });
+}
+function sorted(arr){
+  return[...arr].sort((a,b)=>{
+    if(sortKey==='ld')return(b.laatste_order||'').localeCompare(a.laatste_order||'');
+    if(sortKey==='lc')return(b.laatste_contact||b.laatste_order||'').localeCompare(a.laatste_contact||a.laatste_order||'');
+    if(sortKey==='wd')return(b.waarde||0)-(a.waarde||0);
+    if(sortKey==='na')return a.naam.localeCompare(b.naam);
+    if(sortKey==='dagen')return(b.dagen||0)-(a.dagen||0);
+    return 0;
+  });
+}
+function setF(f,btn){
+  filter=f;
+  document.querySelectorAll('.fb').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  page=1;render();
+}
+function sortBy(c){const m={naam:'na',lo:'ld',dagen:'dagen',waarde:'wd'};sortKey=m[c]||sortKey;render();}
+
+// RENDER TABLE
+function render(){
+  const f=sorted(filtered());
+  document.getElementById('rc').textContent=f.length;
+  const pages=Math.max(1,Math.ceil(f.length/PER));
+  if(page>pages)page=1;
+  const slice=f.slice((page-1)*PER,page*PER);
+  const avg=klanten.reduce((s,k)=>s+(k.waarde||0),0)/Math.max(klanten.length,1);
+
+  document.getElementById('tb').innerHTML=slice.map(k=>{
+    const nts=notities[k.id]||[];
+    const tk=taken.filter(t=>t.klant_id===k.id&&t.status==='open');
+    const oc=omzetClass(k.waarde);
+    const d=k.dagen||daysSince(k.laatste_order);
+    return`<tr onclick="openDetail('${k.id}')" class="${k.is_new?'is-new':''}">
+      <td><div class="kn"><span class="omzet-dot ${oc}"></span>${k.naam}${k.is_new?'<span class="new-b">NIEUW</span>':''}</div><div class="kp">${k.plaats||'–'}${k.branche?' · '+k.branche:''}</div></td>
+      <td>${fmtD(k.laatste_order)}</td>
+      <td>${daysChip(d)}</td>
+      <td style="font-weight:700">${fmt(k.waarde)}</td>
+      <td>${statusBadge(k.status)}</td>
+      <td><span style="color:${tk.length?'var(--orange)':'var(--muted)'};font-size:11px;font-weight:700">${tk.length?'📌 '+tk.length+' tak':''}</span>${nts.length?`<span style="color:var(--muted);font-size:11px;margin-left:4px">📝 ${nts.length}</span>`:''}</td>
+    </tr>`;
+  }).join('');
+
+  const pag=document.getElementById('pag');
+  if(pages<=1){pag.innerHTML='';return;}
+  let h=`<button class="pb" onclick="goPage(${page-1})" ${page===1?'disabled':''}>‹</button>`;
+  for(let i=1;i<=pages;i++){
+    if(pages>8&&i>3&&i<pages-2&&Math.abs(i-page)>1){if(i===4||i===pages-2)h+='<span class="pi">…</span>';continue;}
+    h+=`<button class="pb ${i===page?'active':''}" onclick="goPage(${i})">${i}</button>`;
+  }
+  h+=`<button class="pb" onclick="goPage(${page+1})" ${page===pages?'disabled':''}>›</button>`;
+  h+=`<span class="pi">${(page-1)*PER+1}–${Math.min(page*PER,f.length)} van ${f.length}</span>`;
+  pag.innerHTML=h;
+}
+function goPage(p){page=p;render();document.getElementById('page-overzicht').scrollTo(0,0)}
+
+// KLANT DETAIL
+function openDetail(id){
+  activeId=id;editMode=false;
+  const k=klanten.find(x=>x.id===id);
+  if(k.is_new){k.is_new=false;sb(`klanten?id=eq.${id}`,{method:'PATCH',body:JSON.stringify({is_new:false})});}
+  document.getElementById('kd-naam').textContent=k.naam;
+  document.getElementById('kd-sub').textContent=(k.plaats||'')+(k.branche?' · '+k.branche:'');
+  document.getElementById('edit-btn').textContent='✏️ Bewerken';
+  renderInfoGrid(k);
+  renderStatusOpts(k.status||'actief');
+  renderKdTaken(id);
+  renderKdAfspraken(id);
+  renderKdContacten(id);
+  renderKdBel(id);
+  renderKdNotities(id);
+  document.getElementById('note-inp').value='';
+  showPage('detail',null);
+}
+function backToOverzicht(){showPage('overzicht',document.querySelector('.nav-tab.active')||document.querySelectorAll('.nav-tab')[0])}
+
+function renderInfoGrid(k){
+  const fields=[
+    {l:'Laatste order',v:fmtD(k.laatste_order),key:'laatste_order',type:'date'},
+    {l:'Laatste contact',v:fmtD(k.laatste_contact),key:'laatste_contact',type:'date'},
+    {l:'Totale omzet',v:fmt(k.waarde),key:'waarde',type:'text',readonly:true},
+    {l:'Telefoon',v:k.telefoon,key:'telefoon',type:'tel',link:k.telefoon?`tel:${k.telefoon}`:null},
+    {l:'Branche',v:k.branche,key:'branche',type:'text'},
+    {l:'Productcategorie',v:k.productcategorie,key:'productcategorie',type:'text'},
+    {l:'Plaats',v:k.plaats,key:'plaats',type:'text'},
+    {l:'Laatste activiteit',v:fmtD(k.laatste_activiteit),key:'laatste_activiteit',type:'date'},
+  ];
+  document.getElementById('kd-ig').innerHTML=fields.map(f=>`
+    <div class="ii" id="ii-${f.key}">
+      <div class="il">${f.l}</div>
+      <div class="iv">${editMode&&!f.readonly?
+        `<input class="iv-edit" data-key="${f.key}" type="${f.type||'text'}" value="${k[f.key]||''}" onblur="saveField('${f.key}',this.value)">`
+        :(f.link?`<a href="${f.link}">${f.v||'–'}</a>`:(f.v||'–'))
+      }</div>
+    </div>`).join('');
+}
+function toggleEdit(){
+  editMode=!editMode;
+  document.getElementById('edit-btn').textContent=editMode?'✔ Klaar':'✏️ Bewerken';
+  const k=klanten.find(x=>x.id===activeId);
+  renderInfoGrid(k);
+  if(editMode)toast('Bewerkmodus actief. Klik op een veld om te wijzigen.');
+}
+async function saveField(key,val){
+  const k=klanten.find(x=>x.id===activeId);
+  k[key]=val||null;
+  try{await sb(`klanten?id=eq.${activeId}`,{method:'PATCH',body:JSON.stringify({[key]:val||null})});}
+  catch(e){toast('Opslaan mislukt','err');}
+}
+
+function renderStatusOpts(sel){
+  const m={actief:'sa',opvolgen:'so2',urgent:'su',klaar:'sk'};
+  document.querySelectorAll('.sopt').forEach(b=>{b.className='sopt';if(b.dataset.s===sel)b.classList.add(m[sel]);});
+}
+async function setStatus(s){
+  if(!activeId)return;
+  const k=klanten.find(x=>x.id===activeId);k.status=s;
+  try{await sb(`klanten?id=eq.${activeId}`,{method:'PATCH',body:JSON.stringify({status:s})});}
+  catch(e){toast('Fout','err');return;}
+  renderStatusOpts(s);updateStats();render();toast('Status opgeslagen');
+}
+
+// TAKEN in detail
+function renderKdTaken(id){
+  const tk=taken.filter(t=>t.klant_id===id&&t.status==='open');
+  const el=document.getElementById('kd-taken');
+  if(!tk.length){el.innerHTML='<div class="empty-state">Geen open taken</div>';return;}
+  el.innerHTML=tk.map(t=>{
+    const overdue=t.deadline&&t.deadline<TODAY;
+    return`<div class="taak-item p-${t.prioriteit||'normaal'}">
+      <div class="taak-check ${t.status==='gedaan'?'checked':''}" onclick="toggleTaak(${t.id})">${t.status==='gedaan'?'✓':''}</div>
+      <div class="taak-body">
+        <div class="taak-type">${taakIcon(t.type)} ${t.type}</div>
+        <div class="taak-desc">${t.omschrijving||'–'}</div>
+        ${t.deadline?`<div class="taak-dead ${overdue?'overdue':''}">${overdue?'⚠️ ':''} deadline ${fmtD(t.deadline)}</div>`:''}
+      </div>
+      <button class="del-btn" onclick="deleteTaak(${t.id})">✕</button>
+    </div>`;
+  }).join('');
+}
+async function toggleTaak(id){
+  const t=taken.find(x=>x.id===id);if(!t)return;
+  t.status=t.status==='gedaan'?'open':'gedaan';
+  try{await sb(`taken?id=eq.${id}`,{method:'PATCH',body:JSON.stringify({status:t.status})});}catch(e){}
+  renderKdTaken(activeId);renderTaken();updateStats();renderVandaag();
+}
+async function deleteTaak(id){
+  taken=taken.filter(t=>t.id!==id);
+  try{await sb(`taken?id=eq.${id}`,{method:'DELETE'});}catch(e){}
+  renderKdTaken(activeId);renderTaken();updateStats();renderVandaag();
+}
+
+// AFSPRAKEN in detail
+function renderKdAfspraken(id){
+  const afs=afspraken.filter(a=>a.klant_id===id).sort((a,b)=>b.datum.localeCompare(a.datum));
+  const el=document.getElementById('kd-afspraken');
+  if(!afs.length){el.innerHTML='<div class="empty-state">Geen afspraken</div>';return;}
+  el.innerHTML=afs.slice(0,5).map(a=>{
+    const d=new Date(a.datum);
+    return`<div class="af-item">
+      <div style="text-align:center;min-width:40px"><div class="af-date">${d.getDate()}</div><div class="af-month">${d.toLocaleDateString('nl-NL',{month:'short'})}</div></div>
+      <div class="af-info"><div class="af-klant">${a.onderwerp||'Afspraak'}</div><div class="af-note">${a.tijd||''}</div></div>
+      <button class="del-btn" onclick="deleteAfspraak(${a.id})">✕</button>
+    </div>`;
+  }).join('');
+}
+
+// CONTACTEN
+function renderKdContacten(id){
+  const cs=contacten[id]||[];
+  const el=document.getElementById('kd-contacten');
+  if(!cs.length){el.innerHTML='<div class="empty-state">Nog geen contactpersonen</div>';return;}
+  el.innerHTML=cs.map(c=>`<div class="contact-card">
+    <div class="cc-avatar">${initials(c.naam)}</div>
+    <div class="cc-info">
+      <div class="cc-naam">${c.naam}</div>
+      <div class="cc-sub">${c.functie||''}${c.functie&&(c.telefoon||c.email)?' · ':''}${c.telefoon?`<a href="tel:${c.telefoon}" style="color:var(--teal)">${c.telefoon}</a>`:''}</div>
+    </div>
+    <div class="cc-actions">
+      ${c.telefoon?`<a href="tel:${c.telefoon}" class="icon-btn" title="Bellen">📞</a>`:''}
+      ${c.email?`<a href="mailto:${c.email}" class="icon-btn" title="E-mail">✉️</a>`:''}
+      <button class="icon-btn del" onclick="deleteContact(${c.id})">🗑️</button>
+    </div>
+  </div>`).join('');
+}
+function openContactModal(){document.getElementById('c-naam').value='';document.getElementById('c-functie').value='';document.getElementById('c-tel').value='';document.getElementById('c-email').value='';document.getElementById('ov-contact').classList.add('open');}
+async function saveContact(){
+  const naam=document.getElementById('c-naam').value.trim();
+  if(!naam){toast('Naam is verplicht','err');return;}
+  const obj={klant_id:activeId,naam,functie:document.getElementById('c-functie').value,telefoon:document.getElementById('c-tel').value,email:document.getElementById('c-email').value};
+  try{
+    const res=await sb('contactpersonen',{method:'POST',body:JSON.stringify(obj)});
+    if(!contacten[activeId])contacten[activeId]=[];
+    contacten[activeId].push(res[0]||{...obj,id:Date.now()});
+    closeOv('ov-contact');renderKdContacten(activeId);toast('Contactpersoon toegevoegd');
+  }catch(e){toast('Fout bij opslaan','err');}
+}
+async function deleteContact(id){
+  if(!confirm('Contactpersoon verwijderen?'))return;
+  try{await sb(`contactpersonen?id=eq.${id}`,{method:'DELETE'});}catch(e){}
+  Object.keys(contacten).forEach(kid=>{contacten[kid]=contacten[kid].filter(c=>c.id!==id);});
+  renderKdContacten(activeId);toast('Verwijderd');
+}
+
+// BEL
+function renderKdBel(id){
+  const bs=belgesc[id]||[];
+  const el=document.getElementById('kd-bel');
+  if(!bs.length){el.innerHTML='<div class="empty-state">Nog geen belgeschiedenis</div>';return;}
+  el.innerHTML=bs.slice(0,5).map(b=>`<div class="bel-item">
+    <div class="bel-icon">📞</div>
+    <div class="bel-info"><div class="bel-date">${fmtDT(b.created_at)}</div>${b.notitie?`<div class="bel-note">${b.notitie}</div>`:''}</div>
+  </div>`).join('');
+}
+function openBelModal(){document.getElementById('bel-note').value='';document.getElementById('ov-bel').classList.add('open');}
+async function saveBel(){
+  const note=document.getElementById('bel-note').value.trim();
+  const k=klanten.find(x=>x.id===activeId);
+  try{
+    const res=await sb('belgeschiedenis',{method:'POST',body:JSON.stringify({klant_id:activeId,notitie:note})});
+    if(!belgesc[activeId])belgesc[activeId]=[];
+    belgesc[activeId].unshift(res[0]||{id:Date.now(),klant_id:activeId,notitie:note,created_at:new Date().toISOString()});
+    // Update laatste_contact
+    const d=TODAY;k.laatste_contact=d;
+    await sb(`klanten?id=eq.${activeId}`,{method:'PATCH',body:JSON.stringify({laatste_contact:d})});
+    closeOv('ov-bel');renderKdBel(activeId);renderInfoGrid(k);toast('Gesprek vastgelegd');
+  }catch(e){toast('Fout bij opslaan','err');}
+}
+
+// NOTITIES
+function renderKdNotities(id){
+  const nts=notities[id]||[];
+  const el=document.getElementById('kd-notities');
+  if(!nts.length){el.innerHTML='<div class="empty-state">Nog geen notities</div>';return;}
+  el.innerHTML=nts.map(n=>`<div class="note-item">
+    <div class="note-meta"><span>${fmtDT(n.created_at)}</span><button class="del-btn" onclick="deleteNote(${n.id})">✕</button></div>
+    <div class="note-text">${n.tekst}</div>
+  </div>`).join('');
+}
+function focusNote(){document.getElementById('note-inp').focus();}
+async function addNote(){
+  if(!activeId)return;
+  const txt=document.getElementById('note-inp').value.trim();if(!txt)return;
+  try{
+    const res=await sb('notities',{method:'POST',body:JSON.stringify({klant_id:activeId,tekst:txt})});
+    if(!notities[activeId])notities[activeId]=[];
+    notities[activeId].unshift(res[0]||{id:Date.now(),klant_id:activeId,tekst:txt,created_at:new Date().toISOString()});
+    document.getElementById('note-inp').value='';renderKdNotities(activeId);render();toast('Notitie opgeslagen');
+  }catch(e){toast('Fout','err');}
+}
+async function deleteNote(nid){
+  try{await sb(`notities?id=eq.${nid}`,{method:'DELETE'});}catch(e){}
+  Object.keys(notities).forEach(kid=>{notities[kid]=notities[kid].filter(n=>n.id!==nid);});
+  renderKdNotities(activeId);render();
+}
+
+// TAKEN PAGE
+function setTakenFilter(f,btn){takenFilter=f;document.querySelectorAll('.taken-filter .fb').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderTaken();}
+function renderTaken(){
+  const el=document.getElementById('taken-list');
+  let tk=[...taken];
+  if(takenFilter==='open')tk=tk.filter(t=>t.status==='open');
+  else if(takenFilter==='vandaag')tk=tk.filter(t=>t.status==='open'&&t.deadline===TODAY);
+  else if(takenFilter==='urgent')tk=tk.filter(t=>t.status==='open'&&t.prioriteit==='urgent');
+  else if(takenFilter==='gedaan')tk=tk.filter(t=>t.status==='gedaan');
+  tk.sort((a,b)=>{const po={urgent:0,hoog:1,normaal:2};return(po[a.prioriteit]||2)-(po[b.prioriteit]||2)||(a.deadline||'z').localeCompare(b.deadline||'z');});
+  if(!tk.length){el.innerHTML='<div class="empty-state">Geen taken in deze categorie</div>';return;}
+  el.innerHTML=tk.map(t=>{
+    const overdue=t.deadline&&t.deadline<TODAY&&t.status==='open';
+    return`<div class="taak-row p-${t.prioriteit||'normaal'}" onclick="openDetail('${t.klant_id}')">
+      <div class="taak-check ${t.status==='gedaan'?'checked':''}" onclick="event.stopPropagation();toggleTaak(${t.id})">${t.status==='gedaan'?'✓':''}</div>
+      <div style="flex:1">
+        <div class="taak-klant">${t.klant_naam||'–'}</div>
+        <div class="taak-omsch">${taakIcon(t.type)} ${t.omschrijving||'–'}</div>
+        <div class="taak-meta">${t.prioriteit||'normaal'}${t.deadline?` · ${overdue?'⚠️ ':''} ${fmtD(t.deadline)}`:''}${t.status==='gedaan'?' · ✅ Gedaan':''}</div>
+      </div>
+      <button class="del-btn" onclick="event.stopPropagation();deleteTaak(${t.id})">✕</button>
+    </div>`;
+  }).join('');
+}
+
+// TAAK MODAL
+function openTaakModal(klantId){
+  taakKlantId=klantId||activeId||null;
+  const k=klantId?klanten.find(x=>x.id===klantId):activeId?klanten.find(x=>x.id===activeId):null;
+  document.getElementById('t-klant-search').value=k?k.naam:'';
+  document.getElementById('taak-klant-row').style.display=(!klantId&&!activeId)?'block':'none';
+  document.getElementById('t-omsch').value='';
+  document.getElementById('t-dead').value='';
+  document.getElementById('t-prio').value='normaal';
+  document.getElementById('t-type').value='overig';
+  document.getElementById('ov-taak').classList.add('open');
+}
+function taakKlantSearch(q){
+  const res=document.getElementById('t-klant-results');
+  if(q.length<2){res.innerHTML='';return;}
+  const m=klanten.filter(k=>k.naam.toLowerCase().includes(q.toLowerCase())).slice(0,6);
+  res.innerHTML=m.map(k=>`<div class="sr-item" onclick="selectTaakKlant('${k.id}','${k.naam.replace(/'/g,"\\'")}')"> ${k.naam} <span style="color:var(--muted);font-size:11px">${k.plaats}</span></div>`).join('');
+}
+function selectTaakKlant(id,naam){taakKlantId=id;document.getElementById('t-klant-search').value=naam;document.getElementById('t-klant-results').innerHTML='';}
+async function saveTaak(){
+  const kid=taakKlantId;if(!kid){toast('Kies een klant','err');return;}
+  const omsch=document.getElementById('t-omsch').value.trim();if(!omsch){toast('Omschrijving is verplicht','err');return;}
+  const k=klanten.find(x=>x.id===kid);
+  const obj={klant_id:kid,klant_naam:k?.naam||'',type:document.getElementById('t-type').value,omschrijving:omsch,prioriteit:document.getElementById('t-prio').value,deadline:document.getElementById('t-dead').value||null,status:'open'};
+  try{
+    const res=await sb('taken',{method:'POST',body:JSON.stringify(obj)});
+    taken.unshift(res[0]||{...obj,id:Date.now()});
+    closeOv('ov-taak');
+    if(activeId===kid)renderKdTaken(kid);
+    renderTaken();updateStats();renderVandaag();toast('Taak aangemaakt');
+  }catch(e){toast('Fout bij opslaan','err');}
+}
+
+// AFSPRAAK MODAL
+function openAfspraakModal(datum){
+  afKlantId=activeId||null;
+  const k=activeId?klanten.find(x=>x.id===activeId):null;
+  document.getElementById('af-klant-search').value=k?k.naam:'';
+  document.getElementById('af-klant-row').style.display=!activeId?'block':'none';
+  document.getElementById('af-datum').value=datum||'';
+  document.getElementById('af-tijd').value='10:00';
+  document.getElementById('af-onderwerp').value='';
+  document.getElementById('ov-afspraak').classList.add('open');
+}
+function afKlantSearch(q){
+  const res=document.getElementById('af-klant-results');
+  if(q.length<2){res.innerHTML='';return;}
+  const m=klanten.filter(k=>k.naam.toLowerCase().includes(q.toLowerCase())).slice(0,6);
+  res.innerHTML=m.map(k=>`<div class="sr-item" onclick="selectAfKlant('${k.id}','${k.naam.replace(/'/g,"\\'")}')"> ${k.naam} <span style="color:var(--muted);font-size:11px">${k.plaats}</span></div>`).join('');
+}
+function selectAfKlant(id,naam){afKlantId=id;document.getElementById('af-klant-search').value=naam;document.getElementById('af-klant-results').innerHTML='';}
+async function saveAfspraak(){
+  const kid=afKlantId;if(!kid){toast('Kies een klant','err');return;}
+  const datum=document.getElementById('af-datum').value;if(!datum){toast('Kies een datum','err');return;}
+  const k=klanten.find(x=>x.id===kid);
+  const obj={klant_id:kid,klant_naam:k?.naam||'',datum,tijd:document.getElementById('af-tijd').value,onderwerp:document.getElementById('af-onderwerp').value};
+  try{
+    const res=await sb('afspraken',{method:'POST',body:JSON.stringify(obj)});
+    afspraken.push(res[0]||{...obj,id:Date.now()});
+    afspraken.sort((a,b)=>a.datum.localeCompare(b.datum));
+    closeOv('ov-afspraak');
+    if(activeId===kid)renderKdAfspraken(kid);
+    updateStats();renderCalendar();renderAgenda();renderVandaag();toast('Afspraak ingepland!');
+  }catch(e){toast('Fout bij opslaan','err');}
+}
+async function deleteAfspraak(id){
+  try{await sb(`afspraken?id=eq.${id}`,{method:'DELETE'});}catch(e){}
+  afspraken=afspraken.filter(a=>a.id!==id);
+  if(activeId)renderKdAfspraken(activeId);
+  updateStats();renderCalendar();renderAgenda();renderVandaag();toast('Afspraak verwijderd');
+}
+
+// CALENDAR
+function calNav(dir){
+  if(dir===0){const n=new Date(TODAY);calYear=n.getFullYear();calMonth=n.getMonth();}
+  else{calMonth+=dir;if(calMonth>11){calMonth=0;calYear++;}else if(calMonth<0){calMonth=11;calYear--;}}
+  renderCalendar();
+}
+function renderCalendar(){
+  const months=['Januari','Februari','Maart','April','Mei','Juni','Juli','Augustus','September','Oktober','November','December'];
+  document.getElementById('cal-lbl').textContent=months[calMonth]+' '+calYear;
+  const grid=document.getElementById('cal-grid');
+  while(grid.children.length>7)grid.removeChild(grid.lastChild);
+  const first=new Date(calYear,calMonth,1);
+  let dow=first.getDay();dow=dow===0?6:dow-1;
+  const dim=new Date(calYear,calMonth+1,0).getDate();
+  const dip=new Date(calYear,calMonth,0).getDate();
+  for(let i=dow-1;i>=0;i--){const d=document.createElement('div');d.className='cal-day other-month';d.innerHTML=`<div class="cal-day-num">${dip-i}</div>`;grid.appendChild(d);}
+  for(let d=1;d<=dim;d++){
+    const ds=`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isT=ds===TODAY;
+    const afs=afspraken.filter(a=>a.datum===ds);
+    const tks=taken.filter(t=>t.status==='open'&&t.deadline===ds);
+    const div=document.createElement('div');
+    div.className='cal-day'+(isT?' today':'');
+    let inner=`<div class="cal-day-num">${d}</div><button class="cal-add" onclick="event.stopPropagation();openAfspraakModal('${ds}')">+</button>`;
+    afs.forEach(a=>inner+=`<div class="cal-ev af" onclick="event.stopPropagation();openDetail('${a.klant_id}')">${a.klant_naam}</div>`);
+    tks.forEach(t=>inner+=`<div class="cal-ev ${t.prioriteit==='urgent'?'tk-u':'tk'}" onclick="event.stopPropagation();openDetail('${t.klant_id}')">${taakIcon(t.type)} ${t.klant_naam}</div>`);
+    div.innerHTML=inner;
+    div.onclick=()=>openAfspraakModal(ds);
+    grid.appendChild(div);
+  }
+  const total=dow+dim;const rem=total%7===0?0:7-(total%7);
+  for(let i=1;i<=rem;i++){const d=document.createElement('div');d.className='cal-day other-month';d.innerHTML=`<div class="cal-day-num">${i}</div>`;grid.appendChild(d);}
+}
+
+// AGENDA
+function renderAgenda(){
+  const wrap=document.getElementById('agenda-content');
+  const upcoming=afspraken.filter(a=>a.datum>=TODAY).sort((a,b)=>a.datum.localeCompare(b.datum)||(a.tijd||'').localeCompare(b.tijd||''));
+  const past=afspraken.filter(a=>a.datum<TODAY).sort((a,b)=>b.datum.localeCompare(a.datum)).slice(0,20);
+  const openTaken=taken.filter(t=>t.status==='open'&&t.deadline).sort((a,b)=>a.deadline.localeCompare(b.deadline));
+  if(!upcoming.length&&!past.length&&!openTaken.length){wrap.innerHTML='<div class="empty-state" style="padding:40px">Nog geen afspraken of taken met deadline. Plan ze in!</div>';return;}
+  function grp(items,dateKey){
+    const g={};items.forEach(i=>{const d=i[dateKey];if(!g[d])g[d]=[];g[d].push(i);});return g;}
+  let h='';
+  if(upcoming.length){
+    h+='<div class="ag-section"><div class="ag-date-header">📅 Aankomende afspraken</div>';
+    const g=grp(upcoming,'datum');
+    Object.entries(g).forEach(([date,afs])=>{
+      h+=`<div style="font-size:11px;color:var(--muted);margin:10px 0 4px;font-weight:700">${new Date(date).toLocaleDateString('nl-NL',{weekday:'long',day:'numeric',month:'long'})}</div>`;
+      afs.forEach(a=>{const k=klanten.find(x=>x.id===a.klant_id);const s=k?.status||'actief';
+        h+=`<div class="ag-item" onclick="openDetail('${a.klant_id}')"><div class="ag-dot ${s==='urgent'?'d-u':s==='opvolgen'?'d-o':''}"></div><div class="ag-info"><div class="ag-klant">${a.klant_naam}</div>${a.onderwerp?`<div class="ag-note">${a.onderwerp}</div>`:''}</div><div class="ag-time">${a.tijd||''}</div><button class="ag-del" onclick="event.stopPropagation();deleteAfspraak(${a.id})">✕</button></div>`;
+      });
+    });
+    h+='</div>';
+  }
+  if(openTaken.length){
+    h+='<div class="ag-section"><div class="ag-date-header">📌 Taken met deadline</div>';
+    openTaken.slice(0,15).forEach(t=>{
+      h+=`<div class="ag-item" onclick="openDetail('${t.klant_id}')"><div class="ag-dot d-t"></div><div class="ag-info"><div class="ag-klant">${t.klant_naam}</div><div class="ag-note">${taakIcon(t.type)} ${t.omschrijving}</div></div><div class="ag-time">${fmtD(t.deadline)}</div><button class="ag-del" onclick="event.stopPropagation();deleteTaak(${t.id})">✕</button></div>`;
+    });
+    h+='</div>';
+  }
+  if(past.length){
+    h+='<div class="ag-section"><div class="ag-date-header" style="color:var(--muted)">Verleden</div>';
+    const g=grp(past,'datum');
+    Object.entries(g).forEach(([date,afs])=>{
+      h+=`<div style="font-size:11px;color:var(--muted);margin:10px 0 4px">${new Date(date).toLocaleDateString('nl-NL',{weekday:'long',day:'numeric',month:'long'})}</div>`;
+      afs.forEach(a=>h+=`<div class="ag-item" style="opacity:.6" onclick="openDetail('${a.klant_id}')"><div class="ag-dot"></div><div class="ag-info"><div class="ag-klant">${a.klant_naam}</div>${a.onderwerp?`<div class="ag-note">${a.onderwerp}</div>`:''}</div><div class="ag-time">${a.tijd||''}</div><button class="ag-del" onclick="event.stopPropagation();deleteAfspraak(${a.id})">✕</button></div>`);
+    });
+    h+='</div>';
+  }
+  wrap.innerHTML=h;
+}
+
+// CSV IMPORT
+function importCSV(input){
+  const file=input.files[0];if(!file)return;
+  Papa.parse(file,{header:true,skipEmptyLines:true,complete:async(r)=>{
+    const existing=new Set(klanten.map(k=>k.id));
+    let n=0;const ins=[];
+    r.data.forEach(row=>{
+      const id=row['Record-ID']||row['id'];if(!id||existing.has(id))return;
+      const val=parseFloat((row['Total Won Deal Value']||row['waarde']||'0').replace(',','.'))||0;
+      ins.push({id,naam:row['Naam onderneming']||row['naam']||'',telefoon:(row['Telefoonnummer']||row['telefoon']||'').trim(),
+        plaats:row['Plaats']||row['plaats']||'',branche:row['Branche']||row['branche']||'',
+        waarde:val,laatste_activiteit:row['Datum laatste activiteit']?.slice(0,10)||null,
+        laatste_order:row['Last Order Date']||row['laatste_order']||null,status:'actief',is_new:true});n++;
+    });
+    if(!n){toast('Geen nieuwe klanten');input.value='';return;}
+    for(let i=0;i<ins.length;i+=50)try{await sb('klanten',{method:'POST',body:JSON.stringify(ins.slice(i,i+50))});}catch(e){}
+    await loadKlanten();render();updateStats();toast(`${n} nieuwe klanten toegevoegd!`);input.value='';
+  }});
+}
+
+// MODAL HELPERS
+function closeOv(id,e){if(!e||e.target===document.getElementById(id))document.getElementById(id).classList.remove('open');}
+
+// PAGE NAV
+function showPage(id,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if(btn)btn.classList.add('active');
+  if(id==='kalender')renderCalendar();
+  if(id==='agenda')renderAgenda();
+  if(id==='taken')renderTaken();
+}
+
+// TOAST
+let tt;function toast(msg,type=''){const el=document.getElementById('toast');el.textContent=msg;el.className='toast show'+(type?' '+type:'');clearTimeout(tt);tt=setTimeout(()=>el.classList.remove('show'),2800);}
+
+// EVENTS
+document.getElementById('search').addEventListener('input',e=>{search=e.target.value;page=1;render();});
+document.getElementById('sort-sel').addEventListener('change',e=>{sortKey=e.target.value;render();});
+document.getElementById('br-sel').addEventListener('change',e=>{branche=e.target.value;page=1;render();});
+
+boot();
+</script>
+</body>
+</html>
