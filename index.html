@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>TBC Klanten – Daniël Knott</title>
+<meta name="theme-color" content="#0B1F3A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<style>
+:root {
+  --navy: #0B1F3A; --navy2: #112240; --card: #1E3A5F; --card2: #162F50;
+  --teal: #4FD1A5; --teal2: #3ab891; --text: #E8F0FE; --muted: #7a9bb5;
+  --red: #FF6B6B; --orange: #FFA94D; --blue: #74B9FF; --border: #1a3558;
+  --green: #4FD1A5; --purple: #b39ddb;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--navy);color:var(--text);font-family:Arial,sans-serif;overscroll-behavior:none}
+
+/* NAV */
+.nav{background:var(--navy2);border-bottom:3px solid var(--teal);display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:56px;position:sticky;top:0;z-index:100}
+.nav-brand{display:flex;align-items:center;gap:10px}
+.nav-logo{font-family:'Arial Black',sans-serif;font-size:14px;font-weight:900;color:var(--teal);letter-spacing:2px}
+.nav-title{font-size:16px;font-weight:700}
+.nav-tabs{display:flex;gap:4px}
+.nav-tab{padding:8px 14px;border-radius:8px;border:none;background:none;color:var(--muted);font-size:13px;cursor:pointer;font-weight:600;transition:.15s}
+.nav-tab.active{background:var(--teal);color:var(--navy)}
+.nav-tab:hover:not(.active){background:var(--card);color:var(--text)}
+
+/* PAGES */
+.page{display:none;height:calc(100vh - 56px);overflow-y:auto}
+.page.active{display:block}
+
+/* STATS BAR */
+.stats-bar{display:flex;gap:1px;background:var(--border)}
+.stat-box{flex:1;background:var(--navy2);padding:14px 16px;text-align:center}
+.stat-num{font-size:22px;font-weight:900;color:var(--teal);font-family:'Arial Black',sans-serif}
+.stat-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+.stat-box.urgent .stat-num{color:var(--red)}
+.stat-box.opvolgen .stat-num{color:var(--orange)}
+
+/* CONTROLS */
+.controls{padding:12px 16px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:var(--navy2);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50}
+.search-wrap{position:relative;flex:1;min-width:160px}
+.search-wrap input{width:100%;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 12px 8px 34px;color:var(--text);font-size:14px;outline:none}
+.search-wrap input:focus{border-color:var(--teal)}
+.si{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--muted)}
+select{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-size:13px;outline:none;cursor:pointer}
+.fb{padding:7px 12px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--muted);font-size:12px;cursor:pointer;font-weight:600;white-space:nowrap;transition:.15s}
+.fb.active{background:var(--teal);color:var(--navy);border-color:var(--teal)}
+.import-btn{padding:7px 14px;border-radius:8px;border:none;background:var(--card);color:var(--teal);font-size:12px;font-weight:700;cursor:pointer;border:1px solid rgba(79,209,165,.3)}
+.import-btn:hover{background:rgba(79,209,165,.1)}
+.count-badge{background:var(--teal);color:var(--navy);border-radius:20px;padding:2px 10px;font-size:11px;font-weight:700}
+
+/* TABLE */
+.table-wrap{padding:0}
+table{width:100%;border-collapse:collapse}
+thead th{background:var(--card);color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:1px;padding:10px 12px;text-align:left;cursor:pointer;white-space:nowrap;position:sticky;top:0;z-index:10}
+thead th:hover{color:var(--teal)}
+tbody tr{border-bottom:1px solid var(--border);cursor:pointer;transition:.1s}
+tbody tr:hover{background:var(--card2)}
+tbody tr.is-new{border-left:3px solid var(--teal)}
+td{padding:11px 12px;font-size:13px;vertical-align:middle}
+.kn{font-weight:700;font-size:13px}
+.kp{font-size:11px;color:var(--muted);margin-top:1px}
+.new-badge{display:inline-block;background:var(--teal);color:var(--navy);border-radius:4px;padding:1px 6px;font-size:9px;font-weight:900;margin-left:6px;vertical-align:middle}
+
+.sb{display:inline-block;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+.s-actief{background:rgba(79,209,165,.12);color:var(--teal);border:1px solid rgba(79,209,165,.25)}
+.s-opvolgen{background:rgba(255,169,77,.12);color:var(--orange);border:1px solid rgba(255,169,77,.25)}
+.s-urgent{background:rgba(255,107,107,.12);color:var(--red);border:1px solid rgba(255,107,107,.25)}
+.s-klaar{background:rgba(116,185,255,.12);color:var(--blue);border:1px solid rgba(116,185,255,.25)}
+
+.dc{padding:3px 8px;border-radius:10px;font-size:11px;font-weight:700}
+.d-ok{background:rgba(79,209,165,.1);color:var(--teal)}
+.d-warn{background:rgba(255,169,77,.1);color:var(--orange)}
+.d-danger{background:rgba(255,107,107,.1);color:var(--red)}
+
+.note-prev{font-size:11px;color:var(--muted);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nc{display:inline-block;background:var(--teal);color:var(--navy);border-radius:10px;padding:1px 6px;font-size:9px;font-weight:700;margin-left:4px}
+
+/* PAGINATION */
+.pag{display:flex;justify-content:center;align-items:center;gap:6px;padding:16px;flex-wrap:wrap}
+.pb{background:var(--card);border:1px solid var(--border);color:var(--text);padding:6px 12px;border-radius:8px;cursor:pointer;font-size:12px}
+.pb:hover,.pb.active{background:var(--teal);color:var(--navy);border-color:var(--teal);font-weight:700}
+.pb:disabled{opacity:.4;cursor:default}
+.pi{color:var(--muted);font-size:12px}
+
+/* MODAL */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:300;align-items:center;justify-content:center;padding:16px}
+.overlay.open{display:flex}
+.modal{background:var(--navy2);border:1px solid var(--teal);border-radius:14px;width:600px;max-width:100%;max-height:92vh;overflow-y:auto;display:flex;flex-direction:column}
+.mh{background:var(--card);border-radius:14px 14px 0 0;padding:18px 20px;border-bottom:2px solid var(--teal);display:flex;justify-content:space-between;align-items:flex-start;position:sticky;top:0;z-index:10}
+.mt{font-size:18px;font-weight:900;font-family:'Arial Black',sans-serif}
+.ms{font-size:12px;color:var(--muted);margin-top:3px}
+.xb{background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;line-height:1;padding:4px}
+.xb:hover{color:var(--red)}
+.mb{padding:20px}
+.ig{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px}
+.ii{background:var(--card);border-radius:8px;padding:10px 12px}
+.il{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px}
+.iv{font-size:14px;font-weight:700}
+.iv a{color:var(--teal);text-decoration:none}
+.st{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--teal);font-weight:700;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.so{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px}
+.sopt{padding:6px 12px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:var(--muted);font-size:12px;cursor:pointer;font-weight:600;transition:.15s}
+.sopt.sa{background:rgba(79,209,165,.2);color:var(--teal);border-color:var(--teal)}
+.sopt.so2{background:rgba(255,169,77,.2);color:var(--orange);border-color:var(--orange)}
+.sopt.su{background:rgba(255,107,107,.2);color:var(--red);border-color:var(--red)}
+.sopt.sk{background:rgba(116,185,255,.2);color:var(--blue);border-color:var(--blue)}
+
+/* NOTES */
+.nl{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;max-height:200px;overflow-y:auto}
+.ni{background:var(--card);border-radius:8px;padding:10px 12px;border-left:3px solid var(--teal)}
+.nm{font-size:10px;color:var(--muted);margin-bottom:3px;display:flex;justify-content:space-between}
+.nt{font-size:13px;line-height:1.5}
+.nd{background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px}
+.nd:hover{color:var(--red)}
+.niw{display:flex;gap:8px}
+.ni2{flex:1;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px;color:var(--text);font-size:13px;resize:vertical;min-height:64px;outline:none;font-family:Arial,sans-serif}
+.ni2:focus{border-color:var(--teal)}
+.anb{background:var(--teal);color:var(--navy);border:none;border-radius:8px;padding:10px 14px;font-weight:700;cursor:pointer;font-size:13px;align-self:flex-end;white-space:nowrap}
+.anb:hover{background:var(--teal2)}
+.en{text-align:center;color:var(--muted);font-size:13px;padding:16px}
+
+/* CALENDAR PAGE */
+.cal-wrap{padding:20px}
+.cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.cal-nav{display:flex;gap:8px;align-items:center}
+.cal-nav button{background:var(--card);border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:8px;cursor:pointer;font-size:14px}
+.cal-nav button:hover{border-color:var(--teal);color:var(--teal)}
+.cal-month{font-size:20px;font-weight:900;font-family:'Arial Black',sans-serif;color:var(--text)}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--border);border-radius:10px;overflow:hidden}
+.cal-dow{background:var(--card);padding:8px;text-align:center;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted)}
+.cal-day{background:var(--navy2);min-height:90px;padding:6px;cursor:pointer;transition:.1s;position:relative}
+.cal-day:hover{background:var(--card2)}
+.cal-day.other-month{opacity:.4}
+.cal-day.today{background:rgba(79,209,165,.05);border:1px solid rgba(79,209,165,.3)}
+.cal-day-num{font-size:12px;font-weight:700;color:var(--muted);margin-bottom:4px}
+.cal-day.today .cal-day-num{color:var(--teal)}
+.cal-event{background:var(--teal);color:var(--navy);border-radius:4px;padding:2px 6px;font-size:10px;font-weight:700;margin-bottom:2px;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cal-event.ev-urgent{background:var(--red);color:#fff}
+.cal-event.ev-opvolgen{background:var(--orange);color:var(--navy)}
+.cal-add-btn{position:absolute;top:4px;right:4px;background:none;border:none;color:var(--border);font-size:16px;cursor:pointer;display:none}
+.cal-day:hover .cal-add-btn{display:block;color:var(--teal)}
+
+/* AGENDA LIST */
+.agenda-wrap{padding:20px}
+.agenda-section{margin-bottom:24px}
+.agenda-date{font-size:13px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.agenda-item{background:var(--card);border-radius:8px;padding:12px 14px;margin-bottom:6px;display:flex;align-items:center;gap:12px;cursor:pointer}
+.agenda-item:hover{background:var(--card2)}
+.agenda-dot{width:8px;height:8px;border-radius:50%;background:var(--teal);flex-shrink:0}
+.agenda-dot.d-urgent{background:var(--red)}
+.agenda-dot.d-opvolgen{background:var(--orange)}
+.agenda-info{flex:1}
+.agenda-klant{font-weight:700;font-size:14px}
+.agenda-note{font-size:12px;color:var(--muted);margin-top:2px}
+.agenda-time{font-size:12px;color:var(--muted);white-space:nowrap}
+.agenda-del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:4px}
+.agenda-del:hover{color:var(--red)}
+
+/* AFSPRAAK MODAL */
+.afm{background:var(--navy2);border:1px solid var(--teal);border-radius:14px;width:480px;max-width:100%;padding:24px}
+.afm h3{font-size:16px;font-weight:700;margin-bottom:16px;color:var(--teal)}
+.form-row{margin-bottom:12px}
+.form-lbl{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:5px;display:block}
+.form-inp{width:100%;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:13px;outline:none}
+.form-inp:focus{border-color:var(--teal)}
+.form-actions{display:flex;gap:8px;margin-top:16px}
+.btn-primary{flex:1;background:var(--teal);color:var(--navy);border:none;border-radius:8px;padding:10px;font-weight:700;cursor:pointer;font-size:14px}
+.btn-primary:hover{background:var(--teal2)}
+.btn-secondary{background:var(--card);color:var(--muted);border:1px solid var(--border);border-radius:8px;padding:10px 16px;cursor:pointer;font-size:14px}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--teal);color:var(--navy);padding:10px 18px;border-radius:10px;font-weight:700;font-size:13px;z-index:999;transform:translateY(60px);opacity:0;transition:.3s;pointer-events:none}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.err{background:var(--red);color:#fff}
+
+/* LOADING */
+.loading{display:flex;align-items:center;justify-content:center;height:200px;color:var(--muted);gap:10px;font-size:14px}
+.spin{width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--teal);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* MOBILE */
+@media(max-width:640px){
+  .nav-title{display:none}
+  .nav-tab{padding:6px 10px;font-size:12px}
+  .ig{grid-template-columns:1fr}
+  .controls{gap:6px}
+  td:nth-child(4),th:nth-child(4){display:none}
+  .cal-day{min-height:60px}
+  .cal-event{font-size:9px}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-brand">
+    <div class="nav-logo">TBC</div>
+    <div class="nav-title">Klanten</div>
+  </div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('overzicht',this)">📋 Overzicht</button>
+    <button class="nav-tab" onclick="showPage('kalender',this)">📅 Kalender</button>
+    <button class="nav-tab" onclick="showPage('agenda',this)">🗒️ Agenda</button>
+  </div>
+</nav>
+
+<!-- OVERZICHT PAGE -->
+<div class="page active" id="page-overzicht">
+  <div class="stats-bar">
+    <div class="stat-box"><div class="stat-num" id="st-total">–</div><div class="stat-lbl">Klanten</div></div>
+    <div class="stat-box urgent"><div class="stat-num" id="st-urgent">–</div><div class="stat-lbl">Urgent</div></div>
+    <div class="stat-box opvolgen"><div class="stat-num" id="st-opvolgen">–</div><div class="stat-lbl">Opvolgen</div></div>
+    <div class="stat-box"><div class="stat-num" id="st-afspraken">–</div><div class="stat-lbl">Afspraken</div></div>
+  </div>
+  <div class="controls" id="ctrl">
+    <div class="search-wrap"><span class="si">🔍</span><input type="text" id="search" placeholder="Zoek klant of plaats..."></div>
+    <select id="sort-sel">
+      <option value="ld">Laatste order ↓</option>
+      <option value="la">Laatste order ↑</option>
+      <option value="wd">Waarde ↓</option>
+      <option value="na">Naam A–Z</option>
+    </select>
+    <select id="br-sel"><option value="">Alle branches</option></select>
+    <button class="fb active" onclick="setF('all',this)">Alle</button>
+    <button class="fb" onclick="setF('urgent',this)">🔴</button>
+    <button class="fb" onclick="setF('opvolgen',this)">🟠</button>
+    <button class="fb" onclick="setF('actief',this)">🟢</button>
+    <button class="fb" onclick="setF('klaar',this)">🔵</button>
+    <span class="count-badge" id="rc">–</span>
+    <label class="import-btn" title="Importeer nieuw CSV bestand">📂 Import CSV<input type="file" accept=".csv" style="display:none" onchange="importCSV(this)"></label>
+  </div>
+  <div id="loading" class="loading"><div class="spin"></div> Laden...</div>
+  <div class="table-wrap" id="tw" style="display:none">
+    <table>
+      <thead><tr>
+        <th onclick="sortBy('naam')">Klant</th>
+        <th onclick="sortBy('lo')">Laatste order</th>
+        <th onclick="sortBy('dagen')">Dagen</th>
+        <th onclick="sortBy('waarde')">Waarde</th>
+        <th>Status</th>
+        <th>Notities</th>
+      </tr></thead>
+      <tbody id="tb"></tbody>
+    </table>
+  </div>
+  <div class="pag" id="pag"></div>
+</div>
+
+<!-- KALENDER PAGE -->
+<div class="page" id="page-kalender">
+  <div class="cal-wrap">
+    <div class="cal-header">
+      <div class="cal-nav">
+        <button onclick="calNav(-1)">‹</button>
+        <div class="cal-month" id="cal-month-lbl">–</div>
+        <button onclick="calNav(1)">›</button>
+      </div>
+      <button class="fb" onclick="calNav(0)" style="color:var(--teal)">Vandaag</button>
+    </div>
+    <div class="cal-grid" id="cal-grid">
+      <div class="cal-dow">Ma</div><div class="cal-dow">Di</div><div class="cal-dow">Wo</div>
+      <div class="cal-dow">Do</div><div class="cal-dow">Vr</div><div class="cal-dow">Za</div><div class="cal-dow">Zo</div>
+    </div>
+  </div>
+</div>
+
+<!-- AGENDA PAGE -->
+<div class="page" id="page-agenda">
+  <div class="agenda-wrap" id="agenda-content">
+    <div class="loading"><div class="spin"></div> Laden...</div>
+  </div>
+</div>
+
+<!-- KLANT MODAL -->
+<div class="overlay" id="modal" onclick="closeModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="mh">
+      <div><div class="mt" id="m-naam">–</div><div class="ms" id="m-sub">–</div></div>
+      <button class="xb" onclick="closeModal()">✕</button>
+    </div>
+    <div class="mb">
+      <div class="ig">
+        <div class="ii"><div class="il">Laatste order</div><div class="iv" id="m-lo">–</div></div>
+        <div class="ii"><div class="il">Dagen geleden</div><div class="iv" id="m-dagen">–</div></div>
+        <div class="ii"><div class="il">Totale waarde</div><div class="iv" id="m-val">–</div></div>
+        <div class="ii"><div class="il">Telefoon</div><div class="iv" id="m-tel">–</div></div>
+        <div class="ii"><div class="il">Branche</div><div class="iv" id="m-br">–</div></div>
+        <div class="ii"><div class="il">Laatste activiteit</div><div class="iv" id="m-act">–</div></div>
+      </div>
+
+      <div class="st">Status</div>
+      <div class="so">
+        <button class="sopt" data-s="actief" onclick="setStatus('actief')">🟢 Actief</button>
+        <button class="sopt" data-s="opvolgen" onclick="setStatus('opvolgen')">🟠 Opvolgen</button>
+        <button class="sopt" data-s="urgent" onclick="setStatus('urgent')">🔴 Urgent</button>
+        <button class="sopt" data-s="klaar" onclick="setStatus('klaar')">🔵 Klaar</button>
+      </div>
+
+      <div class="st">Afspraak inplannen</div>
+      <div style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap">
+        <input type="date" class="form-inp" id="af-datum" style="flex:1;min-width:140px">
+        <input type="time" class="form-inp" id="af-tijd" style="width:110px" value="10:00">
+        <input type="text" class="form-inp" id="af-note" placeholder="Onderwerp bijv. voorraad check" style="flex:2;min-width:160px">
+        <button class="anb" onclick="saveAfspraak()">+ Plan in</button>
+      </div>
+
+      <div class="st">Notities</div>
+      <div class="nl" id="notes-list"><div class="en">Nog geen notities.</div></div>
+      <div class="niw">
+        <textarea class="ni2" id="note-inp" placeholder="Voeg notitie toe..."></textarea>
+        <button class="anb" onclick="addNote()">+ Toevoegen</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- AFSPRAAK MODAL (kalender) -->
+<div class="overlay" id="af-modal" onclick="closeAfModal(event)">
+  <div class="afm" onclick="event.stopPropagation()">
+    <h3>📅 Nieuwe afspraak</h3>
+    <div class="form-row">
+      <label class="form-lbl">Klant</label>
+      <input type="text" class="form-inp" id="afm-klant" placeholder="Zoek klant..." oninput="afmSearch(this.value)" autocomplete="off">
+      <div id="afm-results" style="background:var(--card);border-radius:8px;margin-top:4px;max-height:160px;overflow-y:auto"></div>
+    </div>
+    <div class="form-row">
+      <label class="form-lbl">Datum</label>
+      <input type="date" class="form-inp" id="afm-datum">
+    </div>
+    <div class="form-row">
+      <label class="form-lbl">Tijd</label>
+      <input type="time" class="form-inp" id="afm-tijd" value="10:00">
+    </div>
+    <div class="form-row">
+      <label class="form-lbl">Onderwerp</label>
+      <input type="text" class="form-inp" id="afm-note" placeholder="bijv. voorraad check, kennismaking">
+    </div>
+    <div class="form-actions">
+      <button class="btn-secondary" onclick="closeAfModal()">Annuleren</button>
+      <button class="btn-primary" onclick="saveAfspraakModal()">Opslaan</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── CONFIG ────────────────────────────────────────────────────────────────
+const SB_URL = 'https://okjfpjrcvbttlkuqjsvu.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9ramZwanJjdmJ0dGxrdXFqc3Z1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI3MzAyNTQsImV4cCI6MjA5ODMwNjI1NH0.ZDMBBIt9_W6qzrdagDMahKw_xFoI3QVNIHWMoX0hZWM';
+const TODAY = new Date('2026-06-29');
+const HEADERS = {'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Prefer':'return=representation'};
+
+// ─── SUPABASE ────────────────────────────────────────────────────────────
+async function sbFetch(path, opts={}) {
+  const r = await fetch(SB_URL+'/rest/v1/'+path, {headers:HEADERS,...opts});
+  if (!r.ok) { const e = await r.text(); throw new Error(e); }
+  if (r.status === 204) return null;
+  return r.json();
+}
+
+async function initDB() {
+  // Create tables via SQL RPC if they don't exist
+  const sql = `
+    CREATE TABLE IF NOT EXISTS klanten (
+      id TEXT PRIMARY KEY,
+      naam TEXT,
+      telefoon TEXT,
+      plaats TEXT,
+      branche TEXT,
+      waarde NUMERIC DEFAULT 0,
+      laatste_activiteit DATE,
+      laatste_order DATE,
+      status TEXT DEFAULT 'actief',
+      is_new BOOLEAN DEFAULT FALSE,
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    );
+    CREATE TABLE IF NOT EXISTS notities (
+      id BIGSERIAL PRIMARY KEY,
+      klant_id TEXT REFERENCES klanten(id) ON DELETE CASCADE,
+      tekst TEXT,
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    );
+    CREATE TABLE IF NOT EXISTS afspraken (
+      id BIGSERIAL PRIMARY KEY,
+      klant_id TEXT REFERENCES klanten(id) ON DELETE CASCADE,
+      klant_naam TEXT,
+      datum DATE,
+      tijd TIME,
+      onderwerp TEXT,
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    );
+  `;
+  try {
+    await fetch(SB_URL+'/rest/v1/rpc/exec_sql', {method:'POST',headers:HEADERS,body:JSON.stringify({query:sql})});
+  } catch(e) {}
+}
+
+// ─── STATE ───────────────────────────────────────────────────────────────
+let klanten = [];
+let notities = {};
+let afspraken = [];
+let activeId = null;
+let afmKlantId = null;
+let filter = 'all';
+let sortKey = 'ld';
+let search = '';
+let branche = '';
+let page = 1;
+const PER = 30;
+let calYear, calMonth;
+
+// ─── BOOT ─────────────────────────────────────────────────────────────────
+async function boot() {
+  const now = new Date('2026-06-29');
+  calYear = now.getFullYear(); calMonth = now.getMonth();
+
+  try {
+    await loadKlanten();
+    await loadNotities();
+    await loadAfspraken();
+  } catch(e) {
+    // Tables don't exist yet, seed with CSV data
+    await seedKlanten();
+    await loadNotities();
+    await loadAfspraken();
+  }
+
+  buildBrancheFilter();
+  render();
+  renderCalendar();
+  renderAgenda();
+  updateStats();
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('tw').style.display = 'block';
+}
+
+async function loadKlanten() {
+  const data = await sbFetch('klanten?select=*&order=laatste_order.desc.nullslast&limit=2000');
+  if (!data || data.length === 0) throw new Error('empty');
+  klanten = data.map(k => ({...k, dagen: daysSince(k.laatste_order)}));
+}
+
+async function loadNotities() {
+  try {
+    const data = await sbFetch('notities?select=*&order=created_at.desc&limit=5000');
+    notities = {};
+    (data||[]).forEach(n => {
+      if (!notities[n.klant_id]) notities[n.klant_id] = [];
+      notities[n.klant_id].push(n);
+    });
+  } catch(e) { notities = {}; }
+}
+
+async function loadAfspraken() {
+  try {
+    const data = await sbFetch('afspraken?select=*&order=datum.asc,tijd.asc&limit=1000');
+    afspraken = data || [];
+  } catch(e) { afspraken = []; }
+}
+
+async function seedKlanten() {
+  // Seed initial data
+  const raw = [{"id":"28655050986","naam":"IJgenweisStreekbos","telefoon":"1185020728","plaats":"'s-Hertogenbosch","branche":"Restaurants","waarde":2828.0,"laatste_activiteit":"2026-06-26","laatste_order":"2026-06-26"},{"id":"9923870928","naam":"The Happiness Café Eindhoven","telefoon":"+31 6 34118130","plaats":"Eindhoven","branche":"Restaurants","waarde":22310.8,"laatste_activiteit":"2026-06-26","laatste_order":"2026-06-26"},{"id":"433152842958","naam":"Bedrukken.nl","telefoon":"+31315200010","plaats":"Ulft","branche":"Winkels","waarde":602.28,"laatste_activiteit":"2026-06-24","laatste_order":"2026-06-25"},{"id":"429790940365","naam":"Wallies","telefoon":"31 318 591 239","plaats":"Veghel","branche":"Restaurants","waarde":2747.5,"laatste_activiteit":"2026-06-24","laatste_order":"2026-06-24"},{"id":"12438990784","naam":"De graanbeurs venlo","telefoon":"2738032696","plaats":"Venlo","branche":"","waarde":0,"laatste_activiteit":"2026-06-23","laatste_order":"2026-06-23"},{"id":"190110178497","naam":"Cortado Maastricht","telefoon":"8065942898","plaats":"Maastricht","branche":"","waarde":6074.24,"laatste_activiteit":"2026-06-23","laatste_order":"2026-06-22"},{"id":"104752085189","naam":"De Zoetekou","telefoon":"+31615561390","plaats":"Bergeijk","branche":"Winkels","waarde":3387.0,"laatste_activiteit":"2026-06-23","laatste_order":"2026-06-22"},{"id":"27057226993","naam":"Laaker Boere ies","telefoon":"5978297502","plaats":"Veghel","branche":"Restaurants","waarde":3232.0,"laatste_activiteit":"2026-06-23","laatste_order":"2026-06-22"},{"id":"11016988381","naam":"Basil Thai Restaurant","telefoon":"0991142685","plaats":"Veghel","branche":"Restaurants","waarde":3247.32,"laatste_activiteit":"2026-06-23","laatste_order":"2026-06-22"},{"id":"181788172515","naam":"In De Kleine Werelt","telefoon":"+31 73 613 2140","plaats":"'s-Hertogenbosch","branche":"Horeca (HOSPITALITY)","waarde":2473.5,"laatste_activiteit":"2026-06-23","laatste_order":"2026-06-22"},{"id":"9923816405","naam":"Graaf van Buren","telefoon":"+31 6 12264245","plaats":"Veghel","branche":"","waarde":5539.2,"laatste_activiteit":"2026-06-25","laatste_order":"2026-06-22"},{"id":"9923619532","naam":"El Sueño Food, Drinks & More","telefoon":"+31 164 858 000","plaats":"Hoogerheide","branche":"","waarde":2714.2,"laatste_activiteit":"2026-06-22","laatste_order":"2026-06-22"},{"id":"9921482724","naam":"De Staet","telefoon":"+31 6 34384477","plaats":"Bladel","branche":"Restaurants","waarde":10813.49,"laatste_activiteit":"2026-06-23","laatste_order":"2026-06-19"},{"id":"9923769060","naam":"Herberghe De Coeckepanne","telefoon":"+31 492 331 317","plaats":"Veghel","branche":"Horeca (HOSPITALITY)","waarde":18178.85,"laatste_activiteit":"2026-06-17","laatste_order":"2026-06-17"},{"id":"9923786941","naam":"Scholengemeenschap De Rooi Pannen","telefoon":"+31652418431","plaats":"Veghel","branche":"Onderwijsmanagement","waarde":4756.4,"laatste_activiteit":"2026-06-29","laatste_order":"2026-06-15"},{"id":"9923851213","naam":"Harvey Kitchen & Bar B.V.","telefoon":"+31 6 52304892","plaats":"Veghel","branche":"Horeca (HOSPITALITY)","waarde":14720.33,"laatste_activiteit":"2026-05-04","laatste_order":"2026-06-15"},{"id":"9923850733","naam":"Brasserie De Ijsboetiek","telefoon":"+31 488 427 017","plaats":"Kesteren","branche":"Restaurants","waarde":9673.69,"laatste_activiteit":"2025-12-24","laatste_order":"2026-06-12"},{"id":"431950212314","naam":"Weverke 't","telefoon":"+31454042691","plaats":"Schimmert","branche":"Horeca (HOSPITALITY)","waarde":883.2,"laatste_activiteit":"2026-06-10","laatste_order":"2026-06-11"},{"id":"12372135632","naam":"De Burgerij","telefoon":"+310138220989","plaats":"Tilburg","branche":"Restaurants","waarde":6446.23,"laatste_activiteit":"2026-06-09","laatste_order":"2026-06-09"},{"id":"9923851478","naam":"Maes 21","telefoon":"+31 77 477 2515","plaats":"Baarlo LB","branche":"Horeca (HOSPITALITY)","waarde":19408.32,"laatste_activiteit":"2026-03-11","laatste_order":"2026-06-09"},{"id":"141875836137","naam":"De Kornuiten","telefoon":"+31 53 300 1738","plaats":"Haaksbergen","branche":"Restaurants","waarde":19218.23,"laatste_activiteit":"2026-06-09","laatste_order":"2026-06-09"},{"id":"9923786694","naam":"Heerlijkzo","telefoon":"+31 111 407 165","plaats":"Renesse","branche":"Horeca (HOSPITALITY)","waarde":9126.47,"laatste_activiteit":"2026-06-03","laatste_order":"2026-06-03"},{"id":"9923744486","naam":"Just Promo","telefoon":"+31 6 11407782","plaats":"Doetinchem","branche":"Winkels","waarde":18858.63,"laatste_activiteit":"2026-05-31","laatste_order":"2026-05-31"},{"id":"9923851495","naam":"OK retail","telefoon":"+31 85 077 2844","plaats":"Hoogblokland","branche":"Bouw","waarde":214120.32,"laatste_activiteit":"2026-05-29","laatste_order":"2026-05-29"},{"id":"9921483234","naam":"Wieck Bar & Grill","telefoon":"+31 475 476 899","plaats":"Roermond","branche":"Restaurants","waarde":49545.25,"laatste_activiteit":"2026-05-19","laatste_order":"2026-05-19"},{"id":"9923369193","naam":"International Wellness Resorts","telefoon":"+31 88 006 4800","plaats":"Emst","branche":"Horeca (HOSPITALITY)","waarde":53730.0,"laatste_activiteit":"2026-03-18","laatste_order":"2026-03-18"},{"id":"9923786969","naam":"Thermae 2000 Wellness","telefoon":"+31 43 609 2000","plaats":"Valkenburg LB","branche":"Vrije tijd, reizen en toerisme","waarde":55145.4,"laatste_activiteit":"2026-05-02","laatste_order":"2025-10-25"},{"id":"9923599293","naam":"Kreeftenbar","telefoon":"+31 40 236 4228","plaats":"Eindhoven","branche":"Horeca (HOSPITALITY)","waarde":40637.34,"laatste_activiteit":"2026-03-25","laatste_order":"2025-09-24"},{"id":"9921482730","naam":"Macono Exploitatie EL FUEGO","telefoon":"+31 43 601 1402","plaats":"Valkenburg LB","branche":"Horeca (HOSPITALITY)","waarde":39507.16,"laatste_activiteit":"2026-04-17","laatste_order":"2025-10-17"},{"id":"12830820538","naam":"Kokkie Kweekweg","telefoon":"+31 55 521 7138","plaats":"Apeldoorn","branche":"Horeca (HOSPITALITY)","waarde":46940.75,"laatste_activiteit":"2026-06-05","laatste_order":"2025-12-05"},{"id":"9923851487","naam":"Oakwood Grill Restaurant","telefoon":"+31 40 230 0654","plaats":"Veldhoven","branche":"Restaurants","waarde":28550.04,"laatste_activiteit":"2026-05-15","laatste_order":"2025-08-27"},{"id":"429476188396","naam":"Dudok Retail Holding B.V.","telefoon":"+31 10 436 1563","plaats":"Rotterdam","branche":"Restaurants","waarde":31045.16,"laatste_activiteit":"2026-05-26","laatste_order":"2025-10-15"},{"id":"9923909614","naam":"De waldhoorn","telefoon":"+31 318 591 239","plaats":"Otterlo","branche":"Restaurants","waarde":31863.2,"laatste_activiteit":"2026-01-23","laatste_order":"2025-10-08"},{"id":"9923369194","naam":"Villa Welgelegen bv","telefoon":"+31 544 842 233","plaats":"Groenlo","branche":"Horeca (HOSPITALITY)","waarde":32568.17,"laatste_activiteit":"2026-03-17","laatste_order":"2026-03-17"},{"id":"9923786477","naam":"Frites Boutique","telefoon":"+31 475 729 060","plaats":"Roermond","branche":"","waarde":103627.7,"laatste_activiteit":"2026-06-29","laatste_order":"2025-12-29"},{"id":"9923527159","naam":"The Streetfood Club 053 | The Food Club","telefoon":"+31 53 200 5565","plaats":"Enschede","branche":"Horeca (HOSPITALITY)","waarde":25271.66,"laatste_activiteit":"2025-12-17","laatste_order":"2025-12-17"},{"id":"11086482116","naam":"Hofsteenge Grolloo","telefoon":"+31592501226","plaats":"Grolloo","branche":"Horeca (HOSPITALITY)","waarde":21793.88,"laatste_activiteit":"2026-06-03","laatste_order":"2025-10-16"},{"id":"9923870442","naam":"Eetcafé 't Keershuys","telefoon":"+31 73 612 8087","plaats":"'s-Hertogenbosch","branche":"Restaurants","waarde":20114.91,"laatste_activiteit":"2026-05-26","laatste_order":"2025-11-25"},{"id":"9921482486","naam":"Grote Markt Nijmegen Moenen","telefoon":"+31 24 365 6546","plaats":"Nijmegen","branche":"Horeca (HOSPITALITY)","waarde":20327.18,"laatste_activiteit":"2026-03-03","laatste_order":"2026-02-18"},{"id":"9923851478b","naam":"Restobar G1","telefoon":"6530253662","plaats":"Heerlen","branche":"Restaurants","waarde":20105.76,"laatste_activiteit":"2025-11-14","laatste_order":"2026-05-26"},{"id":"9923369162","naam":"Tapas Cantina","telefoon":"+31 46 451 5225","plaats":"Ede","branche":"Restaurants","waarde":22122.43,"laatste_activiteit":"2026-03-30","laatste_order":"2026-03-30"},{"id":"9923598824","naam":"Bruin Kafee 2.0","telefoon":"+31 6 23527172","plaats":"Tilburg","branche":"","waarde":21856.22,"laatste_activiteit":"2026-05-11","laatste_order":"2026-03-20"},{"id":"9923744701","naam":"Kitchenbypj | Sligro INCASSO","telefoon":"+31 6 57867525","plaats":"Roermond","branche":"Horeca (HOSPITALITY)","waarde":5467.0,"laatste_activiteit":"2026-05-28","laatste_order":"2025-11-27"},{"id":"9923486138","naam":"Faubourg St. Jacques","telefoon":"+31 475 330 092","plaats":"Roermond","branche":"Horeca (HOSPITALITY)","waarde":8313.14,"laatste_activiteit":"2026-06-24","laatste_order":"2025-12-24"},{"id":"9923851214","naam":"Nena","telefoon":"+31 6 20989420","plaats":"Venlo","branche":"Restaurants","waarde":5739.96,"laatste_activiteit":"2026-06-22","laatste_order":"2025-12-22"},{"id":"9923816403","naam":"Grand Cafe Samen","telefoon":"+31 570 601 231","plaats":"Deventer","branche":"Horeca (HORECA)","waarde":16790.66,"laatste_activiteit":"2026-05-15","laatste_order":"2026-05-15"},{"id":"9923526875","naam":"Restaurant 't Vosje Driesprong","telefoon":"+31 6 29198872","plaats":"Rosmalen","branche":"Restaurants","waarde":4554.0,"laatste_activiteit":"2026-06-18","laatste_order":"2025-12-18"},{"id":"9923619830","naam":"Vijf D's V.O.F. | Heksenboom","telefoon":"+31 485 388 566","plaats":"Sint Anthonis","branche":"Horeca (HOSPITALITY)","waarde":16516.6,"laatste_activiteit":"2026-05-05","laatste_order":"2026-05-05"},{"id":"13213944279","naam":"Frans Hinzen Holding BV","telefoon":"+49221250993300","plaats":"Maasbracht","branche":"Horeca (HOSPITALITY)","waarde":17819.46,"laatste_activiteit":"2026-05-15","laatste_order":"2025-11-14"},{"id":"9923769560","naam":"Jill Murphy's","telefoon":"+31 475 520 655","plaats":"Roermond","branche":"Vrije tijd, reizen en toerisme","waarde":15841.04,"laatste_activiteit":"2026-01-16","laatste_order":"2026-01-28"},{"id":"9921482724b","naam":"De Staet Bladel","telefoon":"+31 6 34384477","plaats":"Bladel","branche":"Restaurants","waarde":10813.49,"laatste_activiteit":"2026-06-23","laatste_order":"2026-06-19"},{"id":"9923879885","naam":"Mia's Restaurant en Lounge","telefoon":"+31 115 561 396","plaats":"Veghel","branche":"Vrije tijd, reizen en toerisme","waarde":14760.21,"laatste_activiteit":"2026-05-20","laatste_order":"2026-05-20"},{"id":"9923851213b","naam":"Harvey Kitchen & Bar","telefoon":"+31 6 52304892","plaats":"Veghel","branche":"Horeca (HOSPITALITY)","waarde":14720.33,"laatste_activiteit":"2026-05-04","laatste_order":"2026-06-15"},{"id":"340464098518","naam":"Thermen Goirle","telefoon":"+31135341949","plaats":"Goirle","branche":"Vrije tijd, reizen en toerisme","waarde":5103.92,"laatste_activiteit":"2026-06-19","laatste_order":"2025-12-19"},{"id":"9923486454","naam":"Mr. & Mrs.","telefoon":"+31 6 47466742","plaats":"Panningen","branche":"Restaurants","waarde":9532.0,"laatste_activiteit":"2026-05-05","laatste_order":"2026-05-05"},{"id":"9923599293b","naam":"Kreeftenbar Eindhoven","telefoon":"+31 40 236 4228","plaats":"Eindhoven","branche":"Horeca (HOSPITALITY)","waarde":40637.34,"laatste_activiteit":"2026-03-25","laatste_order":"2025-09-24"},{"id":"12197486823","naam":"Cox & Co","telefoon":"+31 475 329 966","plaats":"Veghel","branche":"Restaurants","waarde":10764.6,"laatste_activiteit":"2026-06-18","laatste_order":"2026-05-04"},{"id":"9923786222","naam":"de Kort Bairro Alto","telefoon":"+31 10 416 3473","plaats":"Nijmegen","branche":"","waarde":10996.6,"laatste_activiteit":"2026-05-19","laatste_order":"2026-05-19"},{"id":"9923598833","naam":"Burggolf Herkenbosch","telefoon":"+31 475 529 529","plaats":"Herkenbosch","branche":"Consumentenelektronica","waarde":10567.25,"laatste_activiteit":"2026-03-24","laatste_order":"2026-03-24"},{"id":"9923909598","naam":"The Racing Store","telefoon":"+31 174 528 038","plaats":"Delft","branche":"Winkels","waarde":10575.86,"laatste_activiteit":"2026-04-22","laatste_order":"2026-04-22"},{"id":"9923526628","naam":"Hotel Parkzicht","telefoon":"+31 598 666 888","plaats":"Veendam","branche":"Horeca (HOSPITALITY)","waarde":10807.0,"laatste_activiteit":"2026-03-11","laatste_order":"2026-03-11"},{"id":"9923744224","naam":"Buiten Bij De Sluis","telefoon":"+31 6 43027227","plaats":"Utrecht","branche":"Horeca (HOSPITALITY)","waarde":11994.09,"laatste_activiteit":"2026-03-19","laatste_order":"2026-02-20"},{"id":"9923744242","naam":"Eetcafé En Restaurant De Buren","telefoon":"+31 46 451 5904","plaats":"Sittard","branche":"Horeca (HOSPITALITY)","waarde":10398.85,"laatste_activiteit":"2026-02-19","laatste_order":"2026-02-19"},{"id":"9923527154","naam":"Tapas Oss B.V.","telefoon":"+31 412 744 116","plaats":"Oss","branche":"Horeca (HOSPITALITY)","waarde":10396.0,"laatste_activiteit":"2026-05-18","laatste_order":"2025-11-17"},{"id":"9923786704","naam":"Pizzeria Ristorante Sole D'italia","telefoon":"+31 318 611 650","plaats":"Ede","branche":"Restaurants","waarde":11212.19,"laatste_activiteit":"2026-03-26","laatste_order":"2026-03-26"},{"id":"9921482724c","naam":"Bella Ciao Harderwijk","telefoon":"+31 6 15047367","plaats":"Veghel","branche":"Restaurants","waarde":12222.7,"laatste_activiteit":"2026-04-24","laatste_order":"2026-05-06"},{"id":"9923619552","naam":"De Buurman Heerenveen","telefoon":"+31 513 654 535","plaats":"Heerenveen","branche":"Horeca (HOSPITALITY)","waarde":9342.55,"laatste_activiteit":"2026-03-19","laatste_order":"2026-02-26"},{"id":"186720392412","naam":"LaVie Catering","telefoon":"+31485335210","plaats":"Cuijk","branche":"Horeca (HOSPITALITY)","waarde":12750.87,"laatste_activiteit":"2026-02-25","laatste_order":"2026-02-25"},{"id":"13240552440","naam":"Restaurant Kanazawa","telefoon":"+31 76 886 5045","plaats":"Etten-Leur","branche":"Horeca (HOSPITALITY)","waarde":13629.58,"laatste_activiteit":"2026-03-19","laatste_order":"2026-02-27"},{"id":"9921482701","naam":"Kdb Expl. Kasteel Daelenbroeck","telefoon":"+31 475 532 465","plaats":"Herkenbosch","branche":"Horeca (HOSPITALITY)","waarde":14290.52,"laatste_activiteit":"2026-03-04","laatste_order":"2025-09-03"},{"id":"9923369200","naam":"WINDRAAK31 B.V.","telefoon":"+31 46 850 8150","plaats":"Windraak","branche":"Horeca (HOSPITALITY)","waarde":1850.8,"laatste_activiteit":"2026-05-28","laatste_order":"2025-11-27"},{"id":"9923870938","naam":"Secret Bar And Kitchen","telefoon":"+31 6 42040619","plaats":"'s-Hertogenbosch","branche":"Horeca (HOSPITALITY)","waarde":7120.1,"laatste_activiteit":"2026-06-03","laatste_order":"2025-12-03"},{"id":"9923786459","naam":"De Broodjes Bus","telefoon":"+31 6 18053458","plaats":"Eindhoven","branche":"Horeca (HOSPITALITY)","waarde":9881.0,"laatste_activiteit":"2026-01-26","laatste_order":"2026-01-26"},{"id":"9923850948","naam":"Exploitatie De Huifkarhoeve En Aan De Hoeve","telefoon":"+31 475 531 410","plaats":"Vlodrop","branche":"","waarde":4377.43,"laatste_activiteit":"2026-04-25","laatste_order":"2025-10-25"},{"id":"9923769277","naam":"BAS Beers and Steaks","telefoon":"+31 55 576 1384","plaats":"Barneveld","branche":"","waarde":13283.4,"laatste_activiteit":"2026-05-07","laatste_order":"2025-11-06"},{"id":"9923526366","naam":"Alberto's Italian Nijkerk","telefoon":"+31 33 258 5774","plaats":"Nijkerk GLD","branche":"Horeca (HOSPITALITY)","waarde":5696.6,"laatste_activiteit":"2026-05-07","laatste_order":"2025-11-06"},{"id":"9923879627","naam":"Eetcafé Zout/Camping Vlugtenburg","telefoon":"7507781140","plaats":"Veghel","branche":"Horeca (HOSPITALITY)","waarde":18775.09,"laatste_activiteit":"2026-03-30","laatste_order":"2026-03-30"},{"id":"9923850727","naam":"60514 Cafe 100 Watt","telefoon":"+31 40 842 8000","plaats":"Eindhoven","branche":"Horeca (HORECA)","waarde":6978.31,"laatste_activiteit":"2026-05-15","laatste_order":"2026-05-07"},{"id":"9923786226","naam":"Burgers Enzo","telefoon":"+31 6 21161025","plaats":"Ede","branche":"Horeca (HORECA)","waarde":15389.66,"laatste_activiteit":"2026-05-07","laatste_order":"2026-05-07"},{"id":"9923598792","naam":"De Rechter","telefoon":"+31 6 51109063","plaats":"Boxtel","branche":"Restaurants","waarde":7715.19,"laatste_activiteit":"2026-05-15","laatste_order":"2025-11-28"},{"id":"9923870673","naam":"Slavante","telefoon":"+31 43 321 0015","plaats":"Maastricht","branche":"Horeca (HOSPITALITY)","waarde":7997.2,"laatste_activiteit":"2026-04-21","laatste_order":"2026-03-11"},{"id":"9923769575","naam":"Restaurant De Loreley","telefoon":"+31 578 612 614","plaats":"Epe","branche":"Restaurants","waarde":9789.92,"laatste_activiteit":"2026-04-03","laatste_order":"2026-04-03"},{"id":"9923816140","naam":"Bistro-Bar De Bosrand","telefoon":"8389562260","plaats":"Sint Geertruid","branche":"Horeca (HOSPITALITY)","waarde":9510.13,"laatste_activiteit":"2026-03-20","laatste_order":"2026-03-20"},{"id":"9923909104","naam":"Koffiehuis Samen | Hooiberg","telefoon":"6512262811","plaats":"Schipluiden","branche":"Horeca (HORECA)","waarde":6371.47,"laatste_activiteit":"2026-06-01","laatste_order":"2026-04-15"},{"id":"9923850733b","naam":"Brasserie De Ijsboetiek Kesteren","telefoon":"+31 488 427 017","plaats":"Kesteren","branche":"Restaurants","waarde":9673.69,"laatste_activiteit":"2025-12-24","laatste_order":"2026-06-12"},{"id":"9923816410","naam":"Hotel - Restaurant De Posthoorn","telefoon":"+31 45 535 1526","plaats":"Veghel","branche":"Restaurants","waarde":3638.77,"laatste_activiteit":"2026-05-28","laatste_order":"2026-05-28"},{"id":"9923526640","naam":"De Borgh","telefoon":"+31 495 491 750","plaats":"Budel","branche":"Horeca (HOSPITALITY)","waarde":4382.56,"laatste_activiteit":"2026-05-13","laatste_order":"2026-05-06"},{"id":"9923619527","naam":"Bikke","telefoon":"+31 6 28394288","plaats":"Maastricht","branche":"Restaurants","waarde":12343.17,"laatste_activiteit":"2026-05-26","laatste_order":"2026-05-26"},{"id":"9923368925","naam":"Fretz","telefoon":"+31 43 321 7846","plaats":"Maastricht","branche":"","waarde":5537.6,"laatste_activiteit":"2025-12-26","laatste_order":"2026-05-26"},{"id":"13773125614","naam":"LUKOIL","telefoon":"+7 495 627-44-44","plaats":"Maastricht","branche":"Olie en energie","waarde":7292.32,"laatste_activiteit":"2026-05-25","laatste_order":"2026-05-25"},{"id":"9923879625","naam":"Baroef","telefoon":"+31 493 745 008","plaats":"Deurne","branche":"Horeca (HOSPITALITY)","waarde":1245.0,"laatste_activiteit":"2026-06-17","laatste_order":"2025-10-17"},{"id":"9923816695","naam":"Zeezicht Breda","telefoon":"+31 6 22979593","plaats":"Breda","branche":"Restaurants","waarde":2665.0,"laatste_activiteit":"2026-06-16","laatste_order":"2025-07-24"},{"id":"9923526866","naam":"Mart 9","telefoon":"+31 168 799 800","plaats":"Zevenbergen","branche":"Restaurants","waarde":12881.81,"laatste_activiteit":"2026-06-09","laatste_order":"2025-07-21"},{"id":"9923620057","naam":"Restaurant De Brouwerij","telefoon":"+31 113 370 262","plaats":"Kamperland","branche":"Horeca (HOSPITALITY)","waarde":4972.4,"laatste_activiteit":"2026-05-17","laatste_order":"2025-12-31"},{"id":"9923486407","naam":"De Buren","telefoon":"+31 6 11265763","plaats":"Terheijden","branche":"Restaurants","waarde":2714.15,"laatste_activiteit":"2026-03-30","laatste_order":"2026-03-30"},{"id":"9923619811","naam":"Dé Wieëtsjaf","telefoon":"+31 6 43540190","plaats":"Kerkrade","branche":"Restaurants","waarde":4788.75,"laatste_activiteit":"2026-03-03","laatste_order":"2026-03-03"},{"id":"9923786964","naam":"Thbx-Café","telefoon":"+31 6 14275717","plaats":"Roermond","branche":"Mode en kleding","waarde":13028.7,"laatste_activiteit":"2026-02-12","laatste_order":"2025-11-14"}];
+
+  // Batch insert 50 at a time
+  for (let i = 0; i < raw.length; i += 50) {
+    const batch = raw.slice(i, i+50).map(k => ({...k, status:'actief', is_new:false}));
+    try {
+      await sbFetch('klanten', {method:'POST', body:JSON.stringify(batch)});
+    } catch(e) { console.log('Seed batch error:', e.message); }
+  }
+  await loadKlanten();
+}
+
+// ─── HELPERS ──────────────────────────────────────────────────────────────
+function daysSince(d) { if (!d) return 9999; return Math.floor((TODAY - new Date(d)) / 86400000); }
+function fmt(v) { return '€ ' + Number(v||0).toLocaleString('nl-NL', {minimumFractionDigits:0, maximumFractionDigits:0}); }
+function fmtDate(d) { if (!d) return '–'; return new Date(d).toLocaleDateString('nl-NL'); }
+
+function statusBadge(s) {
+  const m = {actief:['s-actief','Actief'],opvolgen:['s-opvolgen','Opvolgen'],urgent:['s-urgent','Urgent'],klaar:['s-klaar','Klaar']};
+  const [cls,lbl] = m[s||'actief'] || m.actief;
+  return `<span class="sb ${cls}">${lbl}</span>`;
+}
+function daysChip(d) {
+  const cls = d>=180?'d-danger':d>=90?'d-warn':'d-ok';
+  return d>=9999?'–':`<span class="dc ${cls}">${d}d</span>`;
+}
+
+function buildBrancheFilter() {
+  const branches = [...new Set(klanten.map(k=>k.branche).filter(Boolean))].sort();
+  const sel = document.getElementById('br-sel');
+  sel.innerHTML = '<option value="">Alle branches</option>';
+  branches.forEach(b => { const o = document.createElement('option'); o.value=b; o.textContent=b; sel.appendChild(o); });
+}
+
+// ─── FILTER / SORT ────────────────────────────────────────────────────────
+function filtered() {
+  return klanten.filter(k => {
+    if (filter !== 'all' && (k.status||'actief') !== filter) return false;
+    if (branche && k.branche !== branche) return false;
+    if (search) {
+      const q = search.toLowerCase();
+      if (!k.naam.toLowerCase().includes(q) && !(k.plaats||'').toLowerCase().includes(q)) return false;
+    }
+    return true;
+  });
+}
+function sorted(arr) {
+  return [...arr].sort((a,b) => {
+    if (sortKey==='ld') return (b.laatste_order||'').localeCompare(a.laatste_order||'');
+    if (sortKey==='la') return (a.laatste_order||'').localeCompare(b.laatste_order||'');
+    if (sortKey==='wd') return (b.waarde||0)-(a.waarde||0);
+    if (sortKey==='na') return a.naam.localeCompare(b.naam);
+    return 0;
+  });
+}
+function setF(f, btn) {
+  filter = f;
+  document.querySelectorAll('.fb').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  page = 1; render();
+}
+function sortBy(c) {
+  const m = {naam:'na',lo:'ld',dagen:'la',waarde:'wd'};
+  sortKey = m[c]||sortKey; render();
+}
+
+// ─── RENDER ───────────────────────────────────────────────────────────────
+function render() {
+  const f = sorted(filtered());
+  document.getElementById('rc').textContent = f.length;
+  const pages = Math.max(1, Math.ceil(f.length/PER));
+  if (page > pages) page = 1;
+  const slice = f.slice((page-1)*PER, page*PER);
+
+  document.getElementById('tb').innerHTML = slice.map(k => {
+    const nts = notities[k.id] || [];
+    const last = nts[0];
+    return `<tr onclick="openModal('${k.id}')" class="${k.is_new?'is-new':''}">
+      <td><div class="kn">${k.naam}${k.is_new?'<span class="new-badge">NIEUW</span>':''}</div><div class="kp">${k.plaats||'–'}${k.branche?' · '+k.branche:''}</div></td>
+      <td>${fmtDate(k.laatste_order)}</td>
+      <td>${daysChip(k.dagen||daysSince(k.laatste_order))}</td>
+      <td>${fmt(k.waarde)}</td>
+      <td>${statusBadge(k.status)}</td>
+      <td>${last?`<span class="note-prev">${last.tekst}</span>${nts.length>1?`<span class="nc">+${nts.length-1}</span>`:''}` : '<span style="color:var(--muted);font-size:11px">–</span>'}</td>
+    </tr>`;
+  }).join('');
+
+  // Pagination
+  const pag = document.getElementById('pag');
+  if (pages <= 1) { pag.innerHTML=''; return; }
+  let h = `<button class="pb" onclick="goPage(${page-1})" ${page===1?'disabled':''}>‹</button>`;
+  for (let i=1;i<=pages;i++) {
+    if (pages>8 && i>3 && i<pages-2 && Math.abs(i-page)>1) { if (i===4||i===pages-2) h+='<span class="pi">…</span>'; continue; }
+    h += `<button class="pb ${i===page?'active':''}" onclick="goPage(${i})">${i}</button>`;
+  }
+  h += `<button class="pb" onclick="goPage(${page+1})" ${page===pages?'disabled':''}>›</button>`;
+  h += `<span class="pi">${(page-1)*PER+1}–${Math.min(page*PER,f.length)} van ${f.length}</span>`;
+  pag.innerHTML = h;
+}
+function goPage(p) { page=p; render(); document.getElementById('page-overzicht').scrollTo(0,0); }
+
+function updateStats() {
+  document.getElementById('st-total').textContent = klanten.length;
+  document.getElementById('st-urgent').textContent = klanten.filter(k=>k.status==='urgent').length;
+  document.getElementById('st-opvolgen').textContent = klanten.filter(k=>k.status==='opvolgen').length;
+  document.getElementById('st-afspraken').textContent = afspraken.filter(a=>a.datum>=new Date('2026-06-29').toISOString().slice(0,10)).length;
+}
+
+// ─── MODAL ────────────────────────────────────────────────────────────────
+function openModal(id) {
+  activeId = id;
+  const k = klanten.find(x=>x.id===id);
+  document.getElementById('m-naam').textContent = k.naam;
+  document.getElementById('m-sub').textContent = (k.plaats||'')+(k.branche?' · '+k.branche:'');
+  document.getElementById('m-lo').textContent = fmtDate(k.laatste_order);
+  const d = k.dagen||daysSince(k.laatste_order);
+  document.getElementById('m-dagen').textContent = d<9999?d+' dagen':'–';
+  document.getElementById('m-val').textContent = fmt(k.waarde);
+  const tel = k.telefoon||'–';
+  document.getElementById('m-tel').innerHTML = tel!=='–'?`<a href="tel:${tel}">${tel}</a>`:tel;
+  document.getElementById('m-br').textContent = k.branche||'–';
+  document.getElementById('m-act').textContent = fmtDate(k.laatste_activiteit);
+  document.getElementById('af-datum').value = '';
+  document.getElementById('af-note').value = '';
+  renderStatusOpts(k.status||'actief');
+  renderNotes(id);
+  document.getElementById('note-inp').value = '';
+  document.getElementById('modal').classList.add('open');
+  // Clear new badge
+  if (k.is_new) { k.is_new=false; sbFetch(`klanten?id=eq.${id}`,{method:'PATCH',body:JSON.stringify({is_new:false})}); }
+}
+function closeModal(e) {
+  if (!e||e.target===document.getElementById('modal')) {
+    document.getElementById('modal').classList.remove('open');
+    activeId=null; render(); updateStats();
+  }
+}
+function renderStatusOpts(sel) {
+  const map = {actief:'sa',opvolgen:'so2',urgent:'su',klaar:'sk'};
+  document.querySelectorAll('.sopt').forEach(b=>{
+    b.className='sopt';
+    if (b.dataset.s===sel) b.classList.add(map[sel]);
+  });
+}
+async function setStatus(s) {
+  if (!activeId) return;
+  const k = klanten.find(x=>x.id===activeId);
+  k.status = s;
+  try { await sbFetch(`klanten?id=eq.${activeId}`,{method:'PATCH',body:JSON.stringify({status:s})}); }
+  catch(e) { toast('Opslaan mislukt','err'); }
+  renderStatusOpts(s); updateStats(); render();
+  toast('Status opgeslagen');
+}
+
+// ─── NOTES ────────────────────────────────────────────────────────────────
+function renderNotes(id) {
+  const nts = notities[id]||[];
+  const list = document.getElementById('notes-list');
+  if (!nts.length) { list.innerHTML='<div class="en">Nog geen notities. Voeg er een toe!</div>'; return; }
+  list.innerHTML = nts.map(n=>`
+    <div class="ni">
+      <div class="nm"><span>${new Date(n.created_at).toLocaleString('nl-NL')}</span>
+        <button class="nd" onclick="deleteNote(${n.id})">✕</button></div>
+      <div class="nt">${n.tekst}</div>
+    </div>`).join('');
+}
+async function addNote() {
+  if (!activeId) return;
+  const txt = document.getElementById('note-inp').value.trim();
+  if (!txt) return;
+  try {
+    const res = await sbFetch('notities',{method:'POST',body:JSON.stringify({klant_id:activeId,tekst:txt})});
+    if (!notities[activeId]) notities[activeId]=[];
+    notities[activeId].unshift(res[0]||{id:Date.now(),klant_id:activeId,tekst:txt,created_at:new Date().toISOString()});
+    document.getElementById('note-inp').value='';
+    renderNotes(activeId); render(); toast('Notitie opgeslagen');
+  } catch(e) { toast('Fout bij opslaan','err'); }
+}
+async function deleteNote(nid) {
+  try {
+    await sbFetch(`notities?id=eq.${nid}`,{method:'DELETE'});
+    Object.keys(notities).forEach(kid=>{ notities[kid]=notities[kid].filter(n=>n.id!==nid); });
+    renderNotes(activeId); render();
+  } catch(e) { toast('Verwijderen mislukt','err'); }
+}
+
+// ─── AFSPRAKEN ────────────────────────────────────────────────────────────
+async function saveAfspraak() {
+  if (!activeId) return;
+  const datum = document.getElementById('af-datum').value;
+  const tijd = document.getElementById('af-tijd').value;
+  const onderwerp = document.getElementById('af-note').value.trim();
+  if (!datum) { toast('Kies een datum','err'); return; }
+  const k = klanten.find(x=>x.id===activeId);
+  try {
+    const res = await sbFetch('afspraken',{method:'POST',body:JSON.stringify({
+      klant_id:activeId, klant_naam:k.naam, datum, tijd, onderwerp
+    })});
+    afspraken.push(res[0]||{id:Date.now(),klant_id:activeId,klant_naam:k.naam,datum,tijd,onderwerp});
+    afspraken.sort((a,b)=>a.datum.localeCompare(b.datum));
+    document.getElementById('af-datum').value='';
+    document.getElementById('af-note').value='';
+    updateStats(); renderCalendar(); renderAgenda();
+    toast('Afspraak ingepland!');
+  } catch(e) { toast('Fout bij opslaan','err'); }
+}
+async function deleteAfspraak(id) {
+  try {
+    await sbFetch(`afspraken?id=eq.${id}`,{method:'DELETE'});
+    afspraken = afspraken.filter(a=>a.id!==id);
+    updateStats(); renderCalendar(); renderAgenda();
+    toast('Afspraak verwijderd');
+  } catch(e) { toast('Verwijderen mislukt','err'); }
+}
+
+// AFSPRAAK MODAL (from calendar)
+let afmDate = '';
+function openAfModal(date) {
+  afmDate = date;
+  afmKlantId = null;
+  document.getElementById('afm-klant').value='';
+  document.getElementById('afm-results').innerHTML='';
+  document.getElementById('afm-datum').value=date;
+  document.getElementById('afm-tijd').value='10:00';
+  document.getElementById('afm-note').value='';
+  document.getElementById('af-modal').classList.add('open');
+}
+function closeAfModal(e) {
+  if (!e||e.target===document.getElementById('af-modal'))
+    document.getElementById('af-modal').classList.remove('open');
+}
+function afmSearch(q) {
+  const res = document.getElementById('afm-results');
+  if (q.length < 2) { res.innerHTML=''; return; }
+  const matches = klanten.filter(k=>k.naam.toLowerCase().includes(q.toLowerCase())).slice(0,6);
+  res.innerHTML = matches.map(k=>`<div onclick="afmSelect('${k.id}','${k.naam.replace(/'/g,"\\'")}');event.stopPropagation()" style="padding:8px 12px;cursor:pointer;font-size:13px;border-bottom:1px solid var(--border)" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background=''">
+    ${k.naam} <span style="color:var(--muted);font-size:11px">${k.plaats}</span>
+  </div>`).join('');
+}
+function afmSelect(id, naam) {
+  afmKlantId=id;
+  document.getElementById('afm-klant').value=naam;
+  document.getElementById('afm-results').innerHTML='';
+}
+async function saveAfspraakModal() {
+  if (!afmKlantId) { toast('Kies een klant','err'); return; }
+  const datum = document.getElementById('afm-datum').value;
+  const tijd = document.getElementById('afm-tijd').value;
+  const onderwerp = document.getElementById('afm-note').value.trim();
+  if (!datum) { toast('Kies een datum','err'); return; }
+  const k = klanten.find(x=>x.id===afmKlantId);
+  try {
+    const res = await sbFetch('afspraken',{method:'POST',body:JSON.stringify({
+      klant_id:afmKlantId, klant_naam:k.naam, datum, tijd, onderwerp
+    })});
+    afspraken.push(res[0]||{id:Date.now(),klant_id:afmKlantId,klant_naam:k.naam,datum,tijd,onderwerp});
+    afspraken.sort((a,b)=>a.datum.localeCompare(b.datum));
+    closeAfModal();
+    updateStats(); renderCalendar(); renderAgenda();
+    toast('Afspraak ingepland!');
+  } catch(e) { toast('Fout bij opslaan','err'); }
+}
+
+// ─── CALENDAR ─────────────────────────────────────────────────────────────
+function calNav(dir) {
+  if (dir===0) { const n=new Date('2026-06-29'); calYear=n.getFullYear(); calMonth=n.getMonth(); }
+  else { calMonth+=dir; if(calMonth>11){calMonth=0;calYear++;}else if(calMonth<0){calMonth=11;calYear--;} }
+  renderCalendar();
+}
+function renderCalendar() {
+  const months=['Januari','Februari','Maart','April','Mei','Juni','Juli','Augustus','September','Oktober','November','December'];
+  document.getElementById('cal-month-lbl').textContent = months[calMonth]+' '+calYear;
+  const grid = document.getElementById('cal-grid');
+  // Remove old day cells (keep day-of-week headers = first 7)
+  while (grid.children.length > 7) grid.removeChild(grid.lastChild);
+
+  const first = new Date(calYear, calMonth, 1);
+  let startDow = first.getDay(); // 0=Sun
+  startDow = startDow===0?6:startDow-1; // Mon=0
+  const daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
+  const daysInPrev = new Date(calYear, calMonth, 0).getDate();
+  const todayStr = '2026-06-29';
+
+  // Prev month padding
+  for (let i=startDow-1; i>=0; i--) {
+    const d = document.createElement('div');
+    d.className='cal-day other-month';
+    d.innerHTML=`<div class="cal-day-num">${daysInPrev-i}</div>`;
+    grid.appendChild(d);
+  }
+  // Current month
+  for (let d=1; d<=daysInMonth; d++) {
+    const dateStr = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isToday = dateStr===todayStr;
+    const dayAfspraken = afspraken.filter(a=>a.datum===dateStr);
+    const div = document.createElement('div');
+    div.className='cal-day'+(isToday?' today':'');
+    div.onclick = () => openAfModal(dateStr);
+    let inner = `<div class="cal-day-num">${d}</div>`;
+    inner += `<button class="cal-add-btn" onclick="event.stopPropagation();openAfModal('${dateStr}')">+</button>`;
+    dayAfspraken.forEach(a => {
+      const k = klanten.find(x=>x.id===a.klant_id);
+      const s = k?.status||'actief';
+      const cls = s==='urgent'?'ev-urgent':s==='opvolgen'?'ev-opvolgen':'';
+      inner += `<div class="cal-event ${cls}" onclick="event.stopPropagation();openModal('${a.klant_id}')" title="${a.onderwerp||a.klant_naam}">${a.klant_naam}</div>`;
+    });
+    div.innerHTML = inner;
+    grid.appendChild(div);
+  }
+  // Next month padding
+  const total = startDow + daysInMonth;
+  const remaining = total%7===0?0:7-(total%7);
+  for (let i=1; i<=remaining; i++) {
+    const d = document.createElement('div');
+    d.className='cal-day other-month';
+    d.innerHTML=`<div class="cal-day-num">${i}</div>`;
+    grid.appendChild(d);
+  }
+}
+
+// ─── AGENDA ───────────────────────────────────────────────────────────────
+function renderAgenda() {
+  const wrap = document.getElementById('agenda-content');
+  const todayStr = '2026-06-29';
+  const upcoming = afspraken.filter(a=>a.datum>=todayStr).sort((a,b)=>a.datum.localeCompare(b.datum)||a.tijd?.localeCompare(b.tijd||''));
+  const past = afspraken.filter(a=>a.datum<todayStr).sort((a,b)=>b.datum.localeCompare(a.datum));
+
+  if (!upcoming.length && !past.length) {
+    wrap.innerHTML='<div class="loading" style="color:var(--muted)">Nog geen afspraken. Plan ze in via het klantoverzicht of de kalender.</div>';
+    return;
+  }
+
+  function renderGroup(items, title) {
+    if (!items.length) return '';
+    const grouped = {};
+    items.forEach(a => { if(!grouped[a.datum]) grouped[a.datum]=[]; grouped[a.datum].push(a); });
+    let h = `<div class="agenda-section"><div class="agenda-date">${title}</div>`;
+    Object.entries(grouped).forEach(([date, afs]) => {
+      h += `<div style="font-size:11px;color:var(--muted);margin:8px 0 4px;font-weight:700">${new Date(date).toLocaleDateString('nl-NL',{weekday:'long',day:'numeric',month:'long'})}</div>`;
+      afs.forEach(a => {
+        const k = klanten.find(x=>x.id===a.klant_id);
+        const s = k?.status||'actief';
+        const dotCls = s==='urgent'?'d-urgent':s==='opvolgen'?'d-opvolgen':'';
+        h += `<div class="agenda-item" onclick="openModal('${a.klant_id}')">
+          <div class="agenda-dot ${dotCls}"></div>
+          <div class="agenda-info">
+            <div class="agenda-klant">${a.klant_naam}</div>
+            ${a.onderwerp?`<div class="agenda-note">${a.onderwerp}</div>`:''}
+          </div>
+          <div class="agenda-time">${a.tijd||''}</div>
+          <button class="agenda-del" onclick="event.stopPropagation();deleteAfspraak(${a.id})">✕</button>
+        </div>`;
+      });
+    });
+    return h+'</div>';
+  }
+
+  wrap.innerHTML = renderGroup(upcoming,'Aankomend') + renderGroup(past,'Verleden');
+}
+
+// ─── CSV IMPORT ───────────────────────────────────────────────────────────
+function importCSV(input) {
+  const file = input.files[0];
+  if (!file) return;
+  Papa.parse(file, {
+    header: true, skipEmptyLines: true,
+    complete: async (results) => {
+      const rows = results.data;
+      const existingIds = new Set(klanten.map(k=>k.id));
+      let nieuw = 0;
+      const toInsert = [];
+      rows.forEach(r => {
+        const id = r['Record-ID']||r['id'];
+        if (!id || existingIds.has(id)) return;
+        const val = parseFloat((r['Total Won Deal Value']||'0').replace(',','.')) || 0;
+        toInsert.push({
+          id, naam: r['Naam onderneming']||r['naam']||'', telefoon: (r['Telefoonnummer']||r['telefoon']||'').trim(),
+          plaats: r['Plaats']||r['plaats']||'', branche: r['Branche']||r['branche']||'',
+          waarde: val, laatste_activiteit: r['Datum laatste activiteit']?.slice(0,10)||null,
+          laatste_order: r['Last Order Date']||r['laatste_order']||null,
+          status:'actief', is_new:true
+        });
+        nieuw++;
+      });
+      if (!nieuw) { toast('Geen nieuwe klanten gevonden'); input.value=''; return; }
+      for (let i=0;i<toInsert.length;i+=50) {
+        try { await sbFetch('klanten',{method:'POST',body:JSON.stringify(toInsert.slice(i,i+50))}); }
+        catch(e) { console.log(e); }
+      }
+      await loadKlanten();
+      buildBrancheFilter(); render(); updateStats();
+      toast(`${nieuw} nieuwe klanten toegevoegd!`);
+      input.value='';
+    }
+  });
+}
+
+// ─── PAGE NAV ─────────────────────────────────────────────────────────────
+function showPage(id, btn) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  btn.classList.add('active');
+  if (id==='kalender') renderCalendar();
+  if (id==='agenda') renderAgenda();
+}
+
+// ─── TOAST ────────────────────────────────────────────────────────────────
+let toastT;
+function toast(msg, type='') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show'+(type?' '+type:'');
+  clearTimeout(toastT);
+  toastT = setTimeout(()=>el.classList.remove('show'),2500);
+}
+
+// ─── EVENT LISTENERS ──────────────────────────────────────────────────────
+document.getElementById('search').addEventListener('input', e=>{ search=e.target.value; page=1; render(); });
+document.getElementById('sort-sel').addEventListener('change', e=>{ sortKey=e.target.value; render(); });
+document.getElementById('br-sel').addEventListener('change', e=>{ branche=e.target.value; page=1; render(); });
+
+// ─── BOOT ─────────────────────────────────────────────────────────────────
+boot();
+</script>
+
+<!-- SQL Setup Instructions (hidden) -->
+<!--
+RUN THIS SQL IN SUPABASE SQL EDITOR FIRST:
+https://supabase.com/dashboard/project/okjfpjrcvbttlkuqjsvu/sql
+
+CREATE TABLE IF NOT EXISTS klanten (
+  id TEXT PRIMARY KEY,
+  naam TEXT,
+  telefoon TEXT,
+  plaats TEXT,
+  branche TEXT,
+  waarde NUMERIC DEFAULT 0,
+  laatste_activiteit DATE,
+  laatste_order DATE,
+  status TEXT DEFAULT 'actief',
+  is_new BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE TABLE IF NOT EXISTS notities (
+  id BIGSERIAL PRIMARY KEY,
+  klant_id TEXT REFERENCES klanten(id) ON DELETE CASCADE,
+  tekst TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE TABLE IF NOT EXISTS afspraken (
+  id BIGSERIAL PRIMARY KEY,
+  klant_id TEXT REFERENCES klanten(id) ON DELETE CASCADE,
+  klant_naam TEXT,
+  datum DATE,
+  tijd TIME,
+  onderwerp TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+ALTER TABLE klanten ENABLE ROW LEVEL SECURITY;
+ALTER TABLE notities ENABLE ROW LEVEL SECURITY;
+ALTER TABLE afspraken ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "public_all" ON klanten FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "public_all" ON notities FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "public_all" ON afspraken FOR ALL USING (true) WITH CHECK (true);
+-->
+</body>
+</html>
