@@ -13,12 +13,12 @@ html,body{height:100%;background:#faf9f7;color:#1a1a1a;font-family:system-ui,-ap
 :root{--sage:#8faa8b;--sage-d:#728970;--ink:#1a1a1a;--ink2:#2a2a2a;--ink3:#3a3a3a;--muted:#888;--muted2:#bbb;--sand:#faf9f7;--sand2:#f5f4f2;--sand3:#eeece8;--border:#e8e5e0;--border2:#d8d5d0;--red:#c0392b;--redbg:#fde8e8;--orange:#9a6500;--orangebg:#fef0d6;--green:#2d7a2d;--greenbg:#e8f4e8;--blue:#2c4f9a;--bluebg:#e8eef8;--radius:7px}
 /* LAYOUT */
 .app{display:flex;height:100vh;overflow:hidden}
-.sidebar{width:52px;background:var(--ink);display:flex;flex-direction:column;align-items:center;padding:12px 0;gap:2px;flex-shrink:0;z-index:10}
-.s-logo{width:28px;height:28px;border-radius:8px;background:var(--sage);display:flex;align-items:center;justify-content:center;margin-bottom:14px;flex-shrink:0}
-.s-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);font-size:17px;transition:.15s;text-decoration:none}
-.s-icon:hover{background:var(--ink2);color:#aaa}
-.s-icon.act{background:var(--ink2);color:var(--sage)}
-.s-sep{height:1px;background:#333;width:28px;margin:6px 0}
+.sidebar{width:52px;background:#5c7a5a;display:flex;flex-direction:column;align-items:center;padding:12px 0;gap:2px;flex-shrink:0;z-index:10}
+.s-logo{width:28px;height:28px;border-radius:8px;background:#fff;display:flex;align-items:center;justify-content:center;margin-bottom:14px;flex-shrink:0}
+.s-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:rgba(255,255,255,.65);font-size:19px;transition:.15s;text-decoration:none}
+.s-icon:hover{background:rgba(255,255,255,.12);color:#fff}
+.s-icon.act{background:rgba(255,255,255,.18);color:#fff}
+.s-sep{height:1px;background:rgba(255,255,255,.15);width:28px;margin:6px 0}
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
 /* TOPBAR */
 .topbar{background:#fff;border-bottom:1px solid var(--border);padding:0 18px;height:50px;display:flex;align-items:center;gap:12px;flex-shrink:0}
@@ -298,6 +298,25 @@ td{padding:10px 18px;vertical-align:middle}
 .lt-desc{font-size:13px;font-weight:600;color:var(--ink)}
 .lt-meta{font-size:10px;color:var(--muted2);margin-top:2px}
 .lt-meta.overdue{color:var(--red);font-weight:700}
+/* DEALS */
+.deal-stats{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:16px}
+.deal-stat-box{background:#fff;border:1px solid var(--border);border-radius:9px;padding:12px 14px}
+.deal-stat-lbl{font-size:9px;color:var(--muted2);text-transform:uppercase;letter-spacing:.4px;font-weight:600;margin-bottom:4px}
+.deal-stat-val{font-size:18px;font-weight:700;letter-spacing:-.3px;color:var(--ink)}
+.deal-stat-sub{font-size:9px;color:var(--muted2);margin-top:2px}
+.deal-item{background:#fff;border:1px solid var(--border);border-radius:9px;padding:12px 15px;margin-bottom:7px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:.1s}
+.deal-item:hover{border-color:var(--border2);background:var(--sand)}
+.deal-status{font-size:9px;font-weight:700;padding:3px 9px;border-radius:5px;flex-shrink:0;white-space:nowrap}
+.ds-offerte{background:var(--bluebg);color:var(--blue)}
+.ds-design{background:var(--orangebg);color:var(--orange)}
+.ds-productie{background:#f0e8fb;color:#6b3fa0}
+.ds-gewonnen{background:var(--greenbg);color:var(--green)}
+.ds-verloren{background:var(--redbg);color:var(--red)}
+.deal-info{flex:1;min-width:0}
+.deal-klant{font-size:10px;font-weight:700;color:var(--sage-d);text-transform:uppercase;letter-spacing:.3px;margin-bottom:1px}
+.deal-naam{font-size:13px;font-weight:600;color:var(--ink)}
+.deal-meta{font-size:10px;color:var(--muted2);margin-top:2px}
+.deal-bedrag{font-size:14px;font-weight:700;color:var(--ink);flex-shrink:0;white-space:nowrap}
 /* MODALS */
 .modal-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;align-items:center;justify-content:center;padding:12px}
 .modal-ov.open{display:flex}
@@ -339,6 +358,7 @@ td{padding:10px 18px;vertical-align:middle}
     <a class="s-icon" onclick="showPage('taken',this)" title="Taken" href="#"><i class="ti ti-checkbox" aria-hidden="true"></i></a>
     <a class="s-icon" onclick="showPage('levertijden',this)" title="Levertijden" href="#"><i class="ti ti-package" aria-hidden="true"></i></a>
     <a class="s-icon" onclick="showPage('klachten',this)" title="Klachten" href="#"><i class="ti ti-alert-circle" aria-hidden="true"></i></a>
+    <a class="s-icon" onclick="showPage('deals',this)" title="Deals" href="#"><i class="ti ti-file-invoice" aria-hidden="true"></i></a>
     <a class="s-icon" onclick="showPage('kalender',this)" title="Kalender" href="#"><i class="ti ti-calendar" aria-hidden="true"></i></a>
     <a class="s-icon" onclick="showPage('agenda',this)" title="Agenda" href="#"><i class="ti ti-list" aria-hidden="true"></i></a>
     <div class="s-sep"></div>
@@ -453,10 +473,14 @@ td{padding:10px 18px;vertical-align:middle}
               <div class="dag-progbar"><div class="dag-progfill" id="dag-productie-bar" style="width:0%"></div></div>
             </div>
             <div class="dag-card">
-              <div class="dag-lbl">Maand tot nu toe</div>
+              <div class="dag-lbl" style="display:flex;justify-content:space-between;align-items:center">Maand tot nu toe <button class="dp-add" style="font-size:13px" onclick="toggleMaandEdit()" aria-label="Maandstand aanpassen"><i class="ti ti-edit" aria-hidden="true"></i></button></div>
               <div class="dag-val" id="dag-maand-val">€ 0</div>
               <div class="dag-sub" id="dag-maand-sub">deze maand</div>
               <div class="dag-progbar"><div class="dag-progfill" id="dag-maand-bar" style="width:0%"></div></div>
+              <div id="maand-edit-row" style="display:none;margin-top:9px;gap:6px;flex-wrap:wrap" class="dag-input-row">
+                <input class="form-inp" id="maand-override-inp" type="number" placeholder="Maandstand handmatig instellen €" style="flex:1;min-width:160px">
+                <button class="btn-p" style="padding:8px 12px;flex:0 0 auto" onclick="saveMaandOverride()">Opslaan</button>
+              </div>
             </div>
           </div>
 
@@ -468,6 +492,14 @@ td{padding:10px 18px;vertical-align:middle}
             <input class="form-inp" id="dag-commit-morgen-inp" type="number" placeholder="Commit morgen €">
             <button class="btn-p" onclick="saveDagrapport()">Opslaan</button>
           </div>
+
+          <div class="dag-sec">
+            <div class="dag-sec-title">Maandgeschiedenis <button class="dp-add" onclick="toggleMaandHistorie()" aria-label="Geschiedenis tonen">
+              <i class="ti ti-chevron-down" id="maand-hist-chevron" aria-hidden="true"></i>
+            </button></div>
+            <div id="maand-historie-list" style="display:none"></div>
+          </div>
+
 
           <div class="dag-sec">
             <div class="dag-sec-title">Levertijden open <button class="dp-add" onclick="openLevertijdModal()" aria-label="Levertijd toevoegen">+</button></div>
@@ -526,6 +558,28 @@ td{padding:10px 18px;vertical-align:middle}
             <button class="dp-btn-p" onclick="openKlachtModal()"><i class="ti ti-plus" style="font-size:11px" aria-hidden="true"></i> Nieuwe klacht</button>
           </div>
           <div id="klachten-list"><div class="spin-wrap"><div class="spin"></div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DEALS PAGE -->
+    <div class="page" id="page-deals">
+      <div class="page-scroll">
+        <div class="lt-page">
+          <div class="deal-stats" id="deal-stats"></div>
+          <div class="lt-hdr">
+            <div class="lt-filters">
+              <button class="flt on" onclick="setDealFilter('open',this)">Open</button>
+              <button class="flt" onclick="setDealFilter('offerte',this)">Offerte verstuurd</button>
+              <button class="flt" onclick="setDealFilter('design',this)">Design</button>
+              <button class="flt" onclick="setDealFilter('productie',this)">Productie</button>
+              <button class="flt" onclick="setDealFilter('gewonnen',this)">Gewonnen</button>
+              <button class="flt" onclick="setDealFilter('verloren',this)">Verloren</button>
+              <button class="flt" onclick="setDealFilter('all',this)">Alle</button>
+            </div>
+            <button class="dp-btn-p" onclick="openDealModal()"><i class="ti ti-plus" style="font-size:11px" aria-hidden="true"></i> Nieuwe deal</button>
+          </div>
+          <div id="deals-list"><div class="spin-wrap"><div class="spin"></div></div></div>
         </div>
       </div>
     </div>
@@ -830,6 +884,31 @@ td{padding:10px 18px;vertical-align:middle}
   </div>
 </div>
 
+<div class="modal-ov" id="ov-deal" onclick="closeOv('ov-deal',event)">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <h3>Deal toevoegen</h3>
+    <div class="form-row" id="deal-klant-row">
+      <label class="form-lbl">Klant</label>
+      <input class="form-inp" id="deal-ks" placeholder="Zoek klant..." oninput="ksSearch(this.value,'deal-ks-res','dealKlantId')" autocomplete="off">
+      <div class="sr" id="deal-ks-res"></div>
+    </div>
+    <div class="form-row"><label class="form-lbl">Dealnaam</label><input class="form-inp" id="deal-naam" placeholder="bijv. Herinrichting terras servetten"></div>
+    <div class="form-row"><label class="form-lbl">Dealnummer (optioneel)</label><input class="form-inp" id="deal-nummer" placeholder="bijv. D-2026-014"></div>
+    <div class="form-row"><label class="form-lbl">Bedrag</label><input class="form-inp" id="deal-bedrag" type="number" placeholder="€"></div>
+    <div class="form-row"><label class="form-lbl">Status</label>
+      <select class="form-sel" id="deal-status">
+        <option value="offerte">Offerte verstuurd</option>
+        <option value="design">Design</option>
+        <option value="productie">Productie</option>
+        <option value="gewonnen">Gewonnen</option>
+        <option value="verloren">Verloren</option>
+      </select>
+    </div>
+    <div class="form-row" id="deal-verlies-row" style="display:none"><label class="form-lbl">Reden verloren (optioneel)</label><input class="form-inp" id="deal-verliesreden" placeholder="bijv. te duur, koos concurrent"></div>
+    <div class="form-acts"><button class="btn-c" onclick="closeOv('ov-deal')">Annuleren</button><button class="btn-p" onclick="saveDeal()">Opslaan</button></div>
+  </div>
+</div>
+
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
@@ -845,19 +924,19 @@ async function sb(path,opts={}){
   return r.json();
 }
 
-let klanten=[],notities={},afspraken=[],taken=[],contacten={},belgesc={},levertijden=[],klachten=[],dagrapporten=[];
-let activeId=null,editMode=false,taakKlantId=null,afKlantId=null,levKlantId=null,klKlantId=null;
-let filter='all',sortKey='ld',search='',branche='',page=1,takenFilter='open',levFilter='open',klachtFilter='open';
+let klanten=[],notities={},afspraken=[],taken=[],contacten={},belgesc={},levertijden=[],klachten=[],dagrapporten=[],deals=[];
+let activeId=null,editMode=false,taakKlantId=null,afKlantId=null,levKlantId=null,klKlantId=null,dealKlantId=null;
+let filter='all',sortKey='ld',search='',branche='',page=1,takenFilter='open',levFilter='open',klachtFilter='open',dealFilter='open';
 const PER=30;
 let calYear,calMonth;
 
 async function boot(){
   const n=new Date(TODAY);calYear=n.getFullYear();calMonth=n.getMonth();
   try{
-    await Promise.all([loadKlanten(),loadNotities(),loadAfspraken(),loadTaken(),loadContacten(),loadBel(),loadLevertijden(),loadKlachten(),loadDagrapporten()]);
-  }catch(e){await seedKlanten();await Promise.all([loadNotities(),loadAfspraken(),loadTaken(),loadContacten(),loadBel(),loadLevertijden(),loadKlachten(),loadDagrapporten()]);}
+    await Promise.all([loadKlanten(),loadNotities(),loadAfspraken(),loadTaken(),loadContacten(),loadBel(),loadLevertijden(),loadKlachten(),loadDagrapporten(),loadDeals()]);
+  }catch(e){await seedKlanten();await Promise.all([loadNotities(),loadAfspraken(),loadTaken(),loadContacten(),loadBel(),loadLevertijden(),loadKlachten(),loadDagrapporten(),loadDeals()]);}
   render();renderTaken();renderCalendar();renderAgenda();updateStats();renderVandaag();renderInzichten();updateInstStats();
-  renderLevertijden();renderKlachten();renderMijnDag();
+  renderLevertijden();renderKlachten();renderMijnDag();renderDeals();
   document.getElementById('ov-loading').style.display='none';
   document.getElementById('tbl-wrap').style.display='block';
   document.getElementById('insight-bar').style.display='block';
@@ -866,6 +945,7 @@ async function boot(){
 async function loadLevertijden(){try{const d=await sb('levertijden?select=*&order=verwachte_datum.asc.nullslast,created_at.desc&limit=1000');levertijden=d||[];}catch(e){levertijden=[];}}
 async function loadKlachten(){try{const d=await sb('klachten?select=*&order=deadline.asc.nullslast,created_at.desc&limit=1000');klachten=d||[];}catch(e){klachten=[];}}
 async function loadDagrapporten(){try{const d=await sb('dagrapporten?select=*&order=datum.desc&limit=200');dagrapporten=d||[];}catch(e){dagrapporten=[];}}
+async function loadDeals(){try{const d=await sb('deals?select=*&order=created_at.desc&limit=1000');deals=d||[];}catch(e){deals=[];}}
 
 async function loadKlanten(){const d=await sb('klanten?select=*&order=laatste_order.desc.nullslast&limit=2000');if(!d||!d.length)throw new Error('empty');klanten=d.map(k=>({...k,dagen:daysSince(k.laatste_order)}));}
 async function loadNotities(){try{const d=await sb('notities?select=*&order=created_at.desc&limit=5000');notities={};(d||[]).forEach(n=>{if(!notities[n.klant_id])notities[n.klant_id]=[];notities[n.klant_id].push(n);});}catch(e){notities={};}}
@@ -1174,7 +1254,9 @@ function renderMijnDag(){
   const vandaag=dagrapporten.find(d=>d.datum===TODAY);
   const maandStart=TODAY.slice(0,7)+'-01';
   const maandRapporten=dagrapporten.filter(d=>d.datum>=maandStart&&d.datum<=TODAY);
-  const maandTotaal=maandRapporten.reduce((s,d)=>s+(d.productie||0),0);
+  const maandOverride=maandRapporten.find(d=>d.maand_override!=null&&d.maand_override!==undefined);
+  const maandTotaalBerekend=maandRapporten.reduce((s,d)=>s+(d.productie||0),0);
+  const maandTotaal=(maandOverride&&maandOverride.maand_override!=null)?maandOverride.maand_override:maandTotaalBerekend;
   const commitVandaag=vandaag?.commit_vandaag||0;
   const productieVandaag=vandaag?.productie||0;
   const pct=commitVandaag>0?Math.round((productieVandaag/commitVandaag)*100):0;
@@ -1195,7 +1277,7 @@ function renderMijnDag(){
   const maandTarget=25000;
   const maandPct=Math.round((maandTotaal/maandTarget)*100);
   document.getElementById('dag-maand-val').textContent=fmt(maandTotaal);
-  document.getElementById('dag-maand-sub').textContent='van '+fmt(maandTarget)+' target';
+  document.getElementById('dag-maand-sub').textContent='van '+fmt(maandTarget)+' target'+(maandOverride?' · handmatig aangepast':'');
   document.getElementById('dag-maand-bar').style.width=Math.min(maandPct,100)+'%';
 
   if(vandaag){
@@ -1205,7 +1287,66 @@ function renderMijnDag(){
     document.getElementById('dag-commit-morgen-inp').value='';
     document.getElementById('dagnote-inp').value=vandaag.notitie||'';
   }
-  renderMijnDagLevertijden();renderMijnDagKlachten();
+  renderMijnDagLevertijden();renderMijnDagKlachten();renderMaandHistorie();
+}
+function toggleMaandEdit(){
+  const row=document.getElementById('maand-edit-row');
+  const isOpen=row.style.display==='flex';
+  row.style.display=isOpen?'none':'flex';
+  if(!isOpen)document.getElementById('maand-override-inp').focus();
+}
+async function saveMaandOverride(){
+  const val=parseFloat(document.getElementById('maand-override-inp').value);
+  if(isNaN(val)){toast('Vul een bedrag in','err');return;}
+  let vandaag=dagrapporten.find(d=>d.datum===TODAY);
+  try{
+    if(vandaag){await sb(`dagrapporten?id=eq.${vandaag.id}`,{method:'PATCH',body:JSON.stringify({maand_override:val})});vandaag.maand_override=val;}
+    else{const res=await sb('dagrapporten',{method:'POST',body:JSON.stringify({datum:TODAY,maand_override:val})});vandaag=res[0]||{datum:TODAY,maand_override:val,id:Date.now()};dagrapporten.unshift(vandaag);}
+    document.getElementById('maand-edit-row').style.display='none';
+    renderMijnDag();toast('Maandstand handmatig aangepast');
+  }catch(e){toast('Fout bij opslaan','err');}
+}
+function toggleMaandHistorie(){
+  const el=document.getElementById('maand-historie-list');
+  const chev=document.getElementById('maand-hist-chevron');
+  const isOpen=el.style.display==='block';
+  el.style.display=isOpen?'none':'block';
+  chev.style.transform=isOpen?'':'rotate(180deg)';
+}
+function renderMaandHistorie(){
+  const el=document.getElementById('maand-historie-list');if(!el)return;
+  const maanden=[];
+  for(let i=0;i<6;i++){
+    const d=new Date(TODAYD.getFullYear(),TODAYD.getMonth()-i,1);
+    const ms=d.toISOString().slice(0,7);
+    maanden.push({key:ms,label:d.toLocaleDateString('nl-NL',{month:'long',year:'numeric'})});
+  }
+  el.innerHTML=maanden.map(m=>{
+    const rapportenInMaand=dagrapporten.filter(dr=>dr.datum&&dr.datum.startsWith(m.key));
+    const override=rapportenInMaand.find(dr=>dr.maand_override!=null);
+    const berekend=rapportenInMaand.reduce((s,dr)=>s+(dr.productie||0),0);
+    const totaal=(override&&override.maand_override!=null)?override.maand_override:berekend;
+    const isHuidig=m.key===TODAY.slice(0,7);
+    return`<div class="dag-card" style="margin-bottom:6px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <div style="flex:1;min-width:120px"><div class="dag-lbl" style="margin-bottom:2px">${m.label}${isHuidig?' (huidig)':''}</div><div style="font-size:16px;font-weight:700;color:var(--ink)">${fmt(totaal)}</div></div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <input class="form-inp" type="number" placeholder="Handmatig instellen €" style="width:160px" id="hist-inp-${m.key}" value="${override&&override.maand_override!=null?override.maand_override:''}">
+        <button class="btn-p" style="padding:8px 12px" onclick="saveHistorieMaand('${m.key}')">Opslaan</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+async function saveHistorieMaand(maandKey){
+  const inp=document.getElementById(`hist-inp-${maandKey}`);
+  const val=parseFloat(inp.value);
+  if(isNaN(val)){toast('Vul een bedrag in','err');return;}
+  const eersteDag=maandKey+'-01';
+  let rap=dagrapporten.find(d=>d.datum===eersteDag);
+  try{
+    if(rap){await sb(`dagrapporten?id=eq.${rap.id}`,{method:'PATCH',body:JSON.stringify({maand_override:val})});rap.maand_override=val;}
+    else{const res=await sb('dagrapporten',{method:'POST',body:JSON.stringify({datum:eersteDag,maand_override:val})});dagrapporten.unshift(res[0]||{datum:eersteDag,maand_override:val,id:Date.now()});}
+    renderMijnDag();toast('Maandstand opgeslagen voor '+maandKey);
+  }catch(e){toast('Fout bij opslaan','err');}
 }
 async function saveDagrapport(){
   const calls=parseInt(document.getElementById('dag-calls-inp').value)||0;
@@ -1241,6 +1382,93 @@ async function saveDagnotitie(){
     else{const res=await sb('dagrapporten',{method:'POST',body:JSON.stringify({datum:TODAY,notitie:txt})});dagrapporten.unshift(res[0]||{datum:TODAY,notitie:txt,id:Date.now()});}
     toast('Dagnotitie opgeslagen');
   }catch(e){toast('Fout','err');}
+}
+
+// DEALS
+function dealStatusBadge(s){const m={offerte:['ds-offerte','Offerte verstuurd'],design:['ds-design','Design'],productie:['ds-productie','Productie'],gewonnen:['ds-gewonnen','Gewonnen'],verloren:['ds-verloren','Verloren']};const[c,l]=m[s]||m.offerte;return`<span class="deal-status ${c}">${l}</span>`}
+function setDealFilter(f,btn){dealFilter=f;document.querySelectorAll('#page-deals .flt').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderDeals();}
+function renderDealStats(){
+  const el=document.getElementById('deal-stats');if(!el)return;
+  const open=deals.filter(d=>d.status==='offerte'||d.status==='design'||d.status==='productie');
+  const offerte=deals.filter(d=>d.status==='offerte');
+  const design=deals.filter(d=>d.status==='design');
+  const productie=deals.filter(d=>d.status==='productie');
+  const gewonnenDezeMaand=deals.filter(d=>d.status==='gewonnen'&&d.gesloten_op&&d.gesloten_op.startsWith(TODAY.slice(0,7)));
+  const sumVal=arr=>arr.reduce((s,d)=>s+(d.bedrag||0),0);
+  const boxes=[
+    {l:'Totaal open',v:fmt(sumVal(open)),s:open.length+' deals'},
+    {l:'Offerte verstuurd',v:fmt(sumVal(offerte)),s:offerte.length+' deals'},
+    {l:'Design',v:fmt(sumVal(design)),s:design.length+' deals'},
+    {l:'Productie',v:fmt(sumVal(productie)),s:productie.length+' deals'},
+    {l:'Gewonnen deze maand',v:fmt(sumVal(gewonnenDezeMaand)),s:gewonnenDezeMaand.length+' deals'},
+  ];
+  el.innerHTML=boxes.map(b=>`<div class="deal-stat-box"><div class="deal-stat-lbl">${b.l}</div><div class="deal-stat-val">${b.v}</div><div class="deal-stat-sub">${b.s}</div></div>`).join('');
+}
+function renderDeals(){
+  renderDealStats();
+  const el=document.getElementById('deals-list');if(!el)return;
+  let dl=[...deals];
+  if(dealFilter==='open')dl=dl.filter(d=>d.status==='offerte'||d.status==='design'||d.status==='productie');
+  else if(dealFilter!=='all')dl=dl.filter(d=>d.status===dealFilter);
+  if(!dl.length){el.innerHTML='<div class="empty" style="padding:40px">Geen deals in deze categorie</div>';return;}
+  el.innerHTML=dl.map(d=>`<div class="deal-item" onclick="openDealDetail(${d.id})">${dealStatusBadge(d.status)}<div class="deal-info"><div class="deal-klant">${d.klant_naam||'–'}</div><div class="deal-naam">${d.naam||'–'}</div><div class="deal-meta">${d.dealnummer?d.dealnummer+' · ':''}${fmtD(d.created_at)}${d.status==='verloren'&&d.verliesreden?' · '+d.verliesreden:''}</div></div><div class="deal-bedrag">${fmt(d.bedrag)}</div><button class="ic-btn del" onclick="event.stopPropagation();deleteDeal(${d.id})" aria-label="Verwijder deal"><i class="ti ti-x" aria-hidden="true"></i></button></div>`).join('');
+}
+function openDealModal(){
+  dealKlantId=activeId||null;
+  const k=activeId?klanten.find(x=>x.id===activeId):null;
+  document.getElementById('deal-ks').value=k?k.naam:'';
+  document.getElementById('deal-klant-row').style.display=!activeId?'block':'none';
+  document.getElementById('deal-ks-res').innerHTML='';
+  document.getElementById('deal-naam').value='';document.getElementById('deal-nummer').value='';document.getElementById('deal-bedrag').value='';
+  document.getElementById('deal-status').value='offerte';document.getElementById('deal-verliesreden').value='';
+  document.getElementById('deal-verlies-row').style.display='none';
+  document.getElementById('ov-deal').classList.add('open');
+}
+document.addEventListener('change',e=>{if(e.target&&e.target.id==='deal-status'){document.getElementById('deal-verlies-row').style.display=e.target.value==='verloren'?'block':'none';}});
+async function saveDeal(){
+  const kid=dealKlantId;if(!kid){toast('Kies een klant','err');return;}
+  const naam=document.getElementById('deal-naam').value.trim();if(!naam){toast('Dealnaam verplicht','err');return;}
+  const k=klanten.find(x=>x.id===kid);
+  const status=document.getElementById('deal-status').value;
+  const obj={klant_id:kid,klant_naam:k?.naam||'',naam,dealnummer:document.getElementById('deal-nummer').value||null,bedrag:parseFloat(document.getElementById('deal-bedrag').value)||0,status,verliesreden:status==='verloren'?document.getElementById('deal-verliesreden').value:null,gesloten_op:(status==='gewonnen'||status==='verloren')?TODAY:null};
+  try{
+    const res=await sb('deals',{method:'POST',body:JSON.stringify(obj)});
+    const newDeal=res[0]||{...obj,id:Date.now()};
+    deals.unshift(newDeal);
+    if(status==='gewonnen')await addDealToMaandproductie(newDeal);
+    closeOv('ov-deal');renderDeals();toast('Deal toegevoegd');
+  }catch(e){toast('Fout','err');}
+}
+async function deleteDeal(id){try{await sb(`deals?id=eq.${id}`,{method:'DELETE'});}catch(e){}deals=deals.filter(d=>d.id!==id);renderDeals();}
+function openDealDetail(id){
+  const d=deals.find(x=>x.id===id);if(!d)return;
+  const nextStatus={offerte:'design',design:'productie',productie:'gewonnen'}[d.status];
+  let opties='Status wijzigen: ';
+  const statussen=['offerte','design','productie','gewonnen','verloren'];
+  const labels={offerte:'Offerte verstuurd',design:'Design',productie:'Productie',gewonnen:'Gewonnen',verloren:'Verloren'};
+  const keuze=prompt(`Deal: ${d.naam}\nHuidige status: ${labels[d.status]}\n\nNieuwe status intypen (offerte / design / productie / gewonnen / verloren):`,d.status);
+  if(!keuze||!statussen.includes(keuze))return;
+  updateDealStatus(id,keuze);
+}
+async function updateDealStatus(id,newStatus){
+  const d=deals.find(x=>x.id===id);if(!d)return;
+  const wasGewonnen=d.status==='gewonnen';
+  const obj={status:newStatus,gesloten_op:(newStatus==='gewonnen'||newStatus==='verloren')?TODAY:null};
+  try{
+    await sb(`deals?id=eq.${id}`,{method:'PATCH',body:JSON.stringify(obj)});
+    Object.assign(d,obj);
+    if(newStatus==='gewonnen'&&!wasGewonnen)await addDealToMaandproductie(d);
+    renderDeals();renderMijnDag();toast('Status bijgewerkt');
+  }catch(e){toast('Fout','err');}
+}
+async function addDealToMaandproductie(deal){
+  let vandaag=dagrapporten.find(d=>d.datum===TODAY);
+  const huidigeProductie=vandaag?.productie||0;
+  const nieuweProductie=huidigeProductie+(deal.bedrag||0);
+  try{
+    if(vandaag){await sb(`dagrapporten?id=eq.${vandaag.id}`,{method:'PATCH',body:JSON.stringify({productie:nieuweProductie})});vandaag.productie=nieuweProductie;}
+    else{const res=await sb('dagrapporten',{method:'POST',body:JSON.stringify({datum:TODAY,productie:nieuweProductie})});dagrapporten.unshift(res[0]||{datum:TODAY,productie:nieuweProductie,id:Date.now()});}
+  }catch(e){}
 }
 
 // TAAK MODAL
@@ -1375,7 +1603,7 @@ async function autoOpvolgen(){
 function closeOv(id,e){if(!e||e.target===document.getElementById(id))document.getElementById(id).classList.remove('open');}
 
 // PAGE NAV
-const PAGE_TITLES={overzicht:'Klantenoverzicht',mijndag:'Mijn dag',taken:'Taken',levertijden:'Levertijden',klachten:'Klachten',kalender:'Kalender',agenda:'Agenda',instellingen:'Instellingen'};
+const PAGE_TITLES={overzicht:'Klantenoverzicht',mijndag:'Mijn dag',taken:'Taken',levertijden:'Levertijden',klachten:'Klachten',deals:'Deals',kalender:'Kalender',agenda:'Agenda',instellingen:'Instellingen'};
 function showPage(id,btn){
   event&&event.preventDefault();
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('act'));
@@ -1391,6 +1619,7 @@ function showPage(id,btn){
   if(id==='levertijden')renderLevertijden();
   if(id==='klachten')renderKlachten();
   if(id==='mijndag')renderMijnDag();
+  if(id==='deals')renderDeals();
 }
 
 // TOAST
@@ -1401,7 +1630,67 @@ document.getElementById('search').addEventListener('input',e=>{search=e.target.v
 document.getElementById('sort-sel').addEventListener('change',e=>{sortKey=e.target.value;render();});
 document.getElementById('br-sel').addEventListener('change',e=>{branche=e.target.value;page=1;render();});
 
+// ICON SYSTEM (inline SVG, no external font dependency)
+const ICONS={
+  'users':'<path d="M9 7a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><path d="M21 21v-2a4 4 0 0 0-3-3.85"/>',
+  'sun':'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>',
+  'checkbox':'<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 12l2 2 4-4"/>',
+  'package':'<path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z"/><path d="M12 12l8-4.5M12 12v9M12 12L4 7.5"/>',
+  'alert-circle':'<circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/>',
+  'file-invoice':'<path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M5 21V5a2 2 0 0 1 2-2h7l5 5v13a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2z"/><path d="M9 13h6M9 17h6"/>',
+  'calendar':'<rect x="4" y="5" width="16" height="16" rx="2"/><path d="M16 3v4M8 3v4M4 11h16"/>',
+  'list':'<path d="M9 6h11M9 12h11M9 18h11M5 6h.01M5 12h.01M5 18h.01"/>',
+  'settings':'<circle cx="12" cy="12" r="3"/><path d="M19.4 13a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V19a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 17.42a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>',
+  'search':'<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>',
+  'bell':'<path d="M10 21a2 2 0 0 0 4 0"/><path d="M3.3 15.8A2 2 0 0 0 5 19h14a2 2 0 0 0 1.7-3.2L19 12.5V9a7 7 0 1 0-14 0v3.5z"/>',
+  'plus':'<path d="M12 5v14M5 12h14"/>',
+  'x':'<path d="M18 6L6 18M6 6l18 12"/>',
+  'phone':'<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/>',
+  'brand-whatsapp':'<path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1z"/><path d="M14 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1z"/><path d="M9.5 13.5a3.5 3.5 0 0 0 5 0"/><circle cx="12" cy="12" r="9"/><path d="M7 19l-2 2 .5-3"/>',
+  'mail':'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/>',
+  'trash':'<path d="M4 7h16M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13"/>',
+  'edit':'<path d="M11 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5"/><path d="M18.5 2.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>',
+  'check':'<path d="M5 12l5 5L20 7"/>',
+  'chevron-down':'<path d="M6 9l6 6 6-6"/>',
+  'clock':'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>',
+  'download':'<path d="M12 3v12M7 12l5 5 5-5M5 21h14"/>',
+  'upload':'<path d="M12 21V9M7 13l5-5 5 5M5 3h14"/>',
+  'user':'<circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/>',
+  'building-store':'<path d="M3 9l1-5h16l1 5"/><path d="M4 9v10a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V9"/><path d="M9 20v-5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v5"/>',
+  'file-spreadsheet':'<path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M5 21V5a2 2 0 0 1 2-2h7l5 5v13a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2z"/><path d="M8 13h8M8 17h8M8 13v4"/>',
+  'target':'<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r=".5" fill="currentColor"/>',
+};
+function renderIcons(){
+  document.querySelectorAll('i.ti').forEach(el=>{
+    const cls=[...el.classList].find(c=>c.startsWith('ti-')&&c!=='ti');
+    if(!cls)return;
+    const name=cls.replace('ti-','');
+    const path=ICONS[name];
+    if(!path)return;
+    const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+    svg.setAttribute('viewBox','0 0 24 24');
+    svg.setAttribute('width','1em');svg.setAttribute('height','1em');
+    svg.setAttribute('fill','none');svg.setAttribute('stroke','currentColor');
+    svg.setAttribute('stroke-width','2');svg.setAttribute('stroke-linecap','round');svg.setAttribute('stroke-linejoin','round');
+    svg.style.display='inline-block';svg.style.verticalAlign='middle';
+    svg.innerHTML=path;
+    if(el.hasAttribute('aria-hidden'))svg.setAttribute('aria-hidden','true');
+    el.replaceWith(svg);
+  });
+}
+const _origRender=render,_origRenderTaken=renderTaken,_origRenderLevertijden=renderLevertijden,_origRenderKlachten=renderKlachten,_origRenderDeals=renderDeals,_origRenderAgenda=renderAgenda,_origRenderCalendar=renderCalendar,_origRenderMijnDag=renderMijnDag,_origOpenDetail=openDetail;
+render=function(...a){_origRender(...a);renderIcons();};
+renderTaken=function(...a){_origRenderTaken(...a);renderIcons();};
+renderLevertijden=function(...a){_origRenderLevertijden(...a);renderIcons();};
+renderKlachten=function(...a){_origRenderKlachten(...a);renderIcons();};
+renderDeals=function(...a){_origRenderDeals(...a);renderIcons();};
+renderAgenda=function(...a){_origRenderAgenda(...a);renderIcons();};
+renderCalendar=function(...a){_origRenderCalendar(...a);renderIcons();};
+renderMijnDag=function(...a){_origRenderMijnDag(...a);renderIcons();};
+openDetail=function(...a){_origOpenDetail(...a);renderIcons();};
+
 boot();
+renderIcons();
 </script>
 </body>
 </html>
