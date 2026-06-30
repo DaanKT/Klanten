@@ -58,6 +58,11 @@ html,body{height:100%;background:#faf9f7;color:#1a1a1a;font-family:system-ui,-ap
 .flt-sep{height:18px;width:1px;background:var(--border);flex-shrink:0}
 .flt-sel{font-size:11px;padding:5px 9px;border-radius:6px;border:1px solid var(--border);background:#fff;color:var(--muted);cursor:pointer;font-family:inherit;outline:none}
 .flt-count{font-size:10px;font-weight:700;background:var(--ink);color:var(--sage);border-radius:20px;padding:2px 8px;margin-left:auto;flex-shrink:0}
+/* BULK ACTIONS */
+.bulk-bar{background:var(--ink);color:#fff;padding:9px 18px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px;font-weight:600}
+.bulk-bar .fb{background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.2)}
+.bulk-bar .fb:hover{background:rgba(255,255,255,.18)}
+.row-cb{width:15px;height:15px;cursor:pointer;accent-color:var(--sage-d)}
 /* TABLE */
 .tbl-wrap{flex:1}
 table{width:100%;border-collapse:collapse}
@@ -400,15 +405,16 @@ td{padding:10px 18px;vertical-align:middle}
   .tbl-wrap tbody{display:block}
   .tbl-wrap tbody tr{display:flex;flex-direction:column;gap:6px;background:#fff;border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin:0 12px 8px}
   .tbl-wrap tbody tr td{display:block;padding:0;border:none}
-  .tbl-wrap tbody tr td:first-child{order:1}
-  .tbl-wrap tbody tr td:nth-child(5){order:2;position:absolute;top:12px;right:14px}
+  .tbl-wrap tbody tr td:first-child{display:none}
+  .tbl-wrap tbody tr td:nth-child(2){order:1}
+  .tbl-wrap tbody tr td:nth-child(6){order:2;position:absolute;top:12px;right:14px}
   .tbl-wrap tbody tr{position:relative}
-  .tbl-wrap tbody tr td:nth-child(2){order:3;display:inline-block;margin-right:10px}
-  .tbl-wrap tbody tr td:nth-child(2)::before{content:'Order: ';color:var(--muted2);font-weight:400}
   .tbl-wrap tbody tr td:nth-child(3){order:3;display:inline-block;margin-right:10px}
-  .tbl-wrap tbody tr td:nth-child(4){order:3;display:inline-block}
-  .tbl-wrap tbody tr td:nth-child(4)::before{content:'';}
-  .tbl-wrap tbody tr td:nth-child(6){order:4}
+  .tbl-wrap tbody tr td:nth-child(3)::before{content:'Order: ';color:var(--muted2);font-weight:400}
+  .tbl-wrap tbody tr td:nth-child(4){order:3;display:inline-block;margin-right:10px}
+  .tbl-wrap tbody tr td:nth-child(5){order:3;display:inline-block}
+  .tbl-wrap tbody tr td:nth-child(7){order:4}
+  .bulk-bar{display:none!important}
   .page-scroll{padding-bottom:70px}
 
   /* DETAIL PANEL fullscreen */
@@ -586,8 +592,15 @@ td{padding:10px 18px;vertical-align:middle}
       <div class="page-scroll" id="ov-scroll">
         <div class="spin-wrap" id="ov-loading"><div class="spin"></div> Laden...</div>
         <div id="tbl-wrap" style="display:none">
+          <div class="bulk-bar" id="bulk-bar" style="display:none">
+            <span id="bulk-count">0 geselecteerd</span>
+            <button class="fb" onclick="bulkSetActief(true)">🟢 Zet op actief</button>
+            <button class="fb" onclick="bulkSetActief(false)">⚪ Zet op inactief</button>
+            <button class="fb" onclick="clearSelection()">Selectie wissen</button>
+          </div>
           <table aria-label="Klantenoverzicht">
             <thead><tr>
+              <th style="width:30px"><input type="checkbox" id="select-all-cb" onchange="toggleSelectAll(this)" aria-label="Selecteer alles"></th>
               <th onclick="sortBy('naam')">Klant</th>
               <th onclick="sortBy('lo')">Laatste order</th>
               <th onclick="sortBy('dagen')">Stil</th>
@@ -1364,6 +1377,37 @@ function updateInstStats(){
 
 // FILTER / SORT
 let toonInactief=false;
+let selectedKlanten=new Set();
+function toggleSelect(id,cb){
+  if(cb.checked)selectedKlanten.add(id);else selectedKlanten.delete(id);
+  updateBulkBar();
+}
+function toggleSelectAll(cb){
+  const f=sorted(filtered());
+  const pages=Math.max(1,Math.ceil(f.length/PER));
+  const slice=f.slice((page-1)*PER,page*PER);
+  if(cb.checked)slice.forEach(k=>selectedKlanten.add(k.id));
+  else slice.forEach(k=>selectedKlanten.delete(k.id));
+  render();
+}
+function updateBulkBar(){
+  const bar=document.getElementById('bulk-bar');
+  const count=selectedKlanten.size;
+  document.getElementById('bulk-count').textContent=count+' geselecteerd';
+  bar.style.display=count>0?'flex':'none';
+}
+function clearSelection(){selectedKlanten.clear();render();}
+async function bulkSetActief(isActief){
+  if(!selectedKlanten.size)return;
+  const ids=[...selectedKlanten];
+  let success=0;
+  for(const id of ids){
+    const k=klanten.find(x=>x.id===id);if(!k)continue;
+    try{await sb(`klanten?id=eq.${id}`,{method:'PATCH',body:JSON.stringify({klant_actief:isActief})});k.klant_actief=isActief;success++;}catch(e){}
+  }
+  selectedKlanten.clear();render();
+  toast(`${success} klanten op ${isActief?'actief':'inactief'} gezet`);
+}
 function toggleInactief(btn){
   toonInactief=!toonInactief;
   btn.classList.toggle('active',toonInactief);
@@ -1407,15 +1451,18 @@ function render(){
   document.getElementById('tb').innerHTML=slice.map(k=>{
     const nts=notities[k.id]||[];const tk=taken.filter(t=>t.klant_id===k.id&&t.status==='open');
     const d=k.dagen||daysSince(k.laatste_order);
-    return`<tr onclick="openDetail('${k.id}')" class="${k.is_new?'is-new':''} ${activeId===k.id?'sel':''}" style="${k.klant_actief===false?'opacity:.55':''}">
-      <td><div class="kn"><span class="omz-dot" style="background:${omzDot(k.waarde)}"></span>${k.naam}${k.is_new?'<span class="new-pill">nieuw</span>':''}${k.klant_actief===false?'<span class="new-pill" style="background:var(--sand3);color:var(--muted2)">inactief</span>':''}</div><div class="ks">${k.plaats||'–'}${k.branche?' · '+k.branche:''}</div></td>
-      <td style="color:var(--muted2);font-size:11px">${fmtD(k.laatste_order)}</td>
-      <td>${daysChip(d)}</td>
-      <td><span class="omz-val">${fmt(k.waarde)}</span></td>
-      <td>${statusBadge(k.status)}</td>
-      <td><div class="act-pills">${tk.length?`<span class="act-pill ap-tk">📌 ${tk.length}</span>`:''}${nts.length?`<span class="act-pill ap-nt">📝 ${nts.length}</span>`:''}</div></td>
+    const isSel=selectedKlanten.has(k.id);
+    return`<tr class="${k.is_new?'is-new':''} ${activeId===k.id?'sel':''}" style="${k.klant_actief===false?'opacity:.55':''}">
+      <td onclick="event.stopPropagation()"><input type="checkbox" class="row-cb" ${isSel?'checked':''} onchange="toggleSelect('${k.id}',this)" aria-label="Selecteer ${k.naam}"></td>
+      <td onclick="openDetail('${k.id}')"><div class="kn"><span class="omz-dot" style="background:${omzDot(k.waarde)}"></span>${k.naam}${k.is_new?'<span class="new-pill">nieuw</span>':''}${k.klant_actief===false?'<span class="new-pill" style="background:var(--sand3);color:var(--muted2)">inactief</span>':''}</div><div class="ks">${k.plaats||'–'}${k.branche?' · '+k.branche:''}</div></td>
+      <td onclick="openDetail('${k.id}')" style="color:var(--muted2);font-size:11px">${fmtD(k.laatste_order)}</td>
+      <td onclick="openDetail('${k.id}')">${daysChip(d)}</td>
+      <td onclick="openDetail('${k.id}')"><span class="omz-val">${fmt(k.waarde)}</span></td>
+      <td onclick="openDetail('${k.id}')">${statusBadge(k.status)}</td>
+      <td onclick="openDetail('${k.id}')"><div class="act-pills">${tk.length?`<span class="act-pill ap-tk">📌 ${tk.length}</span>`:''}${nts.length?`<span class="act-pill ap-nt">📝 ${nts.length}</span>`:''}</div></td>
     </tr>`;
   }).join('');
+  updateBulkBar();
 
   const pag=document.getElementById('pag');
   if(pages<=1){pag.innerHTML='';return;}
