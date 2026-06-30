@@ -1158,6 +1158,54 @@ td{padding:10px 18px;vertical-align:middle}
   </div>
 </div>
 
+<!-- LEVERTIJD DETAIL MODAL -->
+<div class="modal-ov" id="ov-levertijd-detail" onclick="closeOv('ov-levertijd-detail',event)">
+  <div class="modal-box" style="width:520px" onclick="event.stopPropagation()">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">
+      <div>
+        <div style="font-size:10px;font-weight:700;color:var(--sage-d);text-transform:uppercase;letter-spacing:.3px" id="lvd-detail-klant">–</div>
+        <h3 style="margin-bottom:2px" id="lvd-detail-titel">–</h3>
+      </div>
+      <button class="xb" onclick="closeOv('ov-levertijd-detail')" aria-label="Sluiten">✕</button>
+    </div>
+
+    <div class="form-row" id="lvd-koppel-row" style="display:none;background:var(--sand);border:1px solid var(--border);border-radius:8px;padding:10px 12px">
+      <label class="form-lbl" style="color:var(--orange)">⚠️ Nog niet gekoppeld aan een klant</label>
+      <input class="form-inp" id="lvd-koppel-ks" placeholder="Zoek klant om te koppelen..." oninput="koppelKlantSearchLev(this.value)" autocomplete="off">
+      <div class="sr" id="lvd-koppel-res"></div>
+    </div>
+
+    <div class="form-row">
+      <label class="form-lbl">Status</label>
+      <div class="status-row" id="lvd-detail-status-row">
+        <button class="sopt" data-s="nieuw" onclick="updateLevDetailStatus('nieuw')">Nieuw</button>
+        <button class="sopt" data-s="uitgevraagd" onclick="updateLevDetailStatus('uitgevraagd')">Uitgevraagd</button>
+        <button class="sopt" data-s="ontvangen" onclick="updateLevDetailStatus('ontvangen')">Ontvangen</button>
+        <button class="sopt" data-s="gecommuniceerd" onclick="updateLevDetailStatus('gecommuniceerd')">Gecommuniceerd</button>
+      </div>
+    </div>
+
+    <div class="form-row" style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap">
+      <div style="flex:1;min-width:160px">
+        <label class="form-lbl">Verwachte leverdatum</label>
+        <input class="form-inp" id="lvd-detail-datum" type="date">
+      </div>
+      <button class="btn-p" style="width:auto;padding:9px 14px" onclick="saveLevDetailDatum()">Bijwerken</button>
+    </div>
+
+    <div class="form-row">
+      <button class="btn-p" style="width:auto;padding:8px 14px" onclick="createTaakFromLevertijd()"><i class="ti ti-checkbox" style="font-size:11px" aria-hidden="true"></i> Taak aanmaken vanuit deze levertijd</button>
+    </div>
+
+    <div class="dp-sec-title" style="margin-top:6px">Notities</div>
+    <div class="nl" id="lvd-detail-notes" style="margin-bottom:10px"></div>
+    <div class="niw">
+      <textarea class="ni2" id="lvd-detail-note-inp" placeholder="bijv. 'Uitgevraagd bij Sligro, antwoord verwacht morgen'"></textarea>
+      <button class="anb" onclick="addLevertijdNote()">Toevoegen</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-ov" id="ov-deal" onclick="closeOv('ov-deal',event)">
   <div class="modal-box" onclick="event.stopPropagation()">
     <h3>Deal toevoegen</h3>
@@ -1289,8 +1337,8 @@ let calYear,calMonth;
 async function boot(){
   const n=new Date(TODAY);calYear=n.getFullYear();calMonth=n.getMonth();
   try{
-    await Promise.all([loadKlanten(),loadNotities(),loadAfspraken(),loadTaken(),loadContacten(),loadBel(),loadLevertijden(),loadKlachten(),loadDagrapporten(),loadDeals(),loadKlachtNotities()]);
-  }catch(e){await seedKlanten();await Promise.all([loadNotities(),loadAfspraken(),loadTaken(),loadContacten(),loadBel(),loadLevertijden(),loadKlachten(),loadDagrapporten(),loadDeals(),loadKlachtNotities()]);}
+    await Promise.all([loadKlanten(),loadNotities(),loadAfspraken(),loadTaken(),loadContacten(),loadBel(),loadLevertijden(),loadKlachten(),loadDagrapporten(),loadDeals(),loadKlachtNotities(),loadLevertijdNotities()]);
+  }catch(e){await seedKlanten();await Promise.all([loadNotities(),loadAfspraken(),loadTaken(),loadContacten(),loadBel(),loadLevertijden(),loadKlachten(),loadDagrapporten(),loadDeals(),loadKlachtNotities(),loadLevertijdNotities()]);}
   render();renderTaken();renderCalendar();renderAgenda();updateStats();renderVandaag();renderInzichten();updateInstStats();
   renderLevertijden();renderKlachten();renderMijnDag();renderDeals();
   document.getElementById('ov-loading').style.display='none';
@@ -1595,8 +1643,8 @@ function renderLevertijden(){
   if(levFilter==='open')lv=lv.filter(l=>l.status!=='gecommuniceerd');
   else if(levFilter!=='all')lv=lv.filter(l=>l.status===levFilter);
   if(!lv.length){el.innerHTML='<div class="empty" style="padding:40px">Geen levertijden in deze categorie</div>';return;}
-  el.innerHTML=lv.map(l=>{const ov=l.verwachte_datum&&l.verwachte_datum<TODAY&&l.status!=='gecommuniceerd';
-    return`<div class="lt-item" onclick="${l.klant_id?`openDetail('${l.klant_id}')`:`openKoppelModal('levertijden',${l.id},'${(l.klant_naam||'').replace(/'/g,"\\'")}')`}">${levStatusBadge(l.status)}<div class="lt-info"><div class="lt-klant">${l.klant_naam||'–'}${!l.klant_id?' <span style="color:var(--orange);font-weight:600">· niet gekoppeld</span>':''}</div><div class="lt-desc">${l.omschrijving||'–'}</div>${l.verwachte_datum?`<div class="lt-meta${ov?' overdue':''}">${ov?'⚠️ ':''}verwacht ${fmtD(l.verwachte_datum)}</div>`:''}</div><button class="ic-btn del" onclick="event.stopPropagation();deleteLevertijd(${l.id})" aria-label="Verwijder levertijd"><i class="ti ti-x" aria-hidden="true"></i></button></div>`;
+  el.innerHTML=lv.map(l=>{const ov=l.verwachte_datum&&l.verwachte_datum<TODAY&&l.status!=='gecommuniceerd';const nts=levertijdNotities[l.id]||[];
+    return`<div class="lt-item" onclick="openLevertijdDetail(${l.id})">${levStatusBadge(l.status)}<div class="lt-info"><div class="lt-klant">${l.klant_naam||'–'}${!l.klant_id?' <span style="color:var(--orange);font-weight:600">· niet gekoppeld</span>':''}</div><div class="lt-desc">${l.omschrijving||'–'}</div>${l.verwachte_datum?`<div class="lt-meta${ov?' overdue':''}">${ov?'⚠️ ':''}verwacht ${fmtD(l.verwachte_datum)}</div>`:''}${nts.length?`<div class="lt-meta">${nts.length} notitie${nts.length>1?'s':''}</div>`:''}</div><button class="ic-btn del" onclick="event.stopPropagation();deleteLevertijd(${l.id})" aria-label="Verwijder levertijd"><i class="ti ti-x" aria-hidden="true"></i></button></div>`;
   }).join('');
   renderMijnDagLevertijden();
 }
@@ -1604,7 +1652,7 @@ function renderMijnDagLevertijden(){
   const el=document.getElementById('dag-levertijden-list');if(!el)return;
   const open=levertijden.filter(l=>l.status!=='gecommuniceerd').slice(0,5);
   if(!open.length){el.innerHTML='<div class="empty">Geen open levertijden</div>';return;}
-  el.innerHTML=open.map(l=>`<div class="dag-quick-item" onclick="openDetail('${l.klant_id}')">${levStatusBadge(l.status)}<div class="dag-quick-name">${l.klant_naam}</div><div class="dag-quick-sub">${l.omschrijving||''}</div></div>`).join('');
+  el.innerHTML=open.map(l=>`<div class="dag-quick-item" onclick="openLevertijdDetail(${l.id})">${levStatusBadge(l.status)}<div class="dag-quick-name">${l.klant_naam}</div><div class="dag-quick-sub">${l.omschrijving||''}</div></div>`).join('');
 }
 function openLevertijdModal(){
   levKlantId=activeId||null;
@@ -1740,6 +1788,87 @@ function createTaakFromKlacht(){
   document.getElementById('t-omsch').value=k.titel?`Klacht: ${k.titel}`:`Klacht van ${k.klant_naam}`;
   document.getElementById('t-type').value='klacht';
   if(k.deadline)document.getElementById('t-dead').value=k.deadline;
+}
+
+// LEVERTIJD DETAIL
+let activeLevId=null,levertijdNotities={};
+async function loadLevertijdNotities(){try{const d=await sb('levertijd_notities?select=*&order=created_at.desc&limit=2000');levertijdNotities={};(d||[]).forEach(n=>{if(!levertijdNotities[n.levertijd_id])levertijdNotities[n.levertijd_id]=[];levertijdNotities[n.levertijd_id].push(n);});}catch(e){levertijdNotities={};}}
+function openLevertijdDetail(id){
+  const l=levertijden.find(x=>x.id===id);if(!l)return;
+  activeLevId=id;
+  document.getElementById('lvd-detail-klant').textContent=l.klant_naam||'–';
+  document.getElementById('lvd-detail-titel').textContent=l.omschrijving||'Levertijd zonder titel';
+  document.getElementById('lvd-koppel-row').style.display=l.klant_id?'none':'block';
+  document.getElementById('lvd-koppel-ks').value='';document.getElementById('lvd-koppel-res').innerHTML='';
+  document.getElementById('lvd-detail-datum').value=l.verwachte_datum||'';
+  renderLevDetailStatus(l.status);
+  renderLevDetailNotes(id);
+  document.getElementById('lvd-detail-note-inp').value='';
+  document.getElementById('ov-levertijd-detail').classList.add('open');
+  renderIcons();
+}
+function koppelKlantSearchLev(q){
+  const res=document.getElementById('lvd-koppel-res');
+  if(q.length<2){res.innerHTML='';return;}
+  const m=klanten.filter(k=>k.naam.toLowerCase().includes(q.toLowerCase())).slice(0,6);
+  res.innerHTML=m.map(k=>`<div class="sr-item" onclick="koppelKlantAanLevertijd('${k.id}','${k.naam.replace(/'/g,"\\'")}')"> ${k.naam} <span style="color:var(--muted2);font-size:10px">${k.plaats}</span></div>`).join('');
+}
+async function koppelKlantAanLevertijd(klantId,naam){
+  const l=levertijden.find(x=>x.id===activeLevId);if(!l)return;
+  try{
+    await sb(`levertijden?id=eq.${activeLevId}`,{method:'PATCH',body:JSON.stringify({klant_id:klantId,klant_naam:naam})});
+    l.klant_id=klantId;l.klant_naam=naam;
+    document.getElementById('lvd-detail-klant').textContent=naam;
+    document.getElementById('lvd-koppel-row').style.display='none';
+    renderLevertijden();toast('Levertijd gekoppeld aan '+naam);
+  }catch(e){toast('Koppelen mislukt','err');}
+}
+function renderLevDetailStatus(sel){
+  const m={nieuw:'sa',uitgevraagd:'so2',ontvangen:'sk',gecommuniceerd:'su'};
+  document.querySelectorAll('#lvd-detail-status-row .sopt').forEach(b=>{b.className='sopt';if(b.dataset.s===sel)b.classList.add(m[sel]||'sa');});
+}
+async function updateLevDetailStatus(status){
+  const l=levertijden.find(x=>x.id===activeLevId);if(!l)return;
+  l.status=status;
+  try{await sb(`levertijden?id=eq.${activeLevId}`,{method:'PATCH',body:JSON.stringify({status})});}catch(e){toast('Fout','err');return;}
+  renderLevDetailStatus(status);renderLevertijden();toast('Status bijgewerkt');
+}
+async function saveLevDetailDatum(){
+  const l=levertijden.find(x=>x.id===activeLevId);if(!l)return;
+  const datum=document.getElementById('lvd-detail-datum').value||null;
+  l.verwachte_datum=datum;
+  try{await sb(`levertijden?id=eq.${activeLevId}`,{method:'PATCH',body:JSON.stringify({verwachte_datum:datum})});}catch(e){toast('Fout','err');return;}
+  renderLevertijden();toast('Leverdatum bijgewerkt');
+}
+function renderLevDetailNotes(id){
+  const nts=levertijdNotities[id]||[];
+  const el=document.getElementById('lvd-detail-notes');
+  if(!nts.length){el.innerHTML='<div class="empty">Nog geen notities. Voeg een update toe.</div>';return;}
+  el.innerHTML=nts.map(n=>`<div class="ni"><div class="nm"><span>${fmtDT(n.created_at)}</span><button class="nd" onclick="deleteLevertijdNote(${n.id})">✕</button></div><div class="nt">${n.tekst}</div></div>`).join('');
+}
+async function addLevertijdNote(){
+  if(!activeLevId)return;
+  const txt=document.getElementById('lvd-detail-note-inp').value.trim();if(!txt)return;
+  try{
+    const res=await sb('levertijd_notities',{method:'POST',body:JSON.stringify({levertijd_id:activeLevId,tekst:txt})});
+    if(!levertijdNotities[activeLevId])levertijdNotities[activeLevId]=[];
+    levertijdNotities[activeLevId].unshift(res[0]||{id:Date.now(),levertijd_id:activeLevId,tekst:txt,created_at:new Date().toISOString()});
+    document.getElementById('lvd-detail-note-inp').value='';
+    renderLevDetailNotes(activeLevId);renderLevertijden();toast('Notitie toegevoegd');
+  }catch(e){toast('Fout bij opslaan','err');}
+}
+async function deleteLevertijdNote(nid){
+  try{await sb(`levertijd_notities?id=eq.${nid}`,{method:'DELETE'});}catch(e){}
+  Object.keys(levertijdNotities).forEach(kid=>{levertijdNotities[kid]=levertijdNotities[kid].filter(n=>n.id!==nid);});
+  renderLevDetailNotes(activeLevId);renderLevertijden();
+}
+function createTaakFromLevertijd(){
+  const l=levertijden.find(x=>x.id===activeLevId);if(!l)return;
+  closeOv('ov-levertijd-detail');
+  openTaakModal(l.klant_id);
+  document.getElementById('t-omsch').value=`Levertijd: ${l.omschrijving||l.klant_naam}`;
+  document.getElementById('t-type').value='levertijd';
+  if(l.verwachte_datum)document.getElementById('t-dead').value=l.verwachte_datum;
 }
 
 // MIJN DAG
