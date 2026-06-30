@@ -363,7 +363,87 @@ td{padding:10px 18px;vertical-align:middle}
 .spin-wrap{display:flex;align-items:center;justify-content:center;height:160px;gap:10px;color:var(--muted)}
 .spin{width:16px;height:16px;border:2px solid var(--sand3);border-top-color:var(--sage-d);border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-@media(max-width:600px){.sidebar{width:44px}.dp-header{padding:12px 14px}.ig2{grid-template-columns:1fr}td:nth-child(4),th:nth-child(4){display:none}}
+/* BOTTOM NAV (mobile only, hidden by default) */
+.bottom-nav{display:none}
+.meer-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:400;align-items:flex-end}
+.meer-overlay.open{display:flex}
+.meer-sheet{background:#fff;width:100%;border-radius:18px 18px 0 0;padding:10px 0 calc(env(safe-area-inset-bottom,0px) + 10px);max-height:70vh;overflow-y:auto}
+.meer-handle{width:36px;height:4px;background:var(--border2);border-radius:3px;margin:6px auto 10px}
+.meer-item{display:flex;align-items:center;gap:14px;padding:14px 22px;font-size:15px;font-weight:500;color:var(--ink);text-decoration:none}
+.meer-item:active{background:var(--sand)}
+.meer-item i{font-size:19px;color:var(--muted);width:22px}
+
+@media(max-width:760px){
+  .sidebar{display:none}
+  .app{flex-direction:column}
+  .main{height:calc(100vh - 58px)}
+  .bottom-nav{display:flex;background:#fff;border-top:1px solid var(--border);height:58px;flex-shrink:0;padding-bottom:env(safe-area-inset-bottom,0);position:fixed;bottom:0;left:0;right:0;z-index:60}
+  .bn-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-decoration:none;color:var(--muted2);font-size:9px;font-weight:600}
+  .bn-item i{font-size:20px}
+  .bn-item.bn-act{color:var(--sage-d)}
+
+  /* Topbar tighter */
+  .topbar{padding:0 12px;height:52px}
+  .topbar-title{font-size:13px}
+  .search-bar{max-width:none}
+
+  /* KPI bar scrolls horizontally */
+  .kpi-bar{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .kpi-box{min-width:84px}
+
+  /* Filters scroll */
+  .filter-bar{overflow-x:auto;-webkit-overflow-scrolling:touch;flex-wrap:nowrap}
+  .flt-sel{flex-shrink:0}
+
+  /* TABLE -> CARDS */
+  .tbl-wrap table,.tbl-wrap thead{display:none}
+  .tbl-wrap tbody{display:block}
+  .tbl-wrap tbody tr{display:flex;flex-direction:column;gap:6px;background:#fff;border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin:0 12px 8px}
+  .tbl-wrap tbody tr td{display:block;padding:0;border:none}
+  .tbl-wrap tbody tr td:first-child{order:1}
+  .tbl-wrap tbody tr td:nth-child(5){order:2;position:absolute;top:12px;right:14px}
+  .tbl-wrap tbody tr{position:relative}
+  .tbl-wrap tbody tr td:nth-child(2){order:3;display:inline-block;margin-right:10px}
+  .tbl-wrap tbody tr td:nth-child(2)::before{content:'Order: ';color:var(--muted2);font-weight:400}
+  .tbl-wrap tbody tr td:nth-child(3){order:3;display:inline-block;margin-right:10px}
+  .tbl-wrap tbody tr td:nth-child(4){order:3;display:inline-block}
+  .tbl-wrap tbody tr td:nth-child(4)::before{content:'';}
+  .tbl-wrap tbody tr td:nth-child(6){order:4}
+  .page-scroll{padding-bottom:70px}
+
+  /* DETAIL PANEL fullscreen */
+  .detail-overlay{background:#fff;align-items:stretch;justify-content:stretch}
+  .detail-panel{width:100%;max-width:100%;height:100%;border-left:none}
+  .dp-body{padding-bottom:90px}
+
+  /* MODALS as bottom sheets */
+  .modal-ov{align-items:flex-end;padding:0}
+  .modal-box{width:100%;max-width:100%;border-radius:18px 18px 0 0;max-height:85vh;padding-bottom:calc(env(safe-area-inset-bottom,0px) + 20px)}
+
+  /* Settings/instellingen */
+  .instellingen-page{padding:14px 16px}
+  .inst-row{flex-wrap:wrap}
+
+  /* Mijn dag */
+  .dag-page{padding:14px 16px}
+  .dag-kpi-grid{grid-template-columns:repeat(2,1fr)}
+  .dag-prog-row{grid-template-columns:1fr}
+  .dag-input-row{flex-direction:column}
+  .dag-input-row .form-inp,.dag-input-row .btn-p{width:100%}
+
+  /* Calendar tighter */
+  .cal-day{min-height:54px;padding:3px 4px}
+  .cal-ev{font-size:7px}
+  .cal-page{padding:12px}
+
+  /* deals/levertijden/klachten lists */
+  .lt-page,.taken-page,.agenda-page{padding:14px 16px}
+  .lt-item,.deal-item,.taak-row,.ag-item{flex-wrap:wrap}
+  .deal-stats{grid-template-columns:repeat(2,1fr)}
+
+  .login-box{padding:24px 20px}
+}
+@media(max-width:600px){.ig2{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -428,6 +508,27 @@ td{padding:10px 18px;vertical-align:middle}
     <a class="s-icon" style="margin-top:auto" onclick="showPage('instellingen',this)" title="Instellingen" href="#"><i class="ti ti-settings" aria-hidden="true"></i></a>
   </nav>
 
+  <!-- MOBILE BOTTOM NAV -->
+  <nav class="bottom-nav" aria-label="Mobiele navigatie">
+    <a class="bn-item bn-act" onclick="showPage('overzicht',this)" href="#"><i class="ti ti-users" aria-hidden="true"></i><span>Klanten</span></a>
+    <a class="bn-item" onclick="showPage('mijndag',this)" href="#"><i class="ti ti-sun" aria-hidden="true"></i><span>Mijn dag</span></a>
+    <a class="bn-item" onclick="showPage('taken',this)" href="#"><i class="ti ti-checkbox" aria-hidden="true"></i><span>Taken</span></a>
+    <a class="bn-item" onclick="showPage('kalender',this)" href="#"><i class="ti ti-calendar" aria-hidden="true"></i><span>Kalender</span></a>
+    <a class="bn-item" onclick="toggleMeerMenu()" href="#" id="bn-meer-btn"><i class="ti ti-dots" aria-hidden="true"></i><span>Meer</span></a>
+  </nav>
+
+  <!-- MOBILE MEER MENU -->
+  <div class="meer-overlay" id="meer-overlay" onclick="closeMeerMenu(event)">
+    <div class="meer-sheet" onclick="event.stopPropagation()">
+      <div class="meer-handle"></div>
+      <a class="meer-item" onclick="showPage('levertijden',null);closeMeerMenu()" href="#"><i class="ti ti-package" aria-hidden="true"></i> Levertijden</a>
+      <a class="meer-item" onclick="showPage('klachten',null);closeMeerMenu()" href="#"><i class="ti ti-alert-circle" aria-hidden="true"></i> Klachten</a>
+      <a class="meer-item" onclick="showPage('deals',null);closeMeerMenu()" href="#"><i class="ti ti-file-invoice" aria-hidden="true"></i> Deals</a>
+      <a class="meer-item" onclick="showPage('agenda',null);closeMeerMenu()" href="#"><i class="ti ti-list" aria-hidden="true"></i> Agenda</a>
+      <a class="meer-item" onclick="showPage('instellingen',null);closeMeerMenu()" href="#"><i class="ti ti-settings" aria-hidden="true"></i> Instellingen</a>
+    </div>
+  </div>
+
   <div class="main">
     <!-- TOPBAR -->
     <header class="topbar">
@@ -479,6 +580,7 @@ td{padding:10px 18px;vertical-align:middle}
           <option value="na">Naam A–Z</option>
           <option value="dagen">Langst stil</option>
         </select>
+        <button class="fb" id="inactief-toggle-btn" onclick="toggleInactief(this)">⚪ Toon inactief</button>
         <span class="flt-count" id="flt-count">–</span>
       </div>
       <div class="page-scroll" id="ov-scroll">
@@ -850,6 +952,13 @@ td{padding:10px 18px;vertical-align:middle}
         </div>
       </div>
       <div class="dp-sec">
+        <div class="dp-sec-title">Klant actief?</div>
+        <div class="status-row">
+          <button class="sopt" id="kw-actief-btn" onclick="setKlantActief(true)">🟢 Actieve klant</button>
+          <button class="sopt" id="kw-inactief-btn" onclick="setKlantActief(false)">⚪ Inactieve klant</button>
+        </div>
+      </div>
+      <div class="dp-sec">
         <div class="dp-sec-title">Taken <button class="dp-add" onclick="openTaakModal(activeId)" aria-label="Taak toevoegen">+</button></div>
         <div id="dp-taken"></div>
       </div>
@@ -939,12 +1048,25 @@ td{padding:10px 18px;vertical-align:middle}
   </div>
 </div>
 
+<div class="modal-ov" id="ov-koppel" onclick="closeOv('ov-koppel',event)">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <h3>Koppel aan klant</h3>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Momenteel ingevuld als: <strong id="koppel-huidige-naam" style="color:var(--ink)">–</strong></div>
+    <div class="form-row">
+      <label class="form-lbl">Zoek bestaande klant</label>
+      <input class="form-inp" id="koppel-ks" placeholder="Typ om te zoeken..." oninput="koppelGenericSearch(this.value)" autocomplete="off">
+      <div class="sr" id="koppel-ks-res"></div>
+    </div>
+    <div class="form-acts"><button class="btn-c" onclick="closeOv('ov-koppel')">Annuleren</button></div>
+  </div>
+</div>
+
 <div class="modal-ov" id="ov-levertijd" onclick="closeOv('ov-levertijd',event)">
   <div class="modal-box" onclick="event.stopPropagation()">
     <h3>Levertijd toevoegen</h3>
     <div class="form-row" id="lev-klant-row">
       <label class="form-lbl">Klant</label>
-      <input class="form-inp" id="lev-ks" placeholder="Zoek klant..." oninput="ksSearch(this.value,'lev-ks-res','levKlantId')" autocomplete="off">
+      <input class="form-inp" id="lev-ks" placeholder="Zoek bestaande klant, of typ gewoon een naam..." oninput="ksSearch(this.value,'lev-ks-res','levKlantId')" autocomplete="off">
       <div class="sr" id="lev-ks-res"></div>
     </div>
     <div class="form-row"><label class="form-lbl">Omschrijving</label><input class="form-inp" id="lev-omsch" placeholder="bijv. Servetten 2x 2000st"></div>
@@ -966,7 +1088,7 @@ td{padding:10px 18px;vertical-align:middle}
     <h3>Klacht toevoegen</h3>
     <div class="form-row" id="kl-klant-row">
       <label class="form-lbl">Klant</label>
-      <input class="form-inp" id="kl-ks" placeholder="Zoek klant..." oninput="ksSearch(this.value,'kl-ks-res','klKlantId')" autocomplete="off">
+      <input class="form-inp" id="kl-ks" placeholder="Zoek bestaande klant, of typ gewoon een naam..." oninput="ksSearch(this.value,'kl-ks-res','klKlantId')" autocomplete="off">
       <div class="sr" id="kl-ks-res"></div>
     </div>
     <div class="form-row"><label class="form-lbl">Titel</label><input class="form-inp" id="kl-titel" placeholder="bijv. Verkeerde levering bestekzakjes"></div>
@@ -995,6 +1117,12 @@ td{padding:10px 18px;vertical-align:middle}
     </div>
     <div style="font-size:11px;color:var(--muted2);margin-bottom:14px" id="kd-detail-omsch">–</div>
 
+    <div class="form-row" id="kd-koppel-row" style="display:none;background:var(--sand);border:1px solid var(--border);border-radius:8px;padding:10px 12px">
+      <label class="form-lbl" style="color:var(--orange)">⚠️ Nog niet gekoppeld aan een klant</label>
+      <input class="form-inp" id="kd-koppel-ks" placeholder="Zoek klant om te koppelen..." oninput="koppelKlantSearch(this.value)" autocomplete="off">
+      <div class="sr" id="kd-koppel-res"></div>
+    </div>
+
     <div class="form-row">
       <label class="form-lbl">Status</label>
       <div class="status-row" id="kd-detail-status-row">
@@ -1022,7 +1150,7 @@ td{padding:10px 18px;vertical-align:middle}
     <h3>Deal toevoegen</h3>
     <div class="form-row" id="deal-klant-row">
       <label class="form-lbl">Klant</label>
-      <input class="form-inp" id="deal-ks" placeholder="Zoek klant..." oninput="ksSearch(this.value,'deal-ks-res','dealKlantId')" autocomplete="off">
+      <input class="form-inp" id="deal-ks" placeholder="Zoek bestaande klant, of typ gewoon een naam..." oninput="ksSearch(this.value,'deal-ks-res','dealKlantId')" autocomplete="off">
       <div class="sr" id="deal-ks-res"></div>
     </div>
     <div class="form-row"><label class="form-lbl">Dealnaam</label><input class="form-inp" id="deal-naam" placeholder="bijv. Herinrichting terras servetten"></div>
@@ -1235,8 +1363,16 @@ function updateInstStats(){
 }
 
 // FILTER / SORT
+let toonInactief=false;
+function toggleInactief(btn){
+  toonInactief=!toonInactief;
+  btn.classList.toggle('active',toonInactief);
+  btn.textContent=toonInactief?'🟢 Toon alleen actief':'⚪ Toon inactief';
+  page=1;render();
+}
 function filtered(){
   return klanten.filter(k=>{
+    if(!toonInactief&&k.klant_actief===false)return false;
     if(filter!=='all'&&(k.status||'actief')!==filter)return false;
     if(branche){const br=k.branche||'';if(branche==='Horeca'&&!br.toLowerCase().includes('horec')&&!br.toLowerCase().includes('hospit'))return false;else if(branche!=='Horeca'&&br!==branche)return false;}
     if(search){const q=search.toLowerCase();const inK=k.naam.toLowerCase().includes(q)||(k.plaats||'').toLowerCase().includes(q);const inC=(contacten[k.id]||[]).some(c=>c.naam.toLowerCase().includes(q));if(!inK&&!inC)return false;}
@@ -1271,8 +1407,8 @@ function render(){
   document.getElementById('tb').innerHTML=slice.map(k=>{
     const nts=notities[k.id]||[];const tk=taken.filter(t=>t.klant_id===k.id&&t.status==='open');
     const d=k.dagen||daysSince(k.laatste_order);
-    return`<tr onclick="openDetail('${k.id}')" class="${k.is_new?'is-new':''} ${activeId===k.id?'sel':''}">
-      <td><div class="kn"><span class="omz-dot" style="background:${omzDot(k.waarde)}"></span>${k.naam}${k.is_new?'<span class="new-pill">nieuw</span>':''}</div><div class="ks">${k.plaats||'–'}${k.branche?' · '+k.branche:''}</div></td>
+    return`<tr onclick="openDetail('${k.id}')" class="${k.is_new?'is-new':''} ${activeId===k.id?'sel':''}" style="${k.klant_actief===false?'opacity:.55':''}">
+      <td><div class="kn"><span class="omz-dot" style="background:${omzDot(k.waarde)}"></span>${k.naam}${k.is_new?'<span class="new-pill">nieuw</span>':''}${k.klant_actief===false?'<span class="new-pill" style="background:var(--sand3);color:var(--muted2)">inactief</span>':''}</div><div class="ks">${k.plaats||'–'}${k.branche?' · '+k.branche:''}</div></td>
       <td style="color:var(--muted2);font-size:11px">${fmtD(k.laatste_order)}</td>
       <td>${daysChip(d)}</td>
       <td><span class="omz-val">${fmt(k.waarde)}</span></td>
@@ -1292,14 +1428,16 @@ function goPage(p){page=p;render();document.getElementById('ov-scroll').scrollTo
 
 // DETAIL PANEL
 function openDetail(id){
+  if(!id||id==='null'){toast('Geen klant gekoppeld aan dit item','err');return;}
   activeId=id;editMode=false;
   const k=klanten.find(x=>x.id===id);
+  if(!k){toast('Klant niet gevonden in het systeem','err');return;}
   if(k.is_new){k.is_new=false;sb(`klanten?id=eq.${id}`,{method:'PATCH',body:JSON.stringify({is_new:false})});}
   document.getElementById('dp-branche').textContent=k.branche||'';
   document.getElementById('dp-naam').textContent=k.naam;
   document.getElementById('dp-sub').textContent=(k.telefoon?k.telefoon+' · ':'')+( k.plaats||'');
   document.getElementById('edit-btn').innerHTML='<i class="ti ti-edit" style="font-size:11px" aria-hidden="true"></i>';
-  renderDpInfo(k);renderStatusOpts(k.status||'actief');
+  renderDpInfo(k);renderStatusOpts(k.status||'actief');renderKlantActiefOpts(k.klant_actief);
   renderDpTaken(id);renderDpAfspraken(id);renderDpContacten(id);renderDpBel(id);renderDpNotities(id);
   document.getElementById('note-inp').value='';
   document.getElementById('detail-overlay').classList.add('open');
@@ -1332,6 +1470,18 @@ async function saveField(key,val){const k=klanten.find(x=>x.id===activeId);k[key
 
 function renderStatusOpts(sel){const m={actief:'sa',opvolgen:'so',urgent:'su',klaar:'sk'};document.querySelectorAll('.sopt').forEach(b=>{b.className='sopt';if(b.dataset.s===sel)b.classList.add(m[sel]);});}
 async function setStatus(s){if(!activeId)return;const k=klanten.find(x=>x.id===activeId);k.status=s;try{await sb(`klanten?id=eq.${activeId}`,{method:'PATCH',body:JSON.stringify({status:s})});}catch(e){toast('Fout','err');return;}renderStatusOpts(s);updateStats();render();toast('Status opgeslagen');}
+async function setKlantActief(isActief){
+  if(!activeId)return;
+  const k=klanten.find(x=>x.id===activeId);if(!k)return;
+  k.klant_actief=isActief;
+  try{await sb(`klanten?id=eq.${activeId}`,{method:'PATCH',body:JSON.stringify({klant_actief:isActief})});}catch(e){toast('Fout bij opslaan','err');return;}
+  renderKlantActiefOpts(isActief);render();toast(isActief?'Klant op actief gezet':'Klant op inactief gezet');
+}
+function renderKlantActiefOpts(isActief){
+  const aBtn=document.getElementById('kw-actief-btn'),iBtn=document.getElementById('kw-inactief-btn');
+  aBtn.className='sopt'+(isActief!==false?' sa':'');
+  iBtn.className='sopt'+(isActief===false?' su':'');
+}
 
 function renderDpTaken(id){
   const tk=taken.filter(t=>t.klant_id===id&&t.status==='open');
@@ -1399,7 +1549,7 @@ function renderLevertijden(){
   else if(levFilter!=='all')lv=lv.filter(l=>l.status===levFilter);
   if(!lv.length){el.innerHTML='<div class="empty" style="padding:40px">Geen levertijden in deze categorie</div>';return;}
   el.innerHTML=lv.map(l=>{const ov=l.verwachte_datum&&l.verwachte_datum<TODAY&&l.status!=='gecommuniceerd';
-    return`<div class="lt-item" onclick="openDetail('${l.klant_id}')">${levStatusBadge(l.status)}<div class="lt-info"><div class="lt-klant">${l.klant_naam||'–'}</div><div class="lt-desc">${l.omschrijving||'–'}</div>${l.verwachte_datum?`<div class="lt-meta${ov?' overdue':''}">${ov?'⚠️ ':''}verwacht ${fmtD(l.verwachte_datum)}</div>`:''}</div><button class="ic-btn del" onclick="event.stopPropagation();deleteLevertijd(${l.id})" aria-label="Verwijder levertijd"><i class="ti ti-x" aria-hidden="true"></i></button></div>`;
+    return`<div class="lt-item" onclick="${l.klant_id?`openDetail('${l.klant_id}')`:`openKoppelModal('levertijden',${l.id},'${(l.klant_naam||'').replace(/'/g,"\\'")}')`}">${levStatusBadge(l.status)}<div class="lt-info"><div class="lt-klant">${l.klant_naam||'–'}${!l.klant_id?' <span style="color:var(--orange);font-weight:600">· niet gekoppeld</span>':''}</div><div class="lt-desc">${l.omschrijving||'–'}</div>${l.verwachte_datum?`<div class="lt-meta${ov?' overdue':''}">${ov?'⚠️ ':''}verwacht ${fmtD(l.verwachte_datum)}</div>`:''}</div><button class="ic-btn del" onclick="event.stopPropagation();deleteLevertijd(${l.id})" aria-label="Verwijder levertijd"><i class="ti ti-x" aria-hidden="true"></i></button></div>`;
   }).join('');
   renderMijnDagLevertijden();
 }
@@ -1419,10 +1569,12 @@ function openLevertijdModal(){
   document.getElementById('ov-levertijd').classList.add('open');
 }
 async function saveLevertijd(){
-  const kid=levKlantId;if(!kid){toast('Kies een klant','err');return;}
   const omsch=document.getElementById('lev-omsch').value.trim();if(!omsch){toast('Omschrijving verplicht','err');return;}
-  const k=klanten.find(x=>x.id===kid);
-  const obj={klant_id:kid,klant_naam:k?.naam||'',omschrijving:omsch,status:document.getElementById('lev-status').value,verwachte_datum:document.getElementById('lev-datum').value||null};
+  const typedNaam=document.getElementById('lev-ks').value.trim();
+  const kid=levKlantId;
+  if(!kid&&!typedNaam){toast('Vul een klantnaam in','err');return;}
+  const k=kid?klanten.find(x=>x.id===kid):null;
+  const obj={klant_id:kid||null,klant_naam:k?.naam||typedNaam,omschrijving:omsch,status:document.getElementById('lev-status').value,verwachte_datum:document.getElementById('lev-datum').value||null};
   try{const res=await sb('levertijden',{method:'POST',body:JSON.stringify(obj)});levertijden.unshift(res[0]||{...obj,id:Date.now()});closeOv('ov-levertijd');renderLevertijden();updateInstStats();toast('Levertijd toegevoegd');}catch(e){toast('Fout','err');}
 }
 async function deleteLevertijd(id){try{await sb(`levertijden?id=eq.${id}`,{method:'DELETE'});}catch(e){}levertijden=levertijden.filter(l=>l.id!==id);renderLevertijden();}
@@ -1459,12 +1611,14 @@ function openKlachtModal(){
   document.getElementById('ov-klacht').classList.add('open');
 }
 async function saveKlacht(){
-  const kid=klKlantId;if(!kid){toast('Kies een klant','err');return;}
   const titel=document.getElementById('kl-titel').value.trim();
   const omsch=document.getElementById('kl-omsch').value.trim();
   if(!titel&&!omsch){toast('Titel of omschrijving verplicht','err');return;}
-  const k=klanten.find(x=>x.id===kid);
-  const obj={klant_id:kid,klant_naam:k?.naam||'',titel:titel||null,omschrijving:omsch,status:document.getElementById('kl-status').value,deadline:document.getElementById('kl-deadline').value||null};
+  const typedNaam=document.getElementById('kl-ks').value.trim();
+  const kid=klKlantId;
+  if(!kid&&!typedNaam){toast('Vul een klantnaam in','err');return;}
+  const k=kid?klanten.find(x=>x.id===kid):null;
+  const obj={klant_id:kid||null,klant_naam:k?.naam||typedNaam,titel:titel||null,omschrijving:omsch,status:document.getElementById('kl-status').value,deadline:document.getElementById('kl-deadline').value||null};
   try{const res=await sb('klachten',{method:'POST',body:JSON.stringify(obj)});klachten.unshift(res[0]||{...obj,id:Date.now()});closeOv('ov-klacht');renderKlachten();updateInstStats();toast('Klacht toegevoegd');}catch(e){toast('Fout','err');}
 }
 async function deleteKlacht(id){try{await sb(`klachten?id=eq.${id}`,{method:'DELETE'});}catch(e){}klachten=klachten.filter(k=>k.id!==id);renderKlachten();}
@@ -1476,11 +1630,29 @@ function openKlachtDetail(id){
   document.getElementById('kd-detail-klant').textContent=k.klant_naam||'–';
   document.getElementById('kd-detail-titel').textContent=k.titel||'Klacht zonder titel';
   document.getElementById('kd-detail-omsch').textContent=k.omschrijving||'';
+  document.getElementById('kd-koppel-row').style.display=k.klant_id?'none':'block';
+  document.getElementById('kd-koppel-ks').value='';document.getElementById('kd-koppel-res').innerHTML='';
   renderKlachtDetailStatus(k.status);
   renderKlachtDetailNotes(id);
   document.getElementById('kd-detail-note-inp').value='';
   document.getElementById('ov-klacht-detail').classList.add('open');
   renderIcons();
+}
+function koppelKlantSearch(q){
+  const res=document.getElementById('kd-koppel-res');
+  if(q.length<2){res.innerHTML='';return;}
+  const m=klanten.filter(k=>k.naam.toLowerCase().includes(q.toLowerCase())).slice(0,6);
+  res.innerHTML=m.map(k=>`<div class="sr-item" onclick="koppelKlantAanKlacht('${k.id}','${k.naam.replace(/'/g,"\\'")}')"> ${k.naam} <span style="color:var(--muted2);font-size:10px">${k.plaats}</span></div>`).join('');
+}
+async function koppelKlantAanKlacht(klantId,naam){
+  const k=klachten.find(x=>x.id===activeKlachtId);if(!k)return;
+  try{
+    await sb(`klachten?id=eq.${activeKlachtId}`,{method:'PATCH',body:JSON.stringify({klant_id:klantId,klant_naam:naam})});
+    k.klant_id=klantId;k.klant_naam=naam;
+    document.getElementById('kd-detail-klant').textContent=naam;
+    document.getElementById('kd-koppel-row').style.display='none';
+    renderKlachten();toast('Klacht gekoppeld aan '+naam);
+  }catch(e){toast('Koppelen mislukt','err');}
 }
 function renderKlachtDetailStatus(sel){
   const m={nieuw:'sa',inbehandeling:'so2',opgelost:'sk'};
@@ -1685,7 +1857,7 @@ function renderDeals(){
   if(dealFilter==='open')dl=dl.filter(d=>d.status==='offerte'||d.status==='design'||d.status==='productie');
   else if(dealFilter!=='all')dl=dl.filter(d=>d.status===dealFilter);
   if(!dl.length){el.innerHTML='<div class="empty" style="padding:40px">Geen deals in deze categorie</div>';return;}
-  el.innerHTML=dl.map(d=>`<div class="deal-item" onclick="openDealDetail(${d.id})">${dealStatusBadge(d.status)}<div class="deal-info"><div class="deal-klant">${d.klant_naam||'–'}</div><div class="deal-naam">${d.naam||'–'}</div><div class="deal-meta">${d.dealnummer?d.dealnummer+' · ':''}${fmtD(d.created_at)}${d.status==='verloren'&&d.verliesreden?' · '+d.verliesreden:''}</div></div><div class="deal-bedrag">${fmt(d.bedrag)}</div><button class="ic-btn del" onclick="event.stopPropagation();deleteDeal(${d.id})" aria-label="Verwijder deal"><i class="ti ti-x" aria-hidden="true"></i></button></div>`).join('');
+  el.innerHTML=dl.map(d=>`<div class="deal-item" onclick="${d.klant_id?`openDealDetail(${d.id})`:`openKoppelModal('deals',${d.id},'${(d.klant_naam||'').replace(/'/g,"\\'")}')`}">${dealStatusBadge(d.status)}<div class="deal-info"><div class="deal-klant">${d.klant_naam||'–'}${!d.klant_id?' <span style="color:var(--orange);font-weight:600">· niet gekoppeld</span>':''}</div><div class="deal-naam">${d.naam||'–'}</div><div class="deal-meta">${d.dealnummer?d.dealnummer+' · ':''}${fmtD(d.created_at)}${d.status==='verloren'&&d.verliesreden?' · '+d.verliesreden:''}</div></div><div class="deal-bedrag">${fmt(d.bedrag)}</div><button class="ic-btn del" onclick="event.stopPropagation();deleteDeal(${d.id})" aria-label="Verwijder deal"><i class="ti ti-x" aria-hidden="true"></i></button></div>`).join('');
 }
 function openDealModal(){
   dealKlantId=activeId||null;
@@ -1700,11 +1872,13 @@ function openDealModal(){
 }
 document.addEventListener('change',e=>{if(e.target&&e.target.id==='deal-status'){document.getElementById('deal-verlies-row').style.display=e.target.value==='verloren'?'block':'none';}});
 async function saveDeal(){
-  const kid=dealKlantId;if(!kid){toast('Kies een klant','err');return;}
   const naam=document.getElementById('deal-naam').value.trim();if(!naam){toast('Dealnaam verplicht','err');return;}
-  const k=klanten.find(x=>x.id===kid);
+  const typedNaam=document.getElementById('deal-ks').value.trim();
+  const kid=dealKlantId;
+  if(!kid&&!typedNaam){toast('Vul een klantnaam in','err');return;}
+  const k=kid?klanten.find(x=>x.id===kid):null;
   const status=document.getElementById('deal-status').value;
-  const obj={klant_id:kid,klant_naam:k?.naam||'',naam,dealnummer:document.getElementById('deal-nummer').value||null,bedrag:parseFloat(document.getElementById('deal-bedrag').value)||0,status,verliesreden:status==='verloren'?document.getElementById('deal-verliesreden').value:null,gesloten_op:(status==='gewonnen'||status==='verloren')?TODAY:null};
+  const obj={klant_id:kid||null,klant_naam:k?.naam||typedNaam,naam,dealnummer:document.getElementById('deal-nummer').value||null,bedrag:parseFloat(document.getElementById('deal-bedrag').value)||0,status,verliesreden:status==='verloren'?document.getElementById('deal-verliesreden').value:null,gesloten_op:(status==='gewonnen'||status==='verloren')?TODAY:null};
   try{
     const res=await sb('deals',{method:'POST',body:JSON.stringify(obj)});
     const newDeal=res[0]||{...obj,id:Date.now()};
@@ -1714,6 +1888,29 @@ async function saveDeal(){
   }catch(e){toast('Fout','err');}
 }
 async function deleteDeal(id){try{await sb(`deals?id=eq.${id}`,{method:'DELETE'});}catch(e){}deals=deals.filter(d=>d.id!==id);renderDeals();}
+
+// GENERIEK KOPPELEN AAN KLANT (levertijden & deals)
+let koppelTabel=null,koppelItemId=null;
+function openKoppelModal(tabel,itemId,huidigeNaam){
+  koppelTabel=tabel;koppelItemId=itemId;
+  document.getElementById('koppel-huidige-naam').textContent=huidigeNaam||'–';
+  document.getElementById('koppel-ks').value='';document.getElementById('koppel-ks-res').innerHTML='';
+  document.getElementById('ov-koppel').classList.add('open');
+}
+function koppelGenericSearch(q){
+  const res=document.getElementById('koppel-ks-res');
+  if(q.length<2){res.innerHTML='';return;}
+  const m=klanten.filter(k=>k.naam.toLowerCase().includes(q.toLowerCase())).slice(0,6);
+  res.innerHTML=m.map(k=>`<div class="sr-item" onclick="koppelGenericSelect('${k.id}','${k.naam.replace(/'/g,"\\'")}')"> ${k.naam} <span style="color:var(--muted2);font-size:10px">${k.plaats}</span></div>`).join('');
+}
+async function koppelGenericSelect(klantId,naam){
+  try{
+    await sb(`${koppelTabel}?id=eq.${koppelItemId}`,{method:'PATCH',body:JSON.stringify({klant_id:klantId,klant_naam:naam})});
+    if(koppelTabel==='levertijden'){const l=levertijden.find(x=>x.id===koppelItemId);if(l){l.klant_id=klantId;l.klant_naam=naam;}renderLevertijden();}
+    else if(koppelTabel==='deals'){const d=deals.find(x=>x.id===koppelItemId);if(d){d.klant_id=klantId;d.klant_naam=naam;}renderDeals();}
+    closeOv('ov-koppel');toast('Gekoppeld aan '+naam);
+  }catch(e){toast('Koppelen mislukt','err');}
+}
 function openDealDetail(id){
   const d=deals.find(x=>x.id===id);if(!d)return;
   const nextStatus={offerte:'design',design:'productie',productie:'gewonnen'}[d.status];
@@ -1914,6 +2111,7 @@ function closeOv(id,e){if(!e||e.target===document.getElementById(id))document.ge
 
 // PAGE NAV
 const PAGE_TITLES={overzicht:'Klantenoverzicht',mijndag:'Mijn dag',taken:'Taken',levertijden:'Levertijden',klachten:'Klachten',deals:'Deals',kalender:'Kalender',agenda:'Agenda',instellingen:'Instellingen'};
+const BN_PAGE_MAP={overzicht:0,mijndag:1,taken:2,kalender:3};
 function showPage(id,btn){
   event&&event.preventDefault();
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('act'));
@@ -1930,7 +2128,14 @@ function showPage(id,btn){
   if(id==='klachten')renderKlachten();
   if(id==='mijndag')renderMijnDag();
   if(id==='deals')renderDeals();
+  // sync bottom nav
+  const bnItems=document.querySelectorAll('.bn-item');
+  bnItems.forEach(b=>b.classList.remove('bn-act'));
+  if(id in BN_PAGE_MAP)bnItems[BN_PAGE_MAP[id]].classList.add('bn-act');
+  else document.getElementById('bn-meer-btn').classList.add('bn-act');
 }
+function toggleMeerMenu(){document.getElementById('meer-overlay').classList.add('open');}
+function closeMeerMenu(e){if(!e||e.target===document.getElementById('meer-overlay'))document.getElementById('meer-overlay').classList.remove('open');}
 
 // TOAST
 let tt;function toast(msg,type=''){const el=document.getElementById('toast');el.textContent=msg;el.className='toast show'+(type?' '+type:'');clearTimeout(tt);tt=setTimeout(()=>el.classList.remove('show'),2800);}
