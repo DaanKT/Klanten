@@ -3,22 +3,25 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>Klanten – Daniël Knott</title>
+<title>TBC CRM — The Branding Club</title>
 <meta name="theme-color" content="#1a1a1a">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;background:#faf9f7;color:#1a1a1a;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;overscroll-behavior:none;font-size:13px}
-:root{--sage:#8faa8b;--sage-d:#728970;--ink:#1a1a1a;--ink2:#2a2a2a;--ink3:#3a3a3a;--muted:#888;--muted2:#bbb;--sand:#faf9f7;--sand2:#f5f4f2;--sand3:#eeece8;--border:#e8e5e0;--border2:#d8d5d0;--red:#c0392b;--redbg:#fde8e8;--orange:#9a6500;--orangebg:#fef0d6;--green:#2d7a2d;--greenbg:#e8f4e8;--blue:#2c4f9a;--bluebg:#e8eef8;--radius:7px}
+html,body{height:100%;background:#f9f7f2;color:#1a1a1a;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;overscroll-behavior:none;font-size:13px}
+:root{--olive:#4a5c3a;--olive-d:#2a3320;--ink:#1a2410;--ink2:#2a3320;--ink3:#3d4d2e;--muted:#888;--muted2:#bbb;--sand:#f9f7f2;--sand2:#f2ede4;--sand3:#e8e2d4;--border:#e8e5e0;--border2:#d8d5d0;--red:#c0392b;--redbg:#fde8e8;--orange:#9a6500;--orangebg:#fef0d6;--green:#2d7a2d;--greenbg:#e8f4e8;--blue:#2c4f9a;--bluebg:#e8eef8;--radius:7px}
 /* LAYOUT */
 .app{display:flex;height:100vh;overflow:hidden}
-.sidebar{width:52px;background:#5c7a5a;display:flex;flex-direction:column;align-items:center;padding:12px 0;gap:2px;flex-shrink:0;z-index:10}
-.s-logo{width:28px;height:28px;border-radius:8px;background:#fff;display:flex;align-items:center;justify-content:center;margin-bottom:14px;flex-shrink:0}
-.s-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:rgba(255,255,255,.65);font-size:19px;transition:.15s;text-decoration:none}
-.s-icon:hover{background:rgba(255,255,255,.12);color:#fff}
-.s-icon.act{background:rgba(255,255,255,.18);color:#fff}
-.s-sep{height:1px;background:rgba(255,255,255,.15);width:28px;margin:6px 0}
+.sidebar{width:210px;background:#f2ede4;border-right:1px solid #e8e2d4;display:flex;flex-direction:column;padding:0;gap:0;flex-shrink:0;z-index:10}
+.s-logo{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-shrink:0}
+.s-icon{width:100%;display:flex;align-items:center;gap:9px;padding:8px 16px;cursor:pointer;color:#6b5b4a;border-left:2px solid transparent;font-size:12px;font-weight:500;text-decoration:none;transition:.1s;user-select:none}
+.s-icon i{font-size:16px;flex-shrink:0;width:18px;text-align:center}
+.s-icon-lbl{flex:1}
+.s-icon:hover{background:rgba(74,92,58,.08);color:#4a5c3a;border-left-color:transparent}
+.s-icon.act{color:#4a5c3a;background:#e8eed8;border-left-color:#4a5c3a;font-weight:600}
+.s-sep{height:1px;background:#e0d9cc;margin:4px 14px}
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
 /* TOPBAR */
 .topbar{background:#fff;border-bottom:1px solid var(--border);padding:0 18px;height:50px;display:flex;align-items:center;gap:12px;flex-shrink:0}
@@ -30,7 +33,7 @@ html,body{height:100%;background:#faf9f7;color:#1a1a1a;font-family:system-ui,-ap
 .topbar-right{display:flex;align-items:center;gap:8px;margin-left:auto}
 .notif-btn{position:relative;cursor:pointer;color:var(--muted);font-size:17px;display:flex}
 .notif-dot{width:6px;height:6px;background:var(--red);border-radius:50%;position:absolute;top:-1px;right:-1px;border:1px solid #fff}
-.avatar{width:28px;height:28px;border-radius:50%;background:var(--sage);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--ink);cursor:pointer;flex-shrink:0}
+.avatar{width:28px;height:28px;border-radius:50%;background:var(--olive);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--ink);cursor:pointer;flex-shrink:0}
 /* PAGES */
 .page{display:none;flex:1;overflow:hidden;flex-direction:column}
 .page.act{display:flex}
@@ -54,15 +57,15 @@ html,body{height:100%;background:#faf9f7;color:#1a1a1a;font-family:system-ui,-ap
 .filter-bar{background:#fff;border-bottom:1px solid var(--border);padding:9px 18px;display:flex;align-items:center;gap:7px;flex-shrink:0;flex-wrap:wrap}
 .flt{font-size:11px;padding:5px 11px;border-radius:6px;border:1px solid var(--border);background:#fff;color:var(--muted);cursor:pointer;font-weight:500;font-family:inherit;transition:.12s}
 .flt:hover{border-color:var(--border2);color:var(--ink)}
-.flt.on{background:var(--ink);color:var(--sage);border-color:var(--ink)}
+.flt.on{background:#2a3320;color:var(--olive);border-color:var(--ink)}
 .flt-sep{height:18px;width:1px;background:var(--border);flex-shrink:0}
 .flt-sel{font-size:11px;padding:5px 9px;border-radius:6px;border:1px solid var(--border);background:#fff;color:var(--muted);cursor:pointer;font-family:inherit;outline:none}
-.flt-count{font-size:10px;font-weight:700;background:var(--ink);color:var(--sage);border-radius:20px;padding:2px 8px;margin-left:auto;flex-shrink:0}
+.flt-count{font-size:10px;font-weight:700;background:#2a3320;color:var(--olive);border-radius:20px;padding:2px 8px;margin-left:auto;flex-shrink:0}
 /* BULK ACTIONS */
-.bulk-bar{background:var(--ink);color:#fff;padding:9px 18px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px;font-weight:600}
+.bulk-bar{background:#2a3320;color:#fff;padding:9px 18px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px;font-weight:600}
 .bulk-bar .fb{background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.2)}
 .bulk-bar .fb:hover{background:rgba(255,255,255,.18)}
-.row-cb{width:15px;height:15px;cursor:pointer;accent-color:var(--sage-d)}
+.row-cb{width:15px;height:15px;cursor:pointer;accent-color:var(--olive-d)}
 /* TABLE */
 .tbl-wrap{flex:1}
 table{width:100%;border-collapse:collapse}
@@ -70,7 +73,7 @@ thead th{padding:8px 18px;text-align:left;font-size:9px;font-weight:700;color:va
 thead th:hover{color:var(--muted)}
 tbody tr{border-bottom:1px solid #f0efed;cursor:pointer;transition:.1s}
 tbody tr:hover{background:#fffdf8}
-tbody tr.sel{background:#fffbf0;box-shadow:inset 3px 0 0 var(--sage)}
+tbody tr.sel{background:#fffbf0;box-shadow:inset 3px 0 0 var(--olive)}
 tbody tr.is-new{box-shadow:inset 3px 0 0 var(--green)}
 td{padding:10px 18px;vertical-align:middle}
 .kn{font-weight:600;font-size:13px;color:var(--ink);display:flex;align-items:center;gap:6px}
@@ -94,19 +97,19 @@ td{padding:10px 18px;vertical-align:middle}
 /* PAG */
 .pag{display:flex;justify-content:center;align-items:center;gap:4px;padding:14px;border-top:1px solid var(--border);background:#fff;flex-shrink:0}
 .pb{background:#fff;border:1px solid var(--border);color:var(--ink);padding:5px 10px;border-radius:6px;cursor:pointer;font-size:11px;font-family:inherit}
-.pb:hover,.pb.on{background:var(--ink);color:var(--sage);border-color:var(--ink)}
+.pb:hover,.pb.on{background:#2a3320;color:var(--olive);border-color:var(--ink)}
 .pb:disabled{opacity:.35;cursor:default}
 .pi{font-size:11px;color:var(--muted)}
 /* INZICHTEN */
-.insight-bar{background:var(--ink);padding:14px 18px;flex-shrink:0}
+.insight-bar{background:#2a3320;padding:14px 18px;flex-shrink:0}
 .insight-title{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#555;margin-bottom:10px}
 .insights{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
 .insights::-webkit-scrollbar{display:none}
-.insight-card{background:var(--ink2);border-radius:8px;padding:10px 13px;min-width:200px;flex-shrink:0;border:1px solid #333;cursor:pointer;transition:.15s}
+.insight-card{background:#3d4d2e;border-radius:8px;padding:10px 13px;min-width:200px;flex-shrink:0;border:1px solid #333;cursor:pointer;transition:.15s}
 .insight-card:hover{background:#333;border-color:#555}
 .ic-icon{font-size:14px;margin-bottom:5px}
 .ic-text{font-size:11px;color:#aaa;line-height:1.4}
-.ic-text strong{color:var(--sage)}
+.ic-text strong{color:var(--olive)}
 /* ─── DETAIL PANEL ─── */
 .detail-overlay{display:none;position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.3);align-items:flex-start;justify-content:flex-end}
 .detail-overlay.open{display:flex}
@@ -117,24 +120,24 @@ td{padding:10px 18px;vertical-align:middle}
 .dp-naam{font-size:16px;font-weight:700;color:var(--ink);letter-spacing:-.3px;margin-top:2px}
 .dp-sub{font-size:11px;color:var(--muted);margin-top:2px}
 .dp-btns{display:flex;gap:5px;margin-top:10px;flex-wrap:wrap}
-.dp-btn-p{font-size:11px;font-weight:600;padding:6px 11px;border-radius:6px;background:var(--ink);color:var(--sage);border:none;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:4px}
+.dp-btn-p{font-size:11px;font-weight:600;padding:6px 11px;border-radius:6px;background:#2a3320;color:var(--olive);border:none;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:4px}
 .dp-btn-s{font-size:11px;font-weight:500;padding:6px 10px;border-radius:6px;background:var(--sand2);color:var(--ink3);border:1px solid var(--border);cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:4px}
 .dp-btn-s:hover{border-color:var(--border2)}
 .dp-body{flex:1;overflow-y:auto}
 .dp-sec{padding:13px 16px;border-bottom:1px solid #f0efed}
 .dp-sec-title{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted2);margin-bottom:9px;display:flex;justify-content:space-between;align-items:center}
 .dp-add{background:none;border:none;color:var(--muted2);font-size:17px;cursor:pointer;line-height:1;font-family:inherit}
-.dp-add:hover{color:var(--sage)}
+.dp-add:hover{color:var(--olive)}
 .ig2{display:grid;grid-template-columns:1fr 1fr;gap:6px}
 .ii2{background:var(--sand);border-radius:6px;padding:8px 10px}
 .il2{font-size:9px;color:var(--muted2);text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px;font-weight:600}
 .iv2{font-size:12px;font-weight:600;color:var(--ink)}
 .iv2 a{color:var(--green);text-decoration:none}
 .iv2-edit{width:100%;background:transparent;border:none;color:var(--ink);font-size:12px;font-weight:600;outline:none;cursor:text;font-family:inherit}
-.ii2.editing{border:1px solid var(--sage-d);background:#fffbf0}
+.ii2.editing{border:1px solid var(--olive-d);background:#fffbf0}
 /* omzet mini bar */
 .omz-bars{display:flex;align-items:flex-end;gap:2px;height:24px;margin-top:6px}
-.omz-bar{background:var(--sage);border-radius:2px 2px 0 0;flex:1;opacity:.7}
+.omz-bar{background:var(--olive);border-radius:2px 2px 0 0;flex:1;opacity:.7}
 .omz-bar.peak{opacity:1}
 /* status */
 .status-row{display:flex;gap:5px;flex-wrap:wrap}
@@ -182,8 +185,8 @@ td{padding:10px 18px;vertical-align:middle}
 .note-text{font-size:11px;color:#555;line-height:1.5}
 .note-add-row{display:flex;gap:7px;padding:12px 16px;background:var(--sand);border-top:1px solid var(--border);flex-shrink:0}
 .note-ta{flex:1;background:#fff;border:1px solid var(--border);border-radius:6px;padding:8px 10px;color:var(--ink);font-size:12px;resize:none;min-height:54px;outline:none;font-family:inherit}
-.note-ta:focus{border-color:var(--sage-d)}
-.note-add-btn{background:var(--ink);color:var(--sage);border:none;border-radius:6px;padding:8px 12px;font-weight:600;cursor:pointer;font-size:11px;align-self:flex-end;font-family:inherit;white-space:nowrap}
+.note-ta:focus{border-color:var(--olive-d)}
+.note-add-btn{background:#2a3320;color:var(--olive);border:none;border-radius:6px;padding:8px 12px;font-weight:600;cursor:pointer;font-size:11px;align-self:flex-end;font-family:inherit;white-space:nowrap}
 /* TAKEN PAGE */
 .taken-page{padding:18px}
 .taken-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px}
@@ -247,17 +250,17 @@ td{padding:10px 18px;vertical-align:middle}
 .inst-row-info{flex:1}
 .inst-row-title{font-size:13px;font-weight:600;color:var(--ink)}
 .inst-row-desc{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.4}
-.inst-btn-p{font-size:11px;font-weight:600;padding:7px 14px;border-radius:6px;background:var(--ink);color:var(--sage);border:none;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:5px;white-space:nowrap}
+.inst-btn-p{font-size:11px;font-weight:600;padding:7px 14px;border-radius:6px;background:#2a3320;color:var(--olive);border:none;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:5px;white-space:nowrap}
 .inst-btn-p:hover{background:var(--ink3)}
 .inst-btn-s{font-size:11px;font-weight:500;padding:7px 13px;border-radius:6px;background:var(--sand2);color:var(--ink3);border:1px solid var(--border);cursor:pointer;font-family:inherit;white-space:nowrap}
 .inst-btn-s:hover{border-color:var(--border2)}
 .inst-stat{font-size:11px;color:var(--muted2)}
 /* MIJN DAG */
 .dag-page{padding:18px 20px;max-width:760px}
-.dag-commit-card{background:var(--ink);border-radius:10px;padding:16px 18px;margin-bottom:16px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
-.dcc-icon{font-size:22px;color:var(--sage);flex-shrink:0}
+.dag-commit-card{background:#2a3320;border-radius:10px;padding:16px 18px;margin-bottom:16px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.dcc-icon{font-size:22px;color:var(--olive);flex-shrink:0}
 .dcc-lbl{font-size:9px;color:#888;text-transform:uppercase;letter-spacing:.4px;font-weight:600}
-.dcc-val{font-size:19px;font-weight:700;color:var(--sage);letter-spacing:-.3px}
+.dcc-val{font-size:19px;font-weight:700;color:var(--olive);letter-spacing:-.3px}
 .dcc-sub{font-size:10px;color:#777;margin-top:1px}
 .dcc-right{margin-left:auto;text-align:right}
 .dcc-pct{font-size:24px;font-weight:700;color:#9fd49c;letter-spacing:-.3px}
@@ -268,7 +271,7 @@ td{padding:10px 18px;vertical-align:middle}
 .dag-val{font-size:21px;font-weight:700;letter-spacing:-.4px;color:var(--ink)}
 .dag-sub{font-size:10px;color:var(--muted2);margin-top:2px}
 .dag-progbar{height:5px;background:var(--sand3);border-radius:3px;margin-top:8px;overflow:hidden}
-.dag-progfill{height:100%;border-radius:3px;background:var(--sage)}
+.dag-progfill{height:100%;border-radius:3px;background:var(--olive)}
 .dag-kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
 .dag-kpi-box{background:#fff;border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center}
 .dag-kpi-n{font-size:18px;font-weight:700;color:var(--ink);letter-spacing:-.3px}
@@ -299,7 +302,7 @@ td{padding:10px 18px;vertical-align:middle}
 .lt-item:hover{border-color:var(--border2);background:var(--sand)}
 .lt-status{font-size:9px;font-weight:700;padding:3px 9px;border-radius:5px;flex-shrink:0;white-space:nowrap}
 .lt-info{flex:1;min-width:0}
-.lt-klant{font-size:10px;font-weight:700;color:var(--sage-d);text-transform:uppercase;letter-spacing:.3px;margin-bottom:1px}
+.lt-klant{font-size:10px;font-weight:700;color:var(--olive-d);text-transform:uppercase;letter-spacing:.3px;margin-bottom:1px}
 .lt-desc{font-size:13px;font-weight:600;color:var(--ink)}
 .lt-meta{font-size:10px;color:var(--muted2);margin-top:2px}
 .lt-meta.overdue{color:var(--red);font-weight:700}
@@ -318,7 +321,7 @@ td{padding:10px 18px;vertical-align:middle}
 .ds-gewonnen{background:var(--greenbg);color:var(--green)}
 .ds-verloren{background:var(--redbg);color:var(--red)}
 .deal-info{flex:1;min-width:0}
-.deal-klant{font-size:10px;font-weight:700;color:var(--sage-d);text-transform:uppercase;letter-spacing:.3px;margin-bottom:1px}
+.deal-klant{font-size:10px;font-weight:700;color:var(--olive-d);text-transform:uppercase;letter-spacing:.3px;margin-bottom:1px}
 .deal-naam{font-size:13px;font-weight:600;color:var(--ink)}
 .deal-meta{font-size:10px;color:var(--muted2);margin-top:2px}
 .deal-bedrag{font-size:14px;font-weight:700;color:var(--ink);flex-shrink:0;white-space:nowrap}
@@ -331,16 +334,16 @@ td{padding:10px 18px;vertical-align:middle}
 .login-row{margin-bottom:12px}
 .login-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted2);margin-bottom:5px;display:block;font-weight:600}
 .login-inp{width:100%;background:var(--sand);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--ink);font-size:13px;outline:none;font-family:inherit}
-.login-inp:focus{background:#fff;border-color:var(--sage-d)}
-.login-btn{width:100%;background:var(--ink);color:var(--sage);border:none;border-radius:8px;padding:11px;font-weight:700;cursor:pointer;font-size:13px;font-family:inherit;margin-top:6px}
+.login-inp:focus{background:#fff;border-color:var(--olive-d)}
+.login-btn{width:100%;background:#2a3320;color:var(--olive);border:none;border-radius:8px;padding:11px;font-weight:700;cursor:pointer;font-size:13px;font-family:inherit;margin-top:6px}
 .login-btn:hover{background:var(--ink3)}
 .login-err{font-size:11px;color:var(--red);text-align:center;margin-top:10px;display:none}
 .login-switch{font-size:11px;color:var(--muted);text-align:center;margin-top:16px}
-.login-switch a{color:var(--sage-d);font-weight:600;text-decoration:none;cursor:pointer}
+.login-switch a{color:var(--olive-d);font-weight:600;text-decoration:none;cursor:pointer}
 .login-loading{text-align:center;color:var(--muted);font-size:12px}
 /* AVATAR UPLOAD */
 .avatar-upload-wrap{display:flex;align-items:center;gap:14px;margin-bottom:6px}
-.avatar-preview{width:56px;height:56px;border-radius:50%;background:var(--sage);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:var(--ink);flex-shrink:0;overflow:hidden}
+.avatar-preview{width:56px;height:56px;border-radius:50%;background:var(--olive);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:var(--ink);flex-shrink:0;overflow:hidden}
 .avatar-preview img{width:100%;height:100%;object-fit:cover}
 /* MODALS */
 .modal-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;align-items:center;justify-content:center;padding:12px}
@@ -350,10 +353,10 @@ td{padding:10px 18px;vertical-align:middle}
 .form-row{margin-bottom:10px}
 .form-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted2);margin-bottom:4px;display:block;font-weight:600}
 .form-inp{width:100%;background:var(--sand);border:1px solid var(--border);border-radius:6px;padding:8px 10px;color:var(--ink);font-size:12px;outline:none;font-family:inherit;transition:.12s}
-.form-inp:focus{background:#fff;border-color:var(--sage-d)}
+.form-inp:focus{background:#fff;border-color:var(--olive-d)}
 .form-sel{width:100%;background:var(--sand);border:1px solid var(--border);border-radius:6px;padding:8px 10px;color:var(--ink);font-size:12px;outline:none;font-family:inherit}
 .form-acts{display:flex;gap:7px;margin-top:14px}
-.btn-p{flex:1;background:var(--ink);color:var(--sage);border:none;border-radius:7px;padding:9px;font-weight:700;cursor:pointer;font-size:12px;font-family:inherit}
+.btn-p{flex:1;background:#2a3320;color:var(--olive);border:none;border-radius:7px;padding:9px;font-weight:700;cursor:pointer;font-size:12px;font-family:inherit}
 .btn-p:hover{background:var(--ink3)}
 .btn-c{background:var(--sand2);color:var(--muted);border:1px solid var(--border);border-radius:7px;padding:9px 14px;cursor:pointer;font-size:12px;font-family:inherit}
 .sr{background:#fff;border:1px solid var(--border);border-radius:6px;margin-top:3px;max-height:140px;overflow-y:auto}
@@ -361,12 +364,12 @@ td{padding:10px 18px;vertical-align:middle}
 .sr-item:hover{background:var(--sand);color:var(--ink)}
 .sr-item:last-child{border-bottom:none}
 /* TOAST */
-.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--ink);color:var(--sage);padding:9px 18px;border-radius:8px;font-weight:600;font-size:12px;z-index:999;opacity:0;transition:.3s;pointer-events:none;white-space:nowrap;border:1px solid #333}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(60px);background:#2a3320;color:var(--olive);padding:9px 18px;border-radius:8px;font-weight:600;font-size:12px;z-index:999;opacity:0;transition:.3s;pointer-events:none;white-space:nowrap;border:1px solid #333}
 .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
 .toast.err{background:var(--red);color:#fff;border-color:var(--red)}
 .empty{text-align:center;color:var(--muted2);font-size:12px;padding:20px;font-style:italic}
 .spin-wrap{display:flex;align-items:center;justify-content:center;height:160px;gap:10px;color:var(--muted)}
-.spin{width:16px;height:16px;border:2px solid var(--sand3);border-top-color:var(--sage-d);border-radius:50%;animation:spin .8s linear infinite}
+.spin{width:16px;height:16px;border:2px solid var(--sand3);border-top-color:var(--olive-d);border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 /* BOTTOM NAV (mobile only, hidden by default) */
 .bottom-nav{display:none}
@@ -385,7 +388,7 @@ td{padding:10px 18px;vertical-align:middle}
   .bottom-nav{display:flex;background:#fff;border-top:1px solid var(--border);height:58px;flex-shrink:0;padding-bottom:env(safe-area-inset-bottom,0);position:fixed;bottom:0;left:0;right:0;z-index:60}
   .bn-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-decoration:none;color:var(--muted2);font-size:9px;font-weight:600}
   .bn-item i{font-size:20px}
-  .bn-item.bn-act{color:var(--sage-d)}
+  .bn-item.bn-act{color:var(--olive-d)}
 
   /* Topbar tighter */
   .topbar{padding:0 12px;height:52px}
@@ -449,6 +452,9 @@ td{padding:10px 18px;vertical-align:middle}
 
   .login-box{padding:24px 20px}
 }
+.sb-label{font-size:11px;font-weight:500;flex:1}
+.sb-badge-count{font-size:8px;font-weight:700;padding:1px 5px;border-radius:8px;background:#4a5c3a;color:#fff;margin-left:auto}
+.sb-badge-count.red{background:#b91c1c}
 @media(max-width:600px){.ig2{grid-template-columns:1fr}}
 </style>
 </head>
@@ -499,25 +505,51 @@ td{padding:10px 18px;vertical-align:middle}
 <div class="app" id="main-app" style="display:none">
   <!-- SIDEBAR -->
   <nav class="sidebar" aria-label="Navigatie">
-    <div class="s-logo" title="Klanten app">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><circle cx="7" cy="7" r="5" stroke="#1a1a1a" stroke-width="2.5"/><circle cx="7" cy="7" r="2" fill="#1a1a1a"/></svg>
+    <div style="padding:14px 14px 10px;border-bottom:1px solid #e8e2d4;flex-shrink:0">
+      <a onclick="showPage('overzicht',null)" style="display:flex;align-items:center;gap:9px;cursor:pointer;text-decoration:none">
+        <svg width="30" height="30" viewBox="0 0 52 52" fill="none" aria-hidden="true">
+          <rect width="52" height="52" rx="12" fill="#2a3320"/>
+          <text x="7" y="33" font-family="system-ui,sans-serif" font-size="19" font-weight="800" fill="#f2ede4" letter-spacing="1.5">TBC</text>
+          <rect x="7" y="36" width="38" height="2.5" rx="1.2" fill="#4a5c3a"/>
+          <rect x="7" y="40" width="22" height="2" rx="1" fill="#7a8c6a"/>
+        </svg>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:#2a3320;letter-spacing:-.2px;line-height:1.1">TBC</div>
+          <div style="font-size:9px;color:#9a9080;display:block;font-weight:400;margin-top:1px">The Branding Club · CRM</div>
+        </div>
+      </a>
     </div>
-    <a class="s-icon act" onclick="showPage('overzicht',this)" title="Overzicht" href="#" aria-current="page"><i class="ti ti-users" aria-hidden="true"></i></a>
-    <a class="s-icon" onclick="showPage('mijndag',this)" title="Mijn dag" href="#"><i class="ti ti-sun" aria-hidden="true"></i></a>
-    <a class="s-icon" onclick="showPage('taken',this)" title="Taken" href="#"><i class="ti ti-checkbox" aria-hidden="true"></i></a>
-    <a class="s-icon" onclick="showPage('levertijden',this)" title="Levertijden" href="#"><i class="ti ti-package" aria-hidden="true"></i></a>
-    <a class="s-icon" onclick="showPage('klachten',this)" title="Klachten" href="#"><i class="ti ti-alert-circle" aria-hidden="true"></i></a>
-    <a class="s-icon" onclick="showPage('deals',this)" title="Deals" href="#"><i class="ti ti-file-invoice" aria-hidden="true"></i></a>
-    <a class="s-icon" onclick="showPage('kalender',this)" title="Kalender" href="#"><i class="ti ti-calendar" aria-hidden="true"></i></a>
-    <a class="s-icon" onclick="showPage('agenda',this)" title="Agenda" href="#"><i class="ti ti-list" aria-hidden="true"></i></a>
-    <div class="s-sep"></div>
-    <a class="s-icon" style="margin-top:auto" onclick="showPage('instellingen',this)" title="Instellingen" href="#"><i class="ti ti-settings" aria-hidden="true"></i></a>
+    <div style="flex:1;overflow-y:auto;padding:6px 0">
+      <div style="font-size:9px;font-weight:700;color:#b8ae9e;text-transform:uppercase;letter-spacing:.8px;padding:10px 14px 3px">Werkruimte</div>
+      <a class="s-icon act" onclick="showPage('overzicht',this)" title="Klanten" href="#" aria-current="page"><i class="ti ti-users" aria-hidden="true"></i><span class="s-icon-lbl">Klanten</span><span id="sb-klanten-badge" style="font-size:8px;font-weight:700;background:#4a5c3a;color:#fff;border-radius:10px;padding:1px 6px;margin-left:auto;display:none">0</span></a>
+      <div style="font-size:9px;font-weight:700;color:#b8ae9e;text-transform:uppercase;letter-spacing:.8px;padding:10px 14px 3px">Acties</div>
+      <a class="s-icon" onclick="showPage('taken',this)" title="Taken" href="#"><i class="ti ti-checkbox" aria-hidden="true"></i><span class="s-icon-lbl">Taken</span><span id="sb-taken-badge" style="font-size:8px;font-weight:700;background:#4a5c3a;color:#fff;border-radius:10px;padding:1px 6px;margin-left:auto;display:none">0</span></a>
+      <a class="s-icon" onclick="showPage('levertijden',this)" title="Levertijden" href="#"><i class="ti ti-package" aria-hidden="true"></i><span class="s-icon-lbl">Levertijden</span><span id="sb-lev-badge" style="font-size:8px;font-weight:700;background:#b91c1c;color:#fff;border-radius:10px;padding:1px 6px;margin-left:auto;display:none">0</span></a>
+      <a class="s-icon" onclick="showPage('klachten',this)" title="Klachten" href="#"><i class="ti ti-alert-circle" aria-hidden="true"></i><span class="s-icon-lbl">Klachten</span><span id="sb-klacht-badge" style="font-size:8px;font-weight:700;background:#b91c1c;color:#fff;border-radius:10px;padding:1px 6px;margin-left:auto;display:none">0</span></a>
+      <a class="s-icon" onclick="showPage('deals',this)" title="Deals" href="#"><i class="ti ti-file-invoice" aria-hidden="true"></i><span class="s-icon-lbl">Deals</span></a>
+      <div style="font-size:9px;font-weight:700;color:#b8ae9e;text-transform:uppercase;letter-spacing:.8px;padding:10px 14px 3px">Meer</div>
+      <a class="s-icon" onclick="showPage('kalender',this)" title="Kalender" href="#"><i class="ti ti-calendar" aria-hidden="true"></i><span class="s-icon-lbl">Kalender</span></a>
+      <a class="s-icon" onclick="showPage('agenda',this)" title="Agenda" href="#"><i class="ti ti-list" aria-hidden="true"></i><span class="s-icon-lbl">Agenda</span></a>
+      <a class="s-icon" onclick="showPage('mail',this)" title="Mail" href="#"><i class="ti ti-mail" aria-hidden="true"></i><span class="s-icon-lbl">Mail</span></a>
+    </div>
+    <div style="border-top:1px solid #e8e2d4;padding:6px 0 4px">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 14px 2px">
+        <span style="font-size:9px;font-weight:700;color:#b8ae9e;text-transform:uppercase;letter-spacing:.8px">Snelle links</span>
+        <button onclick="openLinkModal()" style="background:none;border:none;color:#b8ae9e;font-size:16px;cursor:pointer;line-height:1;padding:0" aria-label="Link toevoegen">+</button>
+      </div>
+      <div id="sb-links-list"></div>
+    </div>
+    <div style="padding:10px 14px;border-top:1px solid #e8e2d4;display:flex;align-items:center;gap:8px">
+      <div id="sb-user-avatar" style="width:26px;height:26px;border-radius:50%;background:#4a5c3a;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff;flex-shrink:0">DK</div>
+      <div><div style="font-size:11px;font-weight:600;color:#2a3320" id="sb-user-name">Daniël Knott</div><div style="font-size:9px;color:#9a9080">Accountmanager</div></div>
+      <i class="ti ti-settings" style="font-size:14px;color:#b8ae9e;margin-left:auto;cursor:pointer" onclick="showPage('instellingen',null)" aria-hidden="true"></i>
+    </div>
   </nav>
 
   <!-- MOBILE BOTTOM NAV -->
   <nav class="bottom-nav" aria-label="Mobiele navigatie">
     <a class="bn-item bn-act" onclick="showPage('overzicht',this)" href="#"><i class="ti ti-users" aria-hidden="true"></i><span>Klanten</span></a>
-    <a class="bn-item" onclick="showPage('mijndag',this)" href="#"><i class="ti ti-sun" aria-hidden="true"></i><span>Mijn dag</span></a>
+    
     <a class="bn-item" onclick="showPage('taken',this)" href="#"><i class="ti ti-checkbox" aria-hidden="true"></i><span>Taken</span></a>
     <a class="bn-item" onclick="showPage('kalender',this)" href="#"><i class="ti ti-calendar" aria-hidden="true"></i><span>Kalender</span></a>
     <a class="bn-item" onclick="toggleMeerMenu()" href="#" id="bn-meer-btn"><i class="ti ti-dots" aria-hidden="true"></i><span>Meer</span></a>
@@ -548,7 +580,7 @@ td{padding:10px 18px;vertical-align:middle}
           <i class="ti ti-bell" style="font-size:17px" aria-hidden="true"></i>
           <div class="notif-dot"></div>
         </div>
-        <div class="avatar" title="Daniël Knott">DK</div>
+        <div class="avatar" title="Daniël Knott">TBC</div>
       </div>
     </header>
 
@@ -806,6 +838,43 @@ td{padding:10px 18px;vertical-align:middle}
       <div class="page-scroll">
         <div class="agenda-page" id="agenda-content"><div class="spin-wrap"><div class="spin"></div></div></div>
       </div>
+    
+    <!-- MAIL PAGE -->
+    <div class="page" id="page-mail">
+      <div class="page-scroll" style="padding:16px 20px;display:flex;flex-direction:column;gap:14px">
+        <div style="background:#fff;border:1px solid #e8e2d4;border-radius:9px;overflow:hidden">
+          <div style="padding:10px 14px;border-bottom:1px solid #e8e2d4;display:flex;align-items:center;justify-content:space-between">
+            <span style="font-size:11px;font-weight:700;color:#2a3320"><i class="ti ti-alert-triangle" style="color:var(--red);margin-right:5px;font-size:12px" aria-hidden="true"></i>Actie vereist</span>
+            <button class="dp-btn-s" style="font-size:10px;padding:4px 10px" onclick="loadMail()"><i class="ti ti-refresh" style="font-size:11px" aria-hidden="true"></i> Vernieuwen</button>
+          </div>
+          <div id="mail-actie"><div class="spin-wrap" style="height:80px"><div class="spin"></div></div></div>
+        </div>
+        <div style="background:#fff;border:1px solid #e8e2d4;border-radius:9px;overflow:hidden">
+          <div style="padding:10px 14px;border-bottom:1px solid #e8e2d4">
+            <span style="font-size:11px;font-weight:700;color:#2a3320"><i class="ti ti-users" style="color:var(--olive);margin-right:5px;font-size:12px" aria-hidden="true"></i>Klant gerelateerd</span>
+          </div>
+          <div id="mail-klant"><div class="empty">Laden...</div></div>
+        </div>
+        <div style="background:#fff;border:1px solid #e8e2d4;border-radius:9px;overflow:hidden">
+          <div style="padding:10px 14px;border-bottom:1px solid #e8e2d4">
+            <span style="font-size:11px;font-weight:700;color:#2a3320"><i class="ti ti-info-circle" style="color:var(--blue);margin-right:5px;font-size:12px" aria-hidden="true"></i>FYI</span>
+          </div>
+          <div id="mail-fyi"><div class="empty">Laden...</div></div>
+        </div>
+        <div style="background:#fff;border:1px solid #e8e2d4;border-radius:9px;overflow:hidden;display:flex;flex-direction:column">
+          <div style="padding:10px 14px;border-bottom:1px solid #e8e2d4;display:flex;align-items:center;gap:8px">
+            <div style="width:22px;height:22px;border-radius:50%;background:#e8eed8;display:flex;align-items:center;justify-content:center"><i class="ti ti-sparkles" style="font-size:12px;color:#4a5c3a" aria-hidden="true"></i></div>
+            <span style="font-size:11px;font-weight:700;color:#2a3320">Claude — stel een vraag over je mail</span>
+          </div>
+          <div id="mail-claude-msgs" style="overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;min-height:100px;max-height:200px">
+            <div style="font-size:12px;line-height:1.5;padding:8px 10px;border-radius:8px;max-width:85%;background:#f2ede4;color:#2a3320;align-self:flex-start">Hoi Daniël! Ik kan je mail samenvatten en helpen met antwoorden. Stel een vraag zoals: "Welke mails moet ik vandaag beantwoorden?"</div>
+          </div>
+          <div style="display:flex;gap:7px;padding:10px 12px;border-top:1px solid #e8e2d4">
+            <input id="mail-claude-inp" placeholder="Stel een vraag over je mail..." onkeydown="if(event.key==='Enter')sendMailClaude()" style="flex:1;background:#f2ede4;border:1px solid #e8e2d4;border-radius:7px;padding:7px 10px;font-size:12px;color:#2a3320;outline:none;font-family:inherit">
+            <button onclick="sendMailClaude()" style="background:#4a5c3a;color:#fff;border:none;border-radius:7px;padding:7px 12px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">Sturen</button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- INSTELLINGEN PAGE -->
@@ -820,7 +889,7 @@ td{padding:10px 18px;vertical-align:middle}
             <div class="inst-card">
               <div class="inst-row">
                 <div class="avatar-upload-wrap" style="flex:1">
-                  <div class="avatar-preview" id="settings-avatar-preview">DK</div>
+                  <div class="avatar-preview" id="settings-avatar-preview">TBC</div>
                   <div>
                     <div class="inst-row-title">Profielfoto</div>
                     <div class="inst-row-desc" id="settings-email-display">–</div>
@@ -1123,7 +1192,7 @@ td{padding:10px 18px;vertical-align:middle}
   <div class="modal-box" style="width:520px" onclick="event.stopPropagation()">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">
       <div>
-        <div style="font-size:10px;font-weight:700;color:var(--sage-d);text-transform:uppercase;letter-spacing:.3px" id="kd-detail-klant">–</div>
+        <div style="font-size:10px;font-weight:700;color:var(--olive-d);text-transform:uppercase;letter-spacing:.3px" id="kd-detail-klant">–</div>
         <h3 style="margin-bottom:2px" id="kd-detail-titel">–</h3>
       </div>
       <button class="xb" onclick="closeOv('ov-klacht-detail')" aria-label="Sluiten">✕</button>
@@ -1163,7 +1232,7 @@ td{padding:10px 18px;vertical-align:middle}
   <div class="modal-box" style="width:520px" onclick="event.stopPropagation()">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">
       <div>
-        <div style="font-size:10px;font-weight:700;color:var(--sage-d);text-transform:uppercase;letter-spacing:.3px" id="lvd-detail-klant">–</div>
+        <div style="font-size:10px;font-weight:700;color:var(--olive-d);text-transform:uppercase;letter-spacing:.3px" id="lvd-detail-klant">–</div>
         <h3 style="margin-bottom:2px" id="lvd-detail-titel">–</h3>
       </div>
       <button class="xb" onclick="closeOv('ov-levertijd-detail')" aria-label="Sluiten">✕</button>
@@ -2286,7 +2355,7 @@ async function autoOpvolgen(){
 function closeOv(id,e){if(!e||e.target===document.getElementById(id))document.getElementById(id).classList.remove('open');}
 
 // PAGE NAV
-const PAGE_TITLES={overzicht:'Klantenoverzicht',mijndag:'Mijn dag',taken:'Taken',levertijden:'Levertijden',klachten:'Klachten',deals:'Deals',kalender:'Kalender',agenda:'Agenda',instellingen:'Instellingen'};
+const PAGE_TITLES={overzicht:'Klantenoverzicht',mail:'Mail & Inbox',mail:'Mail & Inbox',mijndag:'Mijn dag',taken:'Taken',levertijden:'Levertijden',klachten:'Klachten',deals:'Deals',kalender:'Kalender',agenda:'Agenda',instellingen:'Instellingen'};
 const BN_PAGE_MAP={overzicht:0,mijndag:1,taken:2,kalender:3};
 function showPage(id,btn){
   event&&event.preventDefault();
@@ -2313,6 +2382,55 @@ function showPage(id,btn){
 function toggleMeerMenu(){document.getElementById('meer-overlay').classList.add('open');}
 function closeMeerMenu(e){if(!e||e.target===document.getElementById('meer-overlay'))document.getElementById('meer-overlay').classList.remove('open');}
 
+
+// MAIL
+async function loadMail(){
+  ['mail-actie','mail-klant','mail-fyi'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.innerHTML='<div class="spin-wrap" style="height:80px"><div class="spin"></div></div>';
+  });
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1500,mcp_servers:[{type:'url',url:'https://microsoft365.mcp.claude.com/mcp',name:'m365'}],messages:[{role:'user',content:'Haal de 20 meest recente ongelezen e-mails op uit de inbox van daniel@thebrandingclub.com. Categoriseer ze als JSON (geen markdown, alleen pure JSON): {"actie": [...], "klant": [...], "fyi": [...]}. Per mail: from (naam afzender), subject, summary (1 zin in het Nederlands wat er gedaan moet worden). Actie = mails waarbij ik moet reageren. Klant = mails van klanten. FYI = rest. Geef ALLEEN de JSON terug, niets anders.'}]})});
+    const data=await resp.json();
+    const txt=data.content?.find(c=>c.type==='text')?.text||'{}';
+    let parsed={actie:[],klant:[],fyi:[]};
+    try{parsed=JSON.parse(txt.replace(/```json|```/g,'').trim());}catch(e){console.log('Parse err',e,txt);}
+    const renderMails=(arr,elId)=>{
+      const el=document.getElementById(elId);if(!el)return;
+      el.innerHTML=arr&&arr.length?arr.map(m=>`<div style="padding:9px 14px;border-bottom:1px solid #e8e2d4;cursor:pointer" onmouseover="this.style.background='#f9f7f2'" onmouseout="this.style.background=''">
+        <div style="font-size:11px;font-weight:600;color:#2a3320;margin-bottom:2px">${m.from||'–'}</div>
+        <div style="font-size:11px;color:#2a3320">${m.subject||'–'}</div>
+        <div style="font-size:10px;color:#9a9080;margin-top:2px;line-height:1.4">${m.summary||'–'}</div>
+      </div>`).join(''):'<div class="empty">Geen mails in deze categorie</div>';
+    };
+    renderMails(parsed.actie||[],'mail-actie');
+    renderMails(parsed.klant||[],'mail-klant');
+    renderMails(parsed.fyi||[],'mail-fyi');
+  }catch(e){
+    ['mail-actie','mail-klant','mail-fyi'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='<div class="empty">Outlook niet beschikbaar. Controleer de Microsoft 365 koppeling.</div>';});
+  }
+}
+let mailClaudeHistory=[];
+async function sendMailClaude(){
+  const inp=document.getElementById('mail-claude-inp');const msg=inp.value.trim();if(!msg)return;inp.value='';
+  mailClaudeHistory.push({role:'user',content:msg});appendMailMsg(msg,'user');
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:800,system:'Je bent een CRM-assistent voor Daniël Knott, accountmanager bij The Branding Club. Help hem met zijn mail, klanten en planning. Wees concreet, direct en in het Nederlands.',messages:mailClaudeHistory})});
+    const data=await resp.json();const reply=data.content?.[0]?.text||'–';
+    mailClaudeHistory.push({role:'assistant',content:reply});appendMailMsg(reply,'assistant');
+  }catch(e){appendMailMsg('Fout bij verbinden met Claude.','assistant');}
+}
+function appendMailMsg(text,role){
+  const el=document.getElementById('mail-claude-msgs');if(!el)return;
+  const msg=document.createElement('div');
+  msg.style.cssText=`font-size:12px;line-height:1.5;padding:8px 10px;border-radius:8px;max-width:85%;${role==='user'?'background:var(--olive-l);color:var(--ink2);align-self:flex-end;margin-left:auto':'background:var(--sand2);color:var(--ink2);align-self:flex-start'}`;
+  msg.textContent=text;el.appendChild(msg);el.scrollTop=el.scrollHeight;
+}
+
+function renderSbLinks(){
+  const list=document.getElementById('sb-links-list');if(!list)return;
+  const links=JSON.parse(localStorage.getItem('tbc_links')||'[]');
+  list.innerHTML=links.map((l,i)=>`<a href="${l.url}" target="_blank" style="display:flex;align-items:center;gap:7px;padding:5px 14px;font-size:11px;color:#6b5b4a;text-decoration:none;overflow:hidden"><i class="ti ti-external-link" style="font-size:11px;color:#b8ae9e;flex-shrink:0" aria-hidden="true"></i><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${l.naam}</span></a>`).join('');
+}
 // TOAST
 let tt;function toast(msg,type=''){const el=document.getElementById('toast');el.textContent=msg;el.className='toast show'+(type?' '+type:'');clearTimeout(tt);tt=setTimeout(()=>el.classList.remove('show'),2800);}
 
