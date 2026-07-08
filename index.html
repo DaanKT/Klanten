@@ -756,13 +756,31 @@ let actNid=null,saveTmr=null;
 let clHist=[];
 
 const ADMIN_EMAIL = 'daniel@thebrandingclub.com';
-function isAdmin(){return usr && usr.email === ADMIN_EMAIL;}
+let userRole = 'user'; // 'user' or 'admin'
+function isAdmin(){return usr && (usr.email === ADMIN_EMAIL || userRole === 'admin');}
+async function loadUserRole(){
+  if(!usr)return;
+  if(usr.email===ADMIN_EMAIL){userRole='admin';return;}
+  try{
+    const d=await api('user_roles?user_id=eq.'+usr.id+'&select=role');
+    if(d&&d[0]&&d[0].role==='admin'){userRole='admin';const el=g('admin-nav-item');if(el)el.style.display='block';}
+  }catch(e){userRole='user';}
+}
 
 
 function g(id){return document.getElementById(id);}
 function v(id){return(g(id)||{}).value&&g(id).value.trim()||'';}
 function ah(){return{'Content-Type':'application/json','apikey':KEY,'Authorization':'Bearer '+(tok||KEY),'Prefer':'return=representation'};}
 async function api(path,opts={}){
+  // Auto-inject user_id on POST requests
+  if(opts.method==='POST'&&opts.body&&usr){
+    try{
+      const b=JSON.parse(opts.body);
+      if(Array.isArray(b)){b.forEach(x=>x.user_id=x.user_id||usr.id);}
+      else{b.user_id=b.user_id||usr.id;}
+      opts.body=JSON.stringify(b);
+    }catch(e){}
+  }
   const r=await fetch(SB+'/rest/v1/'+path,{headers:ah(),...opts});
   if(r.status===204)return null;
   const d=await r.json();if(!r.ok)throw d;return d;
@@ -794,7 +812,7 @@ function showSU(){g('lf').style.display='none';g('sf').style.display='block';}
 function startApp(){
   g('ls').style.display='none';g('app').style.display='flex';
   if(usr){g('inst-em').textContent=usr.email;g('sbfn').textContent=usr.email.split('@')[0];if(isAdmin()){const el=g('admin-nav-item');if(el)el.style.display='block';}}
-  renderLinks();boot();
+  loadUserRole();renderLinks();boot();
 }
 async function boot(){
   await Promise.all([loadK(),loadTk(),loadCont(),loadAfsp(),loadLv(),loadKl(),loadDl()]).catch(e=>console.warn('Boot:',e));
@@ -1161,15 +1179,28 @@ async function loadAdminUsers(){
     g('adm-klanten').textContent=klanten.length;
     g('adm-tk').textContent=taken.filter(t=>t.status==='open').length;
     g('adm-dl').textContent=deals.filter(d=>['offerte','design','productie'].includes(d.status)).length;
-    g('adm-userlist').innerHTML=users.map(u=>`
-      <div style="padding:12px 16px;border-bottom:1px solid var(--s3);display:flex;align-items:center;gap:12px">
-        <div style="width:32px;height:32px;border-radius:50%;background:var(--ol);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0">${(u.email||'?')[0].toUpperCase()}</div>
+    // Load roles for display
+    let roleMap={};
+    try{const rd=await api('user_roles?select=user_id,role');(rd||[]).forEach(r=>roleMap[r.user_id]=r.role);}catch(e){}
+    g('adm-userlist').innerHTML=users.map(u=>{
+      const isMe=u.email===ADMIN_EMAIL;
+      const hasAdminRole=isMe||roleMap[u.id]==='admin';
+      return `<div style="padding:12px 16px;border-bottom:1px solid var(--s3);display:flex;align-items:center;gap:12px">
+        <div style="width:32px;height:32px;border-radius:50%;background:${hasAdminRole?'var(--ol)':'var(--bl)'};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0">${(u.email||'?')[0].toUpperCase()}</div>
         <div style="flex:1">
           <div style="font-size:12px;font-weight:600;color:var(--ink2)">${u.email||'–'}</div>
-          <div style="font-size:10px;color:var(--mu);margin-top:1px">Aangemaakt: ${u.created_at?new Date(u.created_at).toLocaleDateString('nl-NL'):'–'} &middot; Laatste login: ${u.last_sign_in_at?new Date(u.last_sign_in_at).toLocaleDateString('nl-NL'):'Nog niet'}</div>
+          <div style="font-size:10px;color:var(--mu);margin-top:1px">Aangemaakt: ${u.created_at?new Date(u.created_at).toLocaleDateString('nl-NL'):'–'} · Laatste login: ${u.last_sign_in_at?new Date(u.last_sign_in_at).toLocaleDateString('nl-NL'):'Nog niet'}</div>
         </div>
-        ${u.email!==ADMIN_EMAIL?`<button class="bd" style="font-size:10px;padding:4px 9px" onclick="deleteUser('${u.id}','${u.email}')">Verwijder</button>`:'<span class="badge bg">Admin</span>'}
-      </div>`).join('');
+        <div style="display:flex;gap:6px;align-items:center">
+          ${isMe?'<span class="badge bg">Hoofd admin</span>':
+            hasAdminRole?
+              `<span class="badge bg">Admin</span><button class="bs" style="font-size:10px;padding:4px 9px" onclick="setRole('${u.id}','user')">Verwijder admin</button>`:
+              `<button class="bp" style="font-size:10px;padding:4px 9px;background:var(--blbg);color:var(--bl);border:1px solid var(--blbg)" onclick="setRole('${u.id}','admin')">Maak admin</button>`
+          }
+          ${!isMe?`<button class="bd" style="font-size:10px;padding:4px 9px" onclick="deleteUser('${u.id}','${u.email}')">Verwijder</button>`:''}
+        </div>
+      </div>`;
+    }).join('');
   }catch(e){
     g('adm-userlist').innerHTML='<div class="empty">Geen toegang tot gebruikerslijst.<br>Supabase vereist service_role key voor admin API.</div>';
   }
@@ -1192,6 +1223,20 @@ async function deleteUser(id,email){
     if(r.status===200||r.status===204){toast('Account verwijderd');loadAdminUsers();}
     else toast('Fout bij verwijderen','err');
   }catch(e){toast('Fout','err');}
+}
+async function setRole(userId,role){
+  try{
+    if(role==='admin'){
+      // Upsert: remove existing then insert
+      await api('user_roles?user_id=eq.'+userId,{method:'DELETE'});
+      await api('user_roles',{method:'POST',body:JSON.stringify({user_id:userId,role:'admin'})});
+      toast('Admin rechten toegekend');
+    } else {
+      await api('user_roles?user_id=eq.'+userId,{method:'DELETE'});
+      toast('Admin rechten ingetrokken');
+    }
+    loadAdminUsers();
+  }catch(e){toast('Fout bij opslaan rol','err');}
 }
 const TITLES={dashboard:'Dashboard',admin:'Admin — Gebruikersbeheer',klanten:'Klantenoverzicht',bedrijf:'Bedrijfsdossier',taken:'Taken',levertijden:'Levertijden',klachten:'Klachten',deals:'Deals',notities:'Notities',mail:'Mail & Inbox',claude:'Claude AI',kalender:'Kalender',instellingen:'Instellingen'};
 const ADDS={taken:{l:'+ Taak',a:'openTkM(null)'},levertijden:{l:'+ Levertijd',a:'openLvM(null)'},klachten:{l:'+ Klacht',a:'openKlM(null)'},deals:{l:'+ Deal',a:'openDlM(null)'}};
