@@ -273,7 +273,7 @@ table.mt{width:100%;border-collapse:collapse;table-layout:fixed}
     <div class="ltl">Welkom terug</div>
     <div class="lsu">TBC CRM — The Branding Club</div>
     <div id="lf">
-      <div class="mfrow"><label class="fl">E-mail</label><input class="fi" id="lem" type="email" value="daniel@thebrandingclub.com" autocomplete="username"></div>
+      <div class="mfrow"><label class="fl">E-mail</label><input class="fi" id="lem" type="email" autocomplete="username" placeholder="jouw@email.nl"></div>
       <div class="mfrow"><label class="fl">Wachtwoord</label><input class="fi" id="lpw" type="password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
       <button class="lbtn" onclick="doLogin()">Inloggen</button>
       <div class="lerr" id="lerr"></div>
@@ -318,6 +318,7 @@ table.mt{width:100%;border-collapse:collapse;table-layout:fixed}
       <a class="sbi" id="nav-mail" onclick="go('mail')"><i class="ti ti-mail"></i>Mail</a>
       <a class="sbi" id="nav-claude" onclick="go('claude')"><i class="ti ti-sparkles"></i>Claude AI</a>
       <a class="sbi" id="nav-kalender" onclick="go('kalender')"><i class="ti ti-calendar"></i>Kalender</a>
+      <div id="admin-nav-item" style="display:none"><div class="sbsec">Beheer</div><a class="sbi" id="nav-admin" onclick="go('admin')"><i class="ti ti-shield"></i>Admin</a></div>
     </div>
     <div class="sblinks">
       <div class="sblh"><span class="sblt">Snelle links</span><button class="sbladd" onclick="openLinkM()">+</button></div>
@@ -498,21 +499,31 @@ table.mt{width:100%;border-collapse:collapse;table-layout:fixed}
 
     <!-- MAIL -->
     <div class="page" id="page-mail">
-      <div class="psc" style="padding:16px 20px;display:flex;flex-direction:column;gap:12px">
-        <div class="msec">
-          <div class="msh">
-            <span class="mst"><i class="ti ti-alert-triangle" style="color:var(--re);margin-right:5px;font-size:12px"></i>Actie vereist</span>
-            <button class="bs" style="font-size:10px;padding:4px 10px" onclick="loadMail()"><i class="ti ti-refresh" style="font-size:11px"></i> Vernieuwen</button>
+      <div class="psc" style="padding:24px 24px;display:flex;flex-direction:column;gap:16px;max-width:680px">
+        <div style="background:var(--wh);border:1px solid var(--s3);border-radius:12px;padding:20px 22px">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+            <div style="width:38px;height:38px;border-radius:10px;background:var(--blbg);display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-mail" style="font-size:18px;color:var(--bl)"></i></div>
+            <div><div style="font-size:14px;font-weight:700;color:var(--ink2)">Mail samenvatting via Claude AI</div><div style="font-size:11px;color:var(--mu);margin-top:2px">Opent claude.ai met een kant-en-klare prompt voor jouw inbox</div></div>
           </div>
-          <div id="mail-actie"><div class="ld"><div class="spin"></div> Mail laden...</div></div>
+          <p style="font-size:12px;color:var(--mu);line-height:1.6;margin-bottom:16px">Klik op een knop hieronder om claude.ai te openen met een vooringevulde prompt. Claude leest automatisch jouw Outlook inbox via de Microsoft 365 koppeling en geeft je een geprioriteerd overzicht.</p>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <button class="bp" style="justify-content:flex-start;gap:10px;padding:10px 14px;font-size:12px" onclick="openMailPrompt('prioriteit')">
+              <i class="ti ti-alert-triangle" style="font-size:14px;color:#fbbf24"></i>
+              <div style="text-align:left"><div style="font-weight:700">Geprioriteerd overzicht</div><div style="font-size:10px;font-weight:400;opacity:.8;margin-top:1px">Actie vereist / klant gerelateerd / FYI</div></div>
+            </button>
+            <button class="bp" style="justify-content:flex-start;gap:10px;padding:10px 14px;font-size:12px;background:var(--s2);color:var(--ink2);border:1px solid var(--s3)" onclick="openMailPrompt('klanten')">
+              <i class="ti ti-users" style="font-size:14px;color:var(--ol)"></i>
+              <div style="text-align:left"><div style="font-weight:700">Alleen klant-mails</div><div style="font-size:10px;font-weight:400;opacity:.7;margin-top:1px">Mails van klanten uit Limburg, Brabant en Zeeland</div></div>
+            </button>
+            <button class="bp" style="justify-content:flex-start;gap:10px;padding:10px 14px;font-size:12px;background:var(--s2);color:var(--ink2);border:1px solid var(--s3)" onclick="openMailPrompt('ongelezen')">
+              <i class="ti ti-mail-opened" style="font-size:14px;color:var(--bl)"></i>
+              <div style="text-align:left"><div style="font-weight:700">Ongelezen mails + actie</div><div style="font-size:10px;font-weight:400;opacity:.7;margin-top:1px">Wat moet ik vandaag beantwoorden?</div></div>
+            </button>
+          </div>
         </div>
-        <div class="msec">
-          <div class="msh"><span class="mst"><i class="ti ti-users" style="color:var(--ol);margin-right:5px;font-size:12px"></i>Klant gerelateerd</span></div>
-          <div id="mail-klant"><div class="empty">Laden...</div></div>
-        </div>
-        <div class="msec">
-          <div class="msh"><span class="mst"><i class="ti ti-info-circle" style="color:var(--bl);margin-right:5px;font-size:12px"></i>FYI</span></div>
-          <div id="mail-fyi"><div class="empty">Laden...</div></div>
+        <div style="background:var(--s2);border:1px solid var(--s3);border-radius:9px;padding:14px 16px;font-size:11px;color:var(--mu);line-height:1.6">
+          <strong style="color:var(--ink2);display:block;margin-bottom:4px">Hoe werkt dit?</strong>
+          Microsoft 365 is gekoppeld in jouw claude.ai account. Als je op een knop klikt, opent claude.ai met een prompt die je inbox ophaalt. Het resultaat is direct zichtbaar. Je hoeft verder niks in te stellen.
         </div>
       </div>
     </div>
@@ -631,6 +642,25 @@ Stel me vragen zoals:
   </div>
 </div>
 
+
+    <!-- ADMIN PANEEL -->
+    <div class="page" id="page-admin">
+      <div class="krow">
+        <div class="kb"><div class="kn" id="adm-users">–</div><div class="kl">Gebruikers</div></div>
+        <div class="kb"><div class="kn" id="adm-klanten" style="color:var(--ol)">–</div><div class="kl">Totaal klanten</div></div>
+        <div class="kb"><div class="kn" id="adm-tk" style="color:var(--or)">–</div><div class="kl">Open taken</div></div>
+        <div class="kb"><div class="kn" id="adm-dl" style="color:var(--gr)">–</div><div class="kl">Open deals</div></div>
+      </div>
+      <div class="psc" style="padding:16px 20px">
+        <div style="background:var(--wh);border:1px solid var(--s3);border-radius:9px;overflow:hidden;margin-bottom:16px">
+          <div style="padding:12px 16px;border-bottom:1px solid var(--s3);display:flex;align-items:center;justify-content:space-between">
+            <span style="font-size:11px;font-weight:700;color:var(--ink2)"><i class="ti ti-users" style="margin-right:6px;color:var(--ol)"></i>Gebruikers</span>
+            <button class="bp" style="font-size:10px;padding:5px 11px" onclick="openNewUserM()"><i class="ti ti-plus" style="font-size:10px"></i> Uitnodigen</button>
+          </div>
+          <div id="adm-userlist"><div class="ld"><div class="spin"></div> Laden...</div></div>
+        </div>
+      </div>
+    </div>
 <!-- MODALS -->
 <div class="mov" id="ov-link" onclick="if(event.target===this)closeM('ov-link')">
   <div class="mbox"><h3>Snelle link toevoegen</h3>
@@ -698,6 +728,16 @@ Stel me vragen zoals:
     <div class="mfa"><button class="mcan" onclick="closeM('ov-afsp')">Annuleren</button><button class="msv" onclick="saveAfsp()">Opslaan + Outlook</button></div>
   </div>
 </div>
+
+<div class="mov" id="ov-newuser" onclick="if(event.target===this)closeM('ov-newuser')">
+  <div class="mbox"><h3>Nieuwe gebruiker uitnodigen</h3>
+    <p style="font-size:12px;color:var(--mu);margin-bottom:14px;line-height:1.5">Stuur een uitnodiging naar een collega. Ze ontvangen een e-mail en kunnen zelf een wachtwoord instellen.</p>
+    <div class="mfrow"><label class="fl">E-mail</label><input class="fi" id="nu-email" type="email" placeholder="collega@thebrandingclub.com"></div>
+    <div class="mfrow"><label class="fl">Tijdelijk wachtwoord</label><input class="fi" id="nu-pw" type="text" placeholder="Min. 6 tekens" value="TBC2026!"></div>
+    <div class="mfa"><button class="mcan" onclick="closeM('ov-newuser')">Annuleren</button><button class="msv" onclick="createUser()">Account aanmaken</button></div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 <script>
 const SB='https://okjfpjrcvbttlkuqjsvu.supabase.co';
@@ -714,6 +754,10 @@ let selIds=new Set();
 let calY=new Date().getFullYear(),calM=new Date().getMonth();
 let actNid=null,saveTmr=null;
 let clHist=[];
+
+const ADMIN_EMAIL = 'daniel@thebrandingclub.com';
+function isAdmin(){return usr && usr.email === ADMIN_EMAIL;}
+
 
 function g(id){return document.getElementById(id);}
 function v(id){return(g(id)||{}).value&&g(id).value.trim()||'';}
@@ -749,7 +793,7 @@ function showLI(){g('sf').style.display='none';g('lf').style.display='block';g('
 function showSU(){g('lf').style.display='none';g('sf').style.display='block';}
 function startApp(){
   g('ls').style.display='none';g('app').style.display='flex';
-  if(usr){g('inst-em').textContent=usr.email;g('sbfn').textContent=usr.email.split('@')[0];}
+  if(usr){g('inst-em').textContent=usr.email;g('sbfn').textContent=usr.email.split('@')[0];if(isAdmin()){const el=g('admin-nav-item');if(el)el.style.display='block';}}
   renderLinks();boot();
 }
 async function boot(){
@@ -1096,7 +1140,60 @@ function importCSV(inp){
 }
 function exportCSV(){const rows=[['ID','Naam','Plaats','Branche','Omzet','Status','Laatste order']];klanten.forEach(k=>rows.push([k.id,k.naam,k.plaats||'',k.branche||'',k.waarde||0,k.status||'actief',k.laatste_order||'']));const csv=rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download='klanten_'+TODAY+'.csv';a.click();toast('CSV gedownload');}
 
-const TITLES={dashboard:'Dashboard',klanten:'Klantenoverzicht',bedrijf:'Bedrijfsdossier',taken:'Taken',levertijden:'Levertijden',klachten:'Klachten',deals:'Deals',notities:'Notities',mail:'Mail & Inbox',claude:'Claude AI',kalender:'Kalender',instellingen:'Instellingen'};
+
+function openMailPrompt(type){
+  const prompts = {
+    prioriteit: "Haal mijn 25 meest recente Outlook mails op via Microsoft 365. Maak een geprioriteerd overzicht in het Nederlands:\n\n**1. ACTIE VEREIST VANDAAG** — mails die ik vandaag moet beantwoorden of oppakken\n**2. KLANT GERELATEERD** — mails van of over klanten (horeca, retail, leveranciers)\n**3. FYI** — ter info, geen actie nodig\n\nGeef per mail: afzender, onderwerp, urgentie (🔴 hoog / 🟡 midden / 🟢 laag) en in één zin wat ik moet doen.",
+    klanten: "Haal mijn Outlook inbox op via Microsoft 365. Filter alleen de mails van klanten — horeca, restaurants, winkels, retailbedrijven en leveranciers in Limburg, Brabant en Zeeland. Geef per mail: bedrijfsnaam, contactpersoon, onderwerp, datum ontvangen, en wat de klant vraagt of meldt. Sorteer op urgentie.",
+    ongelezen: "Haal mijn ongelezen Outlook mails op via Microsoft 365. Welke mails vereisen vandaag een reactie van mij? Geef een concrete actielijst: per mail de afzender, het onderwerp, en exact wat ik moet doen of antwoorden. Begin met de meest urgente."
+  };
+  const url = 'https://claude.ai/new?q=' + encodeURIComponent(prompts[type]);
+  window.open(url, '_blank');
+}
+
+// ADMIN
+async function loadAdminUsers(){
+  try{
+    const r=await fetch(SB+'/auth/v1/admin/users',{headers:{'apikey':KEY,'Authorization':'Bearer '+tok}});
+    const d=await r.json();
+    const users=(d.users||[]);
+    g('adm-users').textContent=users.length;
+    g('adm-klanten').textContent=klanten.length;
+    g('adm-tk').textContent=taken.filter(t=>t.status==='open').length;
+    g('adm-dl').textContent=deals.filter(d=>['offerte','design','productie'].includes(d.status)).length;
+    g('adm-userlist').innerHTML=users.map(u=>`
+      <div style="padding:12px 16px;border-bottom:1px solid var(--s3);display:flex;align-items:center;gap:12px">
+        <div style="width:32px;height:32px;border-radius:50%;background:var(--ol);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0">${(u.email||'?')[0].toUpperCase()}</div>
+        <div style="flex:1">
+          <div style="font-size:12px;font-weight:600;color:var(--ink2)">${u.email||'–'}</div>
+          <div style="font-size:10px;color:var(--mu);margin-top:1px">Aangemaakt: ${u.created_at?new Date(u.created_at).toLocaleDateString('nl-NL'):'–'} &middot; Laatste login: ${u.last_sign_in_at?new Date(u.last_sign_in_at).toLocaleDateString('nl-NL'):'Nog niet'}</div>
+        </div>
+        ${u.email!==ADMIN_EMAIL?`<button class="bd" style="font-size:10px;padding:4px 9px" onclick="deleteUser('${u.id}','${u.email}')">Verwijder</button>`:'<span class="badge bg">Admin</span>'}
+      </div>`).join('');
+  }catch(e){
+    g('adm-userlist').innerHTML='<div class="empty">Geen toegang tot gebruikerslijst.<br>Supabase vereist service_role key voor admin API.</div>';
+  }
+}
+function openNewUserM(){g('nu-email').value='';openM('ov-newuser');}
+async function createUser(){
+  const email=v('nu-email'),pw=v('nu-pw');
+  if(!email||!pw){toast('Vul e-mail en wachtwoord in','err');return;}
+  try{
+    const r=await fetch(SB+'/auth/v1/admin/users',{method:'POST',headers:{'Content-Type':'application/json','apikey':KEY,'Authorization':'Bearer '+tok},body:JSON.stringify({email,password:pw,email_confirm:true})});
+    const d=await r.json();
+    if(d.error){toast(d.error.message||'Fout bij aanmaken','err');return;}
+    closeM('ov-newuser');toast('Account aangemaakt voor '+email);loadAdminUsers();
+  }catch(e){toast('Fout — controleer Supabase rechten','err');}
+}
+async function deleteUser(id,email){
+  if(!confirm('Verwijder account van '+email+'? Dit kan niet ongedaan worden.'))return;
+  try{
+    const r=await fetch(SB+'/auth/v1/admin/users/'+id,{method:'DELETE',headers:{'apikey':KEY,'Authorization':'Bearer '+tok}});
+    if(r.status===200||r.status===204){toast('Account verwijderd');loadAdminUsers();}
+    else toast('Fout bij verwijderen','err');
+  }catch(e){toast('Fout','err');}
+}
+const TITLES={dashboard:'Dashboard',admin:'Admin — Gebruikersbeheer',klanten:'Klantenoverzicht',bedrijf:'Bedrijfsdossier',taken:'Taken',levertijden:'Levertijden',klachten:'Klachten',deals:'Deals',notities:'Notities',mail:'Mail & Inbox',claude:'Claude AI',kalender:'Kalender',instellingen:'Instellingen'};
 const ADDS={taken:{l:'+ Taak',a:'openTkM(null)'},levertijden:{l:'+ Levertijd',a:'openLvM(null)'},klachten:{l:'+ Klacht',a:'openKlM(null)'},deals:{l:'+ Deal',a:'openDlM(null)'}};
 function go(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
@@ -1107,6 +1204,7 @@ function go(id){
   g('tbs').style.display=id==='klanten'?'flex':'none';
   const add=ADDS[id];g('tbab').innerHTML=add?'<button class="bp" onclick="'+add.a+'"><i class="ti ti-plus" style="font-size:11px"></i> '+add.l+'</button>':'';
   if(id==='kalender')renderKal();
+  if(id==='admin')loadAdminUsers();
   if(id==='mail')loadMail();
   if(id==='dashboard')renderDash();
   if(id==='instellingen')renderLinks();
