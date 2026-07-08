@@ -812,7 +812,7 @@ function showSU(){g('lf').style.display='none';g('sf').style.display='block';}
 function startApp(){
   g('ls').style.display='none';g('app').style.display='flex';
   if(usr){g('inst-em').textContent=usr.email;g('sbfn').textContent=usr.email.split('@')[0];if(isAdmin()){const el=g('admin-nav-item');if(el)el.style.display='block';}}
-  loadUserRole();renderLinks();boot();
+  loadUserRole();loadLinks();boot();
 }
 async function boot(){
   await Promise.all([loadK(),loadTk(),loadCont(),loadAfsp(),loadLv(),loadKl(),loadDl()]).catch(e=>console.warn('Boot:',e));
@@ -1080,14 +1080,29 @@ function togPw(){const r=g('pwrow');r.style.display=r.style.display==='none'?'fl
 async function savePw(){const pw=v('npw');if(pw.length<6){toast('Min. 6 tekens','err');return;}try{const r=await fetch(SB+'/auth/v1/user',{method:'PUT',headers:{'Content-Type':'application/json','apikey':KEY,'Authorization':'Bearer '+tok},body:JSON.stringify({password:pw})});if(!r.ok)throw new Error();g('npw').value='';g('pwrow').style.display='none';toast('Wachtwoord gewijzigd');}catch(e){toast('Fout','err');}}
 async function delAllK(){if(!confirm('Weet je zeker dat je alle klanten wilt verwijderen?'))return;try{await api('klanten?id=not.is.null',{method:'DELETE'});klanten=[];rk();updateBadges();renderDash();toast('Alle klanten verwijderd');}catch(e){toast('Fout','err');}}
 
+let userLinks=[];
+async function loadLinks(){
+  if(!usr)return;
+  try{const d=await api('user_links?user_id=eq.'+usr.id+'&order=created_at.asc');userLinks=d||[];}catch(e){userLinks=[];}
+  renderLinks();
+}
 function renderLinks(){
-  const links=JSON.parse(localStorage.getItem('tbc_links')||'[]');
-  const sbl=g('sbl');if(sbl)sbl.innerHTML=links.map(l=>'<a class="sbla" href="'+l.url+'" target="_blank"><i class="ti ti-external-link"></i><span>'+l.naam+'</span></a>').join('');
-  const il=g('inst-links');if(il)il.innerHTML=links.length?links.map((l,i)=>'<div class="instr"><div class="instico"><i class="ti ti-external-link"></i></div><div class="instif"><div class="instit">'+l.naam+'</div><div class="instid">'+l.url+'</div></div><button class="bd" onclick="delLink('+i+')" style="font-size:10px;padding:4px 9px">Verwijder</button></div>').join(''):'<div style="padding:14px;font-size:12px;color:var(--mu)">Nog geen snelle links.</div>';
+  const sbl=g('sbl');
+  if(sbl)sbl.innerHTML=userLinks.map(function(l){
+    return '<a class="sbla" href="'+l.url+'" target="_blank"><i class="ti ti-external-link"></i><span>'+l.naam+'</span></a>';
+  }).join('');
+  const il=g('inst-links');
+  if(il){
+    if(!userLinks.length){il.innerHTML='<div style="padding:14px;font-size:12px;color:var(--mu)">Nog geen snelle links.</div>';return;}
+    il.innerHTML=userLinks.map(function(l,i){
+      return '<div class="instr"><div class="instico"><i class="ti ti-external-link"></i></div><div class="instif"><div class="instit">'+l.naam+'</div><div class="instid">'+l.url+'</div></div><button class="bd" onclick="delLinkByIndex('+i+')" style="font-size:10px;padding:4px 9px">Verwijder</button></div>';
+    }).join('');
+  }
 }
 function openLinkM(){g('lnaam').value='';g('lurl').value='';g('ov-link').classList.add('open');setTimeout(()=>g('lnaam').focus(),100);}
-function saveLink(){const n=v('lnaam'),u=v('lurl');if(!n||!u){toast('Naam en URL zijn verplicht','err');return;}const links=JSON.parse(localStorage.getItem('tbc_links')||'[]');links.push({naam:n,url:u.startsWith('http')?u:'https://'+u});localStorage.setItem('tbc_links',JSON.stringify(links));closeM('ov-link');renderLinks();toast('Link opgeslagen');}
-function delLink(i){const links=JSON.parse(localStorage.getItem('tbc_links')||'[]');links.splice(i,1);localStorage.setItem('tbc_links',JSON.stringify(links));renderLinks();toast('Link verwijderd');}
+async function saveLink(){const n=v('lnaam'),u=v('lurl');if(!n||!u){toast('Naam en URL zijn verplicht','err');return;}const url=u.startsWith('http')?u:'https://'+u;try{await api('user_links',{method:'POST',body:JSON.stringify({user_id:usr.id,naam:n,url})});closeM('ov-link');await loadLinks();toast('Link opgeslagen');}catch(e){toast('Fout bij opslaan','err');}}
+function delLinkByIndex(i){if(userLinks[i])delLink(userLinks[i].id);}
+async function delLink(id){try{await api('user_links?id=eq.'+id,{method:'DELETE'});await loadLinks();toast('Link verwijderd');}catch(e){toast('Fout','err');}}
 
 function openM(id){g(id).classList.add('open');}
 function closeM(id){g(id).classList.remove('open');}
@@ -1160,10 +1175,11 @@ function exportCSV(){const rows=[['ID','Naam','Plaats','Branche','Omzet','Status
 
 
 function openMailPrompt(type){
+  const email = usr ? usr.email : 'mijn e-mail';
   const prompts = {
-    prioriteit: "Haal mijn 25 meest recente Outlook mails op via Microsoft 365. Maak een geprioriteerd overzicht in het Nederlands:\n\n**1. ACTIE VEREIST VANDAAG** — mails die ik vandaag moet beantwoorden of oppakken\n**2. KLANT GERELATEERD** — mails van of over klanten (horeca, retail, leveranciers)\n**3. FYI** — ter info, geen actie nodig\n\nGeef per mail: afzender, onderwerp, urgentie (🔴 hoog / 🟡 midden / 🟢 laag) en in één zin wat ik moet doen.",
-    klanten: "Haal mijn Outlook inbox op via Microsoft 365. Filter alleen de mails van klanten — horeca, restaurants, winkels, retailbedrijven en leveranciers in Limburg, Brabant en Zeeland. Geef per mail: bedrijfsnaam, contactpersoon, onderwerp, datum ontvangen, en wat de klant vraagt of meldt. Sorteer op urgentie.",
-    ongelezen: "Haal mijn ongelezen Outlook mails op via Microsoft 365. Welke mails vereisen vandaag een reactie van mij? Geef een concrete actielijst: per mail de afzender, het onderwerp, en exact wat ik moet doen of antwoorden. Begin met de meest urgente."
+    prioriteit: "Haal de 25 meest recente Outlook mails op van " + email + " via Microsoft 365. Maak een geprioriteerd overzicht in het Nederlands:\n\n**1. ACTIE VEREIST VANDAAG** — mails die ik vandaag moet beantwoorden of oppakken\n**2. KLANT GERELATEERD** — mails van of over klanten (horeca, retail, leveranciers)\n**3. FYI** — ter info, geen actie nodig\n\nGeef per mail: afzender, onderwerp, urgentie (🔴 hoog / 🟡 midden / 🟢 laag) en in één zin wat ik moet doen.",
+    klanten: "Haal de Outlook inbox op van " + email + " via Microsoft 365. Filter alleen de mails van klanten — horeca, restaurants, winkels, retailbedrijven en leveranciers. Geef per mail: bedrijfsnaam, contactpersoon, onderwerp, datum ontvangen, en wat de klant vraagt of meldt. Sorteer op urgentie.",
+    ongelezen: "Haal de ongelezen Outlook mails op van " + email + " via Microsoft 365. Welke mails vereisen vandaag een reactie? Geef een concrete actielijst: per mail de afzender, het onderwerp, en exact wat er moet gebeuren. Begin met de meest urgente."
   };
   const url = 'https://claude.ai/new?q=' + encodeURIComponent(prompts[type]);
   window.open(url, '_blank');
@@ -1172,7 +1188,12 @@ function openMailPrompt(type){
 // ADMIN
 async function loadAdminUsers(){
   try{
-    const r=await fetch(SB+'/auth/v1/admin/users',{headers:{'apikey':KEY,'Authorization':'Bearer '+tok}});
+    // Use Worker with service_role key for admin access
+    const r=await fetch('https://tbc-proxy.daniel-314.workers.dev',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','X-Request-Type':'supabase-admin'},
+      body:JSON.stringify({path:'/auth/v1/admin/users',method:'GET'})
+    });
     const d=await r.json();
     const users=(d.users||[]);
     g('adm-users').textContent=users.length;
@@ -1202,7 +1223,21 @@ async function loadAdminUsers(){
       </div>`;
     }).join('');
   }catch(e){
-    g('adm-userlist').innerHTML='<div class="empty">Geen toegang tot gebruikerslijst.<br>Supabase vereist service_role key voor admin API.</div>';
+    // Fallback: show current user's info and instructions
+    g('adm-userlist').innerHTML=`
+      <div style="padding:16px 18px;border-bottom:1px solid var(--s3)">
+        <div style="font-size:12px;font-weight:600;color:var(--ink2);margin-bottom:6px">Je bent ingelogd als:</div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:32px;height:32px;border-radius:50%;background:var(--ol);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff">${usr&&usr.email?usr.email[0].toUpperCase():'D'}</div>
+          <div><div style="font-size:12px;font-weight:600;color:var(--ink2)">${usr&&usr.email||'–'}</div><div class="badge bg" style="margin-top:3px">Hoofd admin</div></div>
+        </div>
+      </div>
+      <div style="padding:14px 18px;background:var(--s2);font-size:11px;color:var(--mu);line-height:1.6">
+        <strong style="color:var(--ink2);display:block;margin-bottom:4px">Gebruikerslijst instellen</strong>
+        Om alle gebruikers te zien heb je een Supabase service_role key nodig. Ga naar:<br>
+        <strong>supabase.com → Project → Settings → API → service_role key</strong><br>
+        Stuur die key naar Daan zodat hij hem in de app kan instellen.
+      </div>`;
   }
 }
 function openNewUserM(){g('nu-email').value='';openM('ov-newuser');}
@@ -1210,7 +1245,11 @@ async function createUser(){
   const email=v('nu-email'),pw=v('nu-pw');
   if(!email||!pw){toast('Vul e-mail en wachtwoord in','err');return;}
   try{
-    const r=await fetch(SB+'/auth/v1/admin/users',{method:'POST',headers:{'Content-Type':'application/json','apikey':KEY,'Authorization':'Bearer '+tok},body:JSON.stringify({email,password:pw,email_confirm:true})});
+    const r=await fetch('https://tbc-proxy.daniel-314.workers.dev',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','X-Request-Type':'supabase-admin'},
+      body:JSON.stringify({path:'/auth/v1/admin/users',method:'POST',payload:{email,password:pw,email_confirm:true}})
+    });
     const d=await r.json();
     if(d.error){toast(d.error.message||'Fout bij aanmaken','err');return;}
     closeM('ov-newuser');toast('Account aangemaakt voor '+email);loadAdminUsers();
@@ -1219,8 +1258,12 @@ async function createUser(){
 async function deleteUser(id,email){
   if(!confirm('Verwijder account van '+email+'? Dit kan niet ongedaan worden.'))return;
   try{
-    const r=await fetch(SB+'/auth/v1/admin/users/'+id,{method:'DELETE',headers:{'apikey':KEY,'Authorization':'Bearer '+tok}});
-    if(r.status===200||r.status===204){toast('Account verwijderd');loadAdminUsers();}
+    const r=await fetch('https://tbc-proxy.daniel-314.workers.dev',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','X-Request-Type':'supabase-admin'},
+      body:JSON.stringify({path:'/auth/v1/admin/users/'+id,method:'DELETE'})
+    });
+    if(r.status===200||r.status===204||r.ok){toast('Account verwijderd');loadAdminUsers();}
     else toast('Fout bij verwijderen','err');
   }catch(e){toast('Fout','err');}
 }
