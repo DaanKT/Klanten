@@ -1,6 +1,3 @@
-
-
-Index · HTML
 <!DOCTYPE html>
 <html lang="nl">
 <head>
@@ -292,7 +289,7 @@ table.mt{width:100%;border-collapse:collapse;table-layout:fixed}
     </div>
   </div>
 </div>
- 
+
 <!-- APP -->
 <div class="app" id="app" style="display:none">
   <nav class="sb">
@@ -351,7 +348,7 @@ table.mt{width:100%;border-collapse:collapse;table-layout:fixed}
       </div>
       <div class="psc"><div class="dgrid" id="dgrid"><div class="ld"><div class="spin"></div> Laden...</div></div></div>
     </div>
- 
+
     <!-- KLANTEN -->
     <div class="page" id="page-klanten">
       <div class="krow">
@@ -390,7 +387,7 @@ table.mt{width:100%;border-collapse:collapse;table-layout:fixed}
       </div>
       <div class="pag" id="klpag"></div>
     </div>
- 
+
     <!-- BEDRIJFSDOSSIER -->
     <div class="page" id="page-bedrijf">
       <div class="bc"><a onclick="go('klanten')"><i class="ti ti-arrow-left" style="font-size:11px"></i> Klanten</a><i class="ti ti-chevron-right" style="font-size:11px"></i><span id="bcnm" style="color:var(--ink2);font-weight:500">–</span></div>
@@ -426,7 +423,7 @@ table.mt{width:100%;border-collapse:collapse;table-layout:fixed}
       </div>
       <div class="nir"><textarea class="nta" id="ninp" placeholder="Notitie toevoegen — gebeld, besproken, afgesproken..."></textarea><button class="nadd" onclick="addNote()">Toevoegen</button></div>
     </div>
- 
+
     <!-- TAKEN -->
     <div class="page" id="page-taken">
       <div class="fbar">
@@ -438,7 +435,7 @@ table.mt{width:100%;border-collapse:collapse;table-layout:fixed}
       </div>
       <div class="psc" style="padding:14px 18px"><div id="tklist"></div></div>
     </div>
- 
+
     <!-- LEVERTIJDEN -->
     <div class="page" id="page-levertijden">
       <div class="fbar">
@@ -451,7 +448,7 @@ table.mt{width:100%;border-collapse:collapse;table-layout:fixed}
       </div>
       <div class="psc" style="padding:14px 18px"><div id="lvlist"></div></div>
     </div>
- 
+
     <!-- KLACHTEN -->
     <div class="page" id="page-klachten">
       <div class="fbar">
@@ -463,7 +460,7 @@ table.mt{width:100%;border-collapse:collapse;table-layout:fixed}
       </div>
       <div class="psc" style="padding:14px 18px"><div id="kclist"></div></div>
     </div>
- 
+
     <!-- DEALS -->
     <div class="page" id="page-deals">
       <div class="dst" id="dstats"></div>
@@ -498,7 +495,7 @@ table.mt{width:100%;border-collapse:collapse;table-layout:fixed}
         </div>
       </div>
     </div>
- 
+
     <!-- MAIL -->
     <div class="page" id="page-mail">
       <div class="psc" style="padding:16px 20px;display:flex;flex-direction:column;gap:12px">
@@ -519,7 +516,7 @@ table.mt{width:100%;border-collapse:collapse;table-layout:fixed}
         </div>
       </div>
     </div>
- 
+
     <!-- CLAUDE AI -->
     <div class="page" id="page-claude">
       <div class="psc" style="padding:16px 20px;display:flex;flex-direction:column;gap:12px">
@@ -531,7 +528,7 @@ table.mt{width:100%;border-collapse:collapse;table-layout:fixed}
           </div>
           <div class="clmsgs" id="clmsgs">
             <div class="clm a">Hoi Daniël! Ik ben je CRM-assistent en heb toegang tot je klantdata.
- 
+
 Stel me vragen zoals:
 • "Welke klanten heb ik lang niet gesproken?"
 • "Maak een belscript voor een klant"
@@ -552,7 +549,7 @@ Stel me vragen zoals:
         </div>
       </div>
     </div>
- 
+
     <!-- KALENDER -->
     <div class="page" id="page-kalender">
       <div class="calw">
@@ -574,7 +571,7 @@ Stel me vragen zoals:
         <div id="calgrid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--s3);flex:1;overflow-y:auto"></div>
       </div>
     </div>
- 
+
     <!-- INSTELLINGEN -->
     <div class="page" id="page-instellingen">
       <div class="psc"><div class="instp">
@@ -630,10 +627,10 @@ Stel me vragen zoals:
         </div>
       </div></div>
     </div>
- 
+
   </div>
 </div>
- 
+
 <!-- MODALS -->
 <div class="mov" id="ov-link" onclick="if(event.target===this)closeM('ov-link')">
   <div class="mbox"><h3>Snelle link toevoegen</h3>
@@ -717,7 +714,7 @@ let selIds=new Set();
 let calY=new Date().getFullYear(),calM=new Date().getMonth();
 let actNid=null,saveTmr=null;
 let clHist=[];
- 
+
 function g(id){return document.getElementById(id);}
 function v(id){return(g(id)||{}).value&&g(id).value.trim()||'';}
 function ah(){return{'Content-Type':'application/json','apikey':KEY,'Authorization':'Bearer '+(tok||KEY),'Prefer':'return=representation'};}
@@ -766,7 +763,7 @@ async function loadAfsp(){try{const d=await api('afspraken?select=*&order=datum.
 async function loadLv(){try{const d=await api('levertijden?select=*&order=verwachte_datum.asc.nullslast&limit=1000');lev=d||[];}catch(e){lev=[];}}
 async function loadKl(){try{const d=await api('klachten?select=*&order=deadline.asc.nullslast&limit=1000');kl=d||[];}catch(e){kl=[];}}
 async function loadDl(){try{const d=await api('deals?select=*&order=created_at.desc&limit=1000');deals=d||[];}catch(e){deals=[];}}
- 
+
 function fmtD(d){if(!d)return'–';return new Date(d).toLocaleDateString('nl-NL');}
 function fmtDT(d){if(!d)return'–';return new Date(d).toLocaleString('nl-NL',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});}
 function fmt(x){return'\u20AC\u00a0'+Math.round(x||0).toLocaleString('nl-NL');}
@@ -777,7 +774,7 @@ function lvB(s){const m={nieuw:'bb Nieuw',uitgevraagd:'bo Uitgevraagd',ontvangen
 function klB(s){const m={nieuw:'br Nieuw',inbehandeling:'bo In behandeling',opgelost:'bg Opgelost'};const p=(m[s]||'bm –').split(' ');return '<span class="badge '+p[0]+'">'+p[1]+'</span>';}
 function dlB(s){const m={offerte:'bb Offerte',design:'bm Design',productie:'bol Productie',gewonnen:'bg Gewonnen',verloren:'br Verloren'};const p=(m[s]||'bm –').split(' ');return '<span class="badge '+p[0]+'">'+p[1]+'</span>';}
 function prB(p){const m={urgent:'br Urgent',hoog:'bo Hoog',normaal:'bm Normaal'};const x=(m[p]||'bm Normaal').split(' ');return '<span class="badge '+x[0]+'">'+x[1]+'</span>';}
- 
+
 function updateBadges(){
   const n=klanten.filter(k=>k.klant_actief!==false).length;
   g('sb-kl').textContent=n;
@@ -785,7 +782,7 @@ function updateBadges(){
   const lv2=lev.filter(l=>l.status!=='gecommuniceerd').length;const elv=g('sb-lv');elv.textContent=lv2;elv.style.display=lv2>0?'inline':'none';
   const kl2=kl.filter(k=>k.status!=='opgelost').length;const ekl=g('sb-kc');ekl.textContent=kl2;ekl.style.display=kl2>0?'inline':'none';
 }
- 
+
 function renderDash(){
   const n=klanten.filter(k=>k.klant_actief!==false).length;
   const otk=taken.filter(t=>t.status==='open');
@@ -807,7 +804,7 @@ function renderDash(){
     '<div class="dit" onclick="go(\'claude\')"><i class="ti ti-sparkles" style="font-size:13px;color:var(--ol)"></i><div><div class="din">Claude AI</div><div class="dis">Vraag om hulp of dagplanning</div></div></div>'+
     '</div></div>';
 }
- 
+
 function filtK(){
   return klanten.filter(k=>{
     if(!showInact&&k.klant_actief===false)return false;
@@ -856,7 +853,7 @@ function selAll(cb){const f=sortK(filtK()).slice((klpg-1)*PER,klpg*PER);if(cb.ch
 function updateBulk(){const n=selIds.size;g('bkbar').style.display=n>0?'flex':'none';g('bkcnt').textContent=n+' geselecteerd';}
 function clearSel(){selIds.clear();updateBulk();rk();}
 async function bulkAct(val){for(const id of[...selIds]){try{await api('klanten?id=eq.'+id,{method:'PATCH',body:JSON.stringify({klant_actief:val})});const k=klanten.find(x=>x.id===id);if(k)k.klant_actief=val;}catch(e){}}selIds.clear();updateBulk();rk();toast('Klanten bijgewerkt');}
- 
+
 function openBedrijf(id){
   const k=klanten.find(x=>x.id===id);if(!k)return;abId=id;
   g('bcnm').textContent=k.naam;g('cmpn').textContent=k.naam;
@@ -898,7 +895,7 @@ function renderCmpKl(id){const kl2=kl.filter(k=>k.klant_id===id);g('cmpkl').inne
 function renderCmpNts(id){const nts=JSON.parse(localStorage.getItem('nts_'+id)||'[]');g('cmpnts').innerHTML=nts.length?nts.map((n,i)=>'<div class="ni"><div class="nid"><span>'+fmtDT(n.dt)+'</span><button onclick="delNoteB('+i+')" style="background:none;border:none;cursor:pointer;font-size:11px;color:var(--mu2)">✕</button></div><div class="nit">'+n.txt+'</div></div>').join(''):'<div class="empty">Nog geen notities</div>';}
 async function addNote(){if(!abId)return;const txt=v('ninp');if(!txt)return;const nts=JSON.parse(localStorage.getItem('nts_'+abId)||'[]');nts.unshift({txt,dt:new Date().toISOString()});localStorage.setItem('nts_'+abId,JSON.stringify(nts));g('ninp').value='';renderCmpNts(abId);renderTL(abId);toast('Notitie opgeslagen');}
 function delNoteB(i){if(!abId)return;const nts=JSON.parse(localStorage.getItem('nts_'+abId)||'[]');nts.splice(i,1);localStorage.setItem('nts_'+abId,JSON.stringify(nts));renderCmpNts(abId);renderTL(abId);}
- 
+
 function renderTaken(){
   let tk=[...taken];
   if(tkflt==='open')tk=tk.filter(t=>t.status==='open');
@@ -910,7 +907,7 @@ function renderTaken(){
   g('tklist').innerHTML=tk.length?tk.map(t=>'<div class="li '+(t.prioriteit==='urgent'&&t.status==='open'?'urg':'')+'"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><input type="checkbox" style="accent-color:var(--ol)" '+(t.status==='gedaan'?'checked':'')+' onchange="togTk('+t.id+',this)"><div class="lik">'+(t.klant_naam||'Geen klant')+'</div><div style="margin-left:auto">'+prB(t.prioriteit||'normaal')+'</div></div><div class="lid" style="'+(t.status==='gedaan'?'text-decoration:line-through;opacity:.5':'')+'">'+(t.omschrijving||'–')+'</div><div class="lim '+(t.deadline&&t.deadline<TODAY&&t.status==='open'?'ov':'')+'">'+(t.deadline?'Deadline '+fmtD(t.deadline):'')+'</div></div>').join(''):'<div class="empty">Geen taken in deze categorie</div>';}
 function stf(f,btn){tkflt=f;document.querySelectorAll('#page-taken .fb').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderTaken();}
 async function togTk(id,cb){const t=taken.find(x=>x.id===id);if(!t)return;t.status=cb.checked?'gedaan':'open';try{await api('taken?id=eq.'+id,{method:'PATCH',body:JSON.stringify({status:t.status})});}catch(e){}renderTaken();updateBadges();}
- 
+
 function renderLev(){
   let lv2=[...lev];
   if(lvflt==='open')lv2=lv2.filter(l=>l.status!=='gecommuniceerd');
@@ -918,7 +915,7 @@ function renderLev(){
   g('lvcnt').textContent=lv2.length;
   g('lvlist').innerHTML=lv2.length?lv2.map(l=>{const ov=l.verwachte_datum&&l.verwachte_datum<TODAY&&l.status!=='gecommuniceerd';return'<div class="li '+(ov?'urg':'')+'" onclick="openBedrijf(\''+l.klant_id+'\')">'+lvB(l.status)+'<div class="lik" style="margin-top:6px">'+(l.klant_naam||'–')+'</div><div class="lid">'+(l.omschrijving||'–')+'</div><div class="lim '+(ov?'ov':'')+'">'+(ov?'⚠️ ':'')+( l.verwachte_datum?'Verwacht '+fmtD(l.verwachte_datum):'Nog geen datum')+'</div></div>';}).join(''):'<div class="empty">Geen levertijden in deze categorie</div>';}
 function slf(f,btn){lvflt=f;document.querySelectorAll('#page-levertijden .fb').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderLev();}
- 
+
 function renderKl(){
   let kl2=[...kl];
   if(kcflt==='open')kl2=kl2.filter(k=>k.status!=='opgelost');
@@ -926,7 +923,7 @@ function renderKl(){
   g('kccnt').textContent=kl2.length;
   g('kclist').innerHTML=kl2.length?kl2.map(k=>{const ov=k.deadline&&k.deadline<TODAY&&k.status!=='opgelost';return'<div class="li '+(ov&&k.status==='nieuw'?'urg':'')+'" onclick="openBedrijf(\''+k.klant_id+'\')">'+klB(k.status)+'<div class="lik" style="margin-top:6px">'+(k.klant_naam||'–')+'</div><div class="lid">'+(k.titel||k.omschrijving||'–')+'</div><div class="lim '+(ov?'ov':'')+'">'+(ov?'⚠️ ':'')+( k.deadline?'Deadline '+fmtD(k.deadline):'')+'</div></div>';}).join(''):'<div class="empty">Geen klachten in deze categorie</div>';}
 function skf(f,btn){kcflt=f;document.querySelectorAll('#page-klachten .fb').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderKl();}
- 
+
 function renderDeals(){
   const open=deals.filter(d=>['offerte','design','productie'].includes(d.status));
   g('dstats').innerHTML='<div class="dsb"><div class="dsn">'+fmt(open.reduce((s,d)=>s+(d.bedrag||0),0))+'</div><div class="dsl2">Totaal open</div></div><div class="dsb"><div class="dsn">'+fmt(deals.filter(d=>d.status==='offerte').reduce((s,d)=>s+(d.bedrag||0),0))+'</div><div class="dsl2">Offerte</div></div><div class="dsb"><div class="dsn">'+fmt(deals.filter(d=>d.status==='gewonnen'&&(d.gesloten_op||'').startsWith(TODAY.slice(0,7))).reduce((s,d)=>s+(d.bedrag||0),0))+'</div><div class="dsl2">Gewonnen deze maand</div></div><div class="dsb"><div class="dsn">'+deals.length+'</div><div class="dsl2">Totaal deals</div></div>';
@@ -948,7 +945,7 @@ function renderDeals(){
     '</select></div></div>').join(''):'<div class="empty">Geen deals in deze categorie</div>';}
 function sdf(f,btn){dlflt=f;document.querySelectorAll('#page-deals .fb').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderDeals();}
 async function updDlSt(id,s){const d=deals.find(x=>x.id===id);if(!d)return;d.status=s;try{await api('deals?id=eq.'+id,{method:'PATCH',body:JSON.stringify({status:s,gesloten_op:(s==='gewonnen'||s==='verloren')?TODAY:null})});renderDeals();if(abId&&abId===d.klant_id)renderCmpDl(abId);toast('Status: '+s);}catch(e){toast('Fout','err');}}
- 
+
 function getNts(){return JSON.parse(localStorage.getItem('tbc_nts')||'[]');}
 function setNts(nts){localStorage.setItem('tbc_nts',JSON.stringify(nts));}
 function renderNotities(){
@@ -959,18 +956,18 @@ function openNot(id){actNid=id;const n=getNts().find(x=>x.id===id);if(!n)return;
 function newNot(){const id='n'+Date.now();const nts=getNts();nts.unshift({id,tl:'',bd:'',crt:new Date().toISOString(),upd:new Date().toISOString()});setNts(nts);actNid=id;renderNotities();g('ntitel').value='';g('nbody').value='';setTimeout(()=>g('ntitel').focus(),50);}
 function delNot(){if(!actNid)return;const nts=getNts().filter(n=>n.id!==actNid);setNts(nts);actNid=nts[0]&&nts[0].id||null;renderNotities();if(actNid)openNot(actNid);else{g('ntitel').value='';g('nbody').value='';}toast('Notitie verwijderd');}
 function autoSave(){clearTimeout(saveTmr);saveTmr=setTimeout(()=>{if(!actNid)return;const nts=getNts();const idx=nts.findIndex(n=>n.id===actNid);if(idx<0)return;nts[idx].tl=g('ntitel').value;nts[idx].bd=g('nbody').value;nts[idx].upd=new Date().toISOString();setNts(nts);renderNotities();g('nsaved').textContent='Opgeslagen '+new Date().toLocaleTimeString('nl-NL',{hour:'2-digit',minute:'2-digit'});},700);}
- 
+
 async function loadMail(){
   ['mail-actie','mail-klant','mail-fyi'].forEach(id=>{const el=g(id);if(el)el.innerHTML='<div class="ld"><div class="spin"></div> Laden...</div>';});
   try{
-    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1500,mcp_servers:[{type:'url',url:'https://microsoft365.mcp.claude.com/mcp',name:'m365'}],messages:[{role:'user',content:'Haal de 20 meest recente ongelezen e-mails op uit de inbox van daniel@thebrandingclub.com. Categoriseer als pure JSON (geen markdown): {"actie":[],"klant":[],"fyi":[]}. Per mail: from, subject, summary (1 zin Nederlands). ALLEEN JSON.'}]})});
+    const r=await fetch('https://tbc-proxy.daniel-314.workers.dev',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1500,mcp_servers:[{type:'url',url:'https://microsoft365.mcp.claude.com/mcp',name:'m365'}],messages:[{role:'user',content:'Haal de 20 meest recente ongelezen e-mails op uit de inbox van daniel@thebrandingclub.com. Categoriseer als pure JSON (geen markdown): {"actie":[],"klant":[],"fyi":[]}. Per mail: from, subject, summary (1 zin Nederlands). ALLEEN JSON.'}]})});
     const data=await r.json();const txt=(data.content&&data.content.find(c=>c.type==='text')&&data.content.find(c=>c.type==='text').text)||'{}';
     let p={actie:[],klant:[],fyi:[]};try{p=JSON.parse(txt.replace(/```json|```/g,'').trim());}catch(e){}
     const rm=function(arr,elId){const el=g(elId);if(!el)return;el.innerHTML=arr&&arr.length?arr.map(m=>'<div class="mitem"><div class="mfr2">'+(m.from||'–')+'</div><div class="msj">'+(m.subject||'–')+'</div><div class="msum">'+(m.summary||'–')+'</div></div>').join(''):'<div class="empty">Geen mails</div>';};
     rm(p.actie,'mail-actie');rm(p.klant,'mail-klant');rm(p.fyi,'mail-fyi');
   }catch(e){['mail-actie','mail-klant','mail-fyi'].forEach(id=>{const el=g(id);if(el)el.innerHTML='<div class="empty">Outlook niet beschikbaar. Controleer de Microsoft 365 koppeling in Claude.ai instellingen.</div>';});}
 }
- 
+
 function buildCtx(){
   const n=klanten.filter(k=>k.klant_actief!==false).length;
   const otk=taken.filter(t=>t.status==='open');
@@ -984,7 +981,7 @@ async function sendCl(){
   clHist.push({role:'user',content:msg});addClMsg(msg,'u');
   const typing=addClMsg('…','a',true);
   try{
-    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1500,system:buildCtx(),messages:clHist})});
+    const r=await fetch('https://tbc-proxy.daniel-314.workers.dev',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1500,system:buildCtx(),messages:clHist})});
     const data=await r.json();const reply=(data.content&&data.content[0]&&data.content[0].text)||'Fout';
     clHist.push({role:'assistant',content:reply});typing.textContent=reply;typing.style.fontStyle='normal';
   }catch(e){typing.textContent='Kan geen verbinding maken.';typing.style.color='var(--re)';}
@@ -997,7 +994,7 @@ function addClMsg(text,role,isTyping){
   if(isTyping)m.style.fontStyle='italic';
   el.appendChild(m);el.scrollTop=el.scrollHeight;return m;
 }
- 
+
 function renderKal(){
   const months=['Januari','Februari','Maart','April','Mei','Juni','Juli','Augustus','September','Oktober','November','December'];
   g('callbl').textContent=months[calM]+' '+calY;
@@ -1016,11 +1013,11 @@ function renderKal(){
   for(let i=1;i<=rem;i++){const d=document.createElement('div');d.className='calday om';d.innerHTML='<div class="caldn2">'+i+'</div>';grid.appendChild(d);}
 }
 function calNav(dir){if(dir===0){const n=new Date();calY=n.getFullYear();calM=n.getMonth();}else{calM+=dir;if(calM>11){calM=0;calY++;}else if(calM<0){calM=11;calY--;}}renderKal();}
- 
+
 function togPw(){const r=g('pwrow');r.style.display=r.style.display==='none'?'flex':'none';}
 async function savePw(){const pw=v('npw');if(pw.length<6){toast('Min. 6 tekens','err');return;}try{const r=await fetch(SB+'/auth/v1/user',{method:'PUT',headers:{'Content-Type':'application/json','apikey':KEY,'Authorization':'Bearer '+tok},body:JSON.stringify({password:pw})});if(!r.ok)throw new Error();g('npw').value='';g('pwrow').style.display='none';toast('Wachtwoord gewijzigd');}catch(e){toast('Fout','err');}}
 async function delAllK(){if(!confirm('Weet je zeker dat je alle klanten wilt verwijderen?'))return;try{await api('klanten?id=not.is.null',{method:'DELETE'});klanten=[];rk();updateBadges();renderDash();toast('Alle klanten verwijderd');}catch(e){toast('Fout','err');}}
- 
+
 function renderLinks(){
   const links=JSON.parse(localStorage.getItem('tbc_links')||'[]');
   const sbl=g('sbl');if(sbl)sbl.innerHTML=links.map(l=>'<a class="sbla" href="'+l.url+'" target="_blank"><i class="ti ti-external-link"></i><span>'+l.naam+'</span></a>').join('');
@@ -1029,7 +1026,7 @@ function renderLinks(){
 function openLinkM(){g('lnaam').value='';g('lurl').value='';g('ov-link').classList.add('open');setTimeout(()=>g('lnaam').focus(),100);}
 function saveLink(){const n=v('lnaam'),u=v('lurl');if(!n||!u){toast('Naam en URL zijn verplicht','err');return;}const links=JSON.parse(localStorage.getItem('tbc_links')||'[]');links.push({naam:n,url:u.startsWith('http')?u:'https://'+u});localStorage.setItem('tbc_links',JSON.stringify(links));closeM('ov-link');renderLinks();toast('Link opgeslagen');}
 function delLink(i){const links=JSON.parse(localStorage.getItem('tbc_links')||'[]');links.splice(i,1);localStorage.setItem('tbc_links',JSON.stringify(links));renderLinks();toast('Link verwijderd');}
- 
+
 function openM(id){g(id).classList.add('open');}
 function closeM(id){g(id).classList.remove('open');}
 function togVR(){g('vrrow').style.display=g('dstatus').value==='verloren'?'block':'none';}
@@ -1040,16 +1037,16 @@ function ks(q,resId,vn){
 }
 const KINP={tkid:'tks',lkid:'lks',kkid:'kks',dkid:'dks',akid:'aks'};
 function pickK(id,naam,vn,resId){if(vn==='tkid')tkid=id;else if(vn==='lkid')lkid=id;else if(vn==='kkid')kkid=id;else if(vn==='dkid')dkid=id;else if(vn==='akid')akid=id;const inp=KINP[vn];if(inp)g(inp).value=naam;g(resId).innerHTML='';}
- 
+
 function openTkM(kid){tkid=kid||null;const k=kid?klanten.find(x=>x.id===kid):null;g('tks').value=k?k.naam:'';g('tmkr').style.display=!kid?'block':'none';g('tres').innerHTML='';g('tomsch').value='';g('tdead').value='';g('tprio').value='normaal';openM('ov-taak');}
 async function saveTaak(){const omsch=v('tomsch');if(!omsch){toast('Omschrijving verplicht','err');return;}const k=tkid?klanten.find(x=>x.id===tkid):null;const nm=v('tks');const obj={klant_id:tkid||null,klant_naam:k&&k.naam||nm,omschrijving:omsch,prioriteit:g('tprio').value||'normaal',deadline:v('tdead')||null,status:'open'};try{const r=await api('taken',{method:'POST',body:JSON.stringify(obj)});taken.unshift((r&&r[0])||Object.assign({id:Date.now()},obj));closeM('ov-taak');renderTaken();updateBadges();if(abId===tkid)renderCmpTk(tkid);renderDash();toast('Taak aangemaakt');}catch(e){toast('Fout','err');}}
- 
+
 function openLvM(kid){lkid=kid||null;const k=kid?klanten.find(x=>x.id===kid):null;g('lks').value=k?k.naam:'';g('lmkr').style.display=!kid?'block':'none';g('lres').innerHTML='';g('lomsch').value='';g('ldatum').value='';g('lstatus').value='nieuw';openM('ov-lev');}
 async function saveLev(){const omsch=v('lomsch');if(!omsch){toast('Omschrijving verplicht','err');return;}const k=lkid?klanten.find(x=>x.id===lkid):null;const nm=v('lks');const obj={klant_id:lkid||null,klant_naam:k&&k.naam||nm,omschrijving:omsch,status:g('lstatus').value,verwachte_datum:v('ldatum')||null};try{const r=await api('levertijden',{method:'POST',body:JSON.stringify(obj)});lev.unshift((r&&r[0])||Object.assign({id:Date.now()},obj));closeM('ov-lev');renderLev();updateBadges();if(abId===lkid)renderCmpLv(lkid);renderDash();toast('Levertijd toegevoegd');}catch(e){toast('Fout','err');}}
- 
+
 function openKlM(kid){kkid=kid||null;const k=kid?klanten.find(x=>x.id===kid):null;g('kks').value=k?k.naam:'';g('kmkr').style.display=!kid?'block':'none';g('kres').innerHTML='';g('ktitel').value='';g('komsch').value='';g('kdeadline').value='';g('kstatus').value='nieuw';openM('ov-klacht');}
 async function saveKl(){const titel=v('ktitel'),omsch=v('komsch');if(!titel&&!omsch){toast('Titel of omschrijving verplicht','err');return;}const k=kkid?klanten.find(x=>x.id===kkid):null;const nm=v('kks');const obj={klant_id:kkid||null,klant_naam:k&&k.naam||nm,titel:titel||null,omschrijving:omsch,status:g('kstatus').value,deadline:v('kdeadline')||null};try{const r=await api('klachten',{method:'POST',body:JSON.stringify(obj)});kl.unshift((r&&r[0])||Object.assign({id:Date.now()},obj));closeM('ov-klacht');renderKl();updateBadges();if(abId===kkid)renderCmpKl(kkid);renderDash();toast('Klacht toegevoegd');}catch(e){toast('Fout','err');}}
- 
+
 function openDlM(kid,editId){
   editDlId=editId||null;dkid=kid||null;
   const existing=editId?deals.find(x=>x.id===editId):null;
@@ -1064,13 +1061,13 @@ function openDlM(kid,editId){
   togVR();openM('ov-deal');
 }
 async function saveDl(){const nm=v('dnaam');if(!nm){toast('Dealnaam verplicht','err');return;}const k=dkid?klanten.find(x=>x.id===dkid):null;const kn=v('dks');const s=g('dstatus').value;const obj={klant_id:dkid||null,klant_naam:(k&&k.naam)||kn,naam:nm,dealnummer:v('dnr')||null,bedrag:parseFloat(v('dbedrag'))||0,status:s,deal_link:v('dlink')||null,verliesreden:s==='verloren'?v('dverlies'):null,gesloten_op:(s==='gewonnen'||s==='verloren')?TODAY:null};try{if(editDlId){await api('deals?id=eq.'+editDlId,{method:'PATCH',body:JSON.stringify(obj)});const idx=deals.findIndex(d=>d.id===editDlId);if(idx>=0)deals[idx]=Object.assign({},deals[idx],obj);}else{const r=await api('deals',{method:'POST',body:JSON.stringify(obj)});deals.unshift((r&&r[0])||Object.assign({id:Date.now()},obj));}editDlId=null;closeM('ov-deal');renderDeals();if(abId&&abId===dkid)renderCmpDl(dkid);toast('Deal opgeslagen');}catch(e){toast('Fout','err');}}
- 
+
 function openContM(){g('cnm').value='';g('cfunc').value='';g('ctel').value='';g('cemail').value='';openM('ov-contact');}
 async function saveCont(){const nm=v('cnm');if(!nm){toast('Naam verplicht','err');return;}const obj={klant_id:abId,naam:nm,functie:v('cfunc'),telefoon:v('ctel'),email:v('cemail')};try{const r=await api('contactpersonen',{method:'POST',body:JSON.stringify(obj)});if(!cont[abId])cont[abId]=[];cont[abId].push((r&&r[0])||Object.assign({id:Date.now()},obj));closeM('ov-contact');renderCmpCC(abId);toast('Contactpersoon toegevoegd');}catch(e){toast('Fout','err');}}
- 
+
 function openAfspM(kid,datum){akid=kid||null;const k=kid?klanten.find(x=>x.id===kid):null;g('aks').value=k?k.naam:'';g('amkr').style.display=!kid?'block':'none';g('ares').innerHTML='';g('adatum').value=datum||'';g('atijd').value='10:00';g('aonderwerp').value='';g('alocatie').value='';openM('ov-afsp');}
 async function saveAfsp(){const datum=v('adatum');if(!datum){toast('Datum verplicht','err');return;}const k=akid?klanten.find(x=>x.id===akid):null;const nm=v('aks');const obj={klant_id:akid||null,klant_naam:(k&&k.naam)||nm,datum,tijd:v('atijd')||'10:00',onderwerp:v('aonderwerp')};try{const r=await api('afspraken',{method:'POST',body:JSON.stringify(obj)});afsp.push((r&&r[0])||Object.assign({id:Date.now()},obj));closeM('ov-afsp');renderKal();toast('Afspraak opgeslagen');}catch(e){toast('Fout','err');}}
- 
+
 function importCSV(inp){
   const file=inp.files[0];if(!file)return;
   Papa.parse(file,{header:true,skipEmptyLines:true,complete:function(r){
@@ -1098,7 +1095,7 @@ function importCSV(inp){
   }});
 }
 function exportCSV(){const rows=[['ID','Naam','Plaats','Branche','Omzet','Status','Laatste order']];klanten.forEach(k=>rows.push([k.id,k.naam,k.plaats||'',k.branche||'',k.waarde||0,k.status||'actief',k.laatste_order||'']));const csv=rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download='klanten_'+TODAY+'.csv';a.click();toast('CSV gedownload');}
- 
+
 const TITLES={dashboard:'Dashboard',klanten:'Klantenoverzicht',bedrijf:'Bedrijfsdossier',taken:'Taken',levertijden:'Levertijden',klachten:'Klachten',deals:'Deals',notities:'Notities',mail:'Mail & Inbox',claude:'Claude AI',kalender:'Kalender',instellingen:'Instellingen'};
 const ADDS={taken:{l:'+ Taak',a:'openTkM(null)'},levertijden:{l:'+ Levertijd',a:'openLvM(null)'},klachten:{l:'+ Klacht',a:'openKlM(null)'},deals:{l:'+ Deal',a:'openDlM(null)'}};
 function go(id){
@@ -1115,9 +1112,9 @@ function go(id){
   if(id==='instellingen')renderLinks();
   if(id==='notities'){renderNotities();if(!actNid){const nts=getNts();if(nts.length)openNot(nts[0].id);}}
 }
- 
+
 let tt;function toast(msg,type){const el=g('toast');el.textContent=msg;el.className='toast show'+(type?' '+type:'');clearTimeout(tt);tt=setTimeout(()=>el.classList.remove('show'),2800);}
- 
+
 (async function(){
   const ok=await tryRestore();
   if(ok)startApp();
@@ -1126,6 +1123,3 @@ let tt;function toast(msg,type){const el=g('toast');el.textContent=msg;el.classN
 </script>
 </body>
 </html>
- 
-
-
