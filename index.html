@@ -587,7 +587,7 @@ td{padding:10px 18px;vertical-align:middle}
     </header>
 
     <!-- OVERZICHT PAGE -->
-    <div class="page act" id="page-overzicht" role="main">
+    <div class="page" id="page-overzicht" role="main">
       <div class="kpi-bar" id="kpi-bar">
         <div class="kpi-box" onclick="setF('all',null)"><div class="kpi-num" id="st-total">–</div><div class="kpi-lbl">Klanten</div></div>
         <div class="kpi-box" onclick="setF('urgent',null)"><div class="kpi-num" style="color:var(--red)" id="st-urgent">–</div><div class="kpi-lbl">Urgent</div></div>
@@ -654,82 +654,49 @@ td{padding:10px 18px;vertical-align:middle}
     </div>
 
     <!-- MIJN DAG PAGE -->
-    <div class="page" id="page-mijndag">
+        <div class="page act" id="page-dashboard">
+      <div class="kpi-bar" id="dash-kpi-bar">
+        <div class="kpi-box" onclick="showPage('overzicht',null)" style="cursor:pointer"><div class="kpi-num" id="dk-kl">–</div><div class="kpi-lbl">Klanten</div></div>
+        <div class="kpi-box" onclick="showPage('taken',null)" style="cursor:pointer"><div class="kpi-num" id="dk-tk" style="color:var(--orange)">–</div><div class="kpi-lbl">Open taken</div></div>
+        <div class="kpi-box" onclick="showPage('levertijden',null)" style="cursor:pointer"><div class="kpi-num" id="dk-lv" style="color:var(--red)">–</div><div class="kpi-lbl">Levertijden</div></div>
+        <div class="kpi-box" onclick="showPage('klachten',null)" style="cursor:pointer"><div class="kpi-num" id="dk-kc" style="color:var(--red)">–</div><div class="kpi-lbl">Klachten open</div></div>
+      </div>
       <div class="page-scroll">
-        <div class="dag-page">
-          <div class="dag-commit-card">
-            <i class="ti ti-target dcc-icon" aria-hidden="true"></i>
-            <div>
-              <div class="dcc-lbl">Commit vandaag</div>
-              <div class="dcc-val" id="dag-commit-val">–</div>
-              <div class="dcc-sub" id="dag-commit-sub">–</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px 18px">
+          <div style="background:#fff;border:1px solid #e8e2d4;border-radius:9px;overflow:hidden">
+            <div style="padding:10px 14px;border-bottom:1px solid #e8e2d4;display:flex;align-items:center;justify-content:space-between">
+              <span style="font-size:11px;font-weight:700;color:#2a3320"><i class="ti ti-package" style="color:var(--orange);margin-right:5px;font-size:12px" aria-hidden="true"></i>Open levertijden</span>
+              <span class="badge b-r" id="dk-lv-cnt">0</span>
             </div>
-            <div class="dcc-right">
-              <div class="dcc-pct" id="dag-commit-pct">–</div>
-              <div class="dcc-plbl">gehaald</div>
-            </div>
+            <div id="dk-lv-list"><div class="empty">Laden...</div></div>
           </div>
-
-          <div class="dag-kpi-grid">
-            <div class="dag-kpi-box"><div class="dag-kpi-n" id="dag-calls">0</div><div class="dag-kpi-l">Calls</div></div>
-            <div class="dag-kpi-box"><div class="dag-kpi-n" id="dag-dmu">0</div><div class="dag-kpi-l">DMU</div></div>
-            <div class="dag-kpi-box"><div class="dag-kpi-n" id="dag-afspraken-n">0</div><div class="dag-kpi-l">Afspraken</div></div>
-            <div class="dag-kpi-box"><div class="dag-kpi-n" id="dag-nieuwe-k" style="color:var(--green)">0</div><div class="dag-kpi-l">Nieuwe klant</div></div>
-          </div>
-
-          <div class="dag-prog-row">
-            <div class="dag-card">
-              <div class="dag-lbl">Productie vandaag</div>
-              <div class="dag-val" id="dag-productie-val">€ 0</div>
-              <div class="dag-sub" id="dag-productie-sub">van € 0 target</div>
-              <div class="dag-progbar"><div class="dag-progfill" id="dag-productie-bar" style="width:0%"></div></div>
+          <div style="background:#fff;border:1px solid #e8e2d4;border-radius:9px;overflow:hidden">
+            <div style="padding:10px 14px;border-bottom:1px solid #e8e2d4;display:flex;align-items:center;justify-content:space-between">
+              <span style="font-size:11px;font-weight:700;color:#2a3320"><i class="ti ti-alert-circle" style="color:var(--red);margin-right:5px;font-size:12px" aria-hidden="true"></i>Open klachten</span>
+              <span class="badge b-r" id="dk-kc-cnt">0</span>
             </div>
-            <div class="dag-card">
-              <div class="dag-lbl" style="display:flex;justify-content:space-between;align-items:center">Maand tot nu toe <button class="dp-add" style="font-size:13px" onclick="toggleMaandEdit()" aria-label="Maandstand aanpassen"><i class="ti ti-edit" aria-hidden="true"></i></button></div>
-              <div class="dag-val" id="dag-maand-val">€ 0</div>
-              <div class="dag-sub" id="dag-maand-sub">deze maand</div>
-              <div class="dag-progbar"><div class="dag-progfill" id="dag-maand-bar" style="width:0%"></div></div>
-              <div id="maand-edit-row" style="display:none;margin-top:9px;gap:6px;flex-wrap:wrap" class="dag-input-row">
-                <input class="form-inp" id="maand-override-inp" type="number" placeholder="Maandstand handmatig instellen €" style="flex:1;min-width:160px">
-                <button class="btn-p" style="padding:8px 12px;flex:0 0 auto" onclick="saveMaandOverride()">Opslaan</button>
+            <div id="dk-kc-list"><div class="empty">Laden...</div></div>
+          </div>
+          <div style="background:#fff;border:1px solid #e8e2d4;border-radius:9px;overflow:hidden">
+            <div style="padding:10px 14px;border-bottom:1px solid #e8e2d4;display:flex;align-items:center;justify-content:space-between">
+              <span style="font-size:11px;font-weight:700;color:#2a3320"><i class="ti ti-checkbox" style="color:var(--olive);margin-right:5px;font-size:12px" aria-hidden="true"></i>Taken vandaag</span>
+              <span class="badge b-olive" id="dk-tk-cnt">0</span>
+            </div>
+            <div id="dk-tk-list"><div class="empty">Laden...</div></div>
+          </div>
+          <div style="background:#fff;border:1px solid #e8e2d4;border-radius:9px;overflow:hidden">
+            <div style="padding:10px 14px;border-bottom:1px solid #e8e2d4">
+              <span style="font-size:11px;font-weight:700;color:#2a3320"><i class="ti ti-bell" style="color:var(--orange);margin-right:5px;font-size:12px" aria-hidden="true"></i>Slimme signalen</span>
+            </div>
+            <div id="dk-signalen">
+              <div class="dash-item" onclick="showPage('mail',null)" style="padding:8px 14px;border-bottom:1px solid #e8e2d4;cursor:pointer;display:flex;align-items:center;gap:8px" onmouseover="this.style.background='#f9f7f2'" onmouseout="this.style.background=''">
+                <i class="ti ti-mail" style="font-size:13px;color:var(--blue)" aria-hidden="true"></i>
+                <div><div style="font-size:11px;font-weight:600;color:#2a3320">Mail samenvatting bekijken</div><div style="font-size:9px;color:#9a9080">Klik om Outlook te laden</div></div>
               </div>
-            </div>
-          </div>
-
-          <div class="dag-sec-title">Vandaag invullen</div>
-          <div class="dag-input-row">
-            <input class="form-inp" id="dag-calls-inp" type="number" placeholder="Calls vandaag">
-            <input class="form-inp" id="dag-dmu-inp" type="number" placeholder="DMU vandaag">
-            <input class="form-inp" id="dag-productie-inp" type="number" placeholder="Productie €">
-            <input class="form-inp" id="dag-commit-morgen-inp" type="number" placeholder="Commit morgen €">
-            <button class="btn-p" onclick="saveDagrapport()">Opslaan</button>
-          </div>
-
-          <div class="dag-sec">
-            <div class="dag-sec-title">Maandgeschiedenis <button class="dp-add" onclick="toggleMaandHistorie()" aria-label="Geschiedenis tonen">
-              <i class="ti ti-chevron-down" id="maand-hist-chevron" aria-hidden="true"></i>
-            </button></div>
-            <div id="maand-historie-list" style="display:none"></div>
-          </div>
-
-
-          <div class="dag-sec">
-            <div class="dag-sec-title">Levertijden open <button class="dp-add" onclick="openLevertijdModal()" aria-label="Levertijd toevoegen">+</button></div>
-            <div id="dag-levertijden-list"></div>
-          </div>
-
-          <div class="dag-sec">
-            <div class="dag-sec-title">Klachten open <button class="dp-add" onclick="openKlachtModal()" aria-label="Klacht toevoegen">+</button></div>
-            <div id="dag-klachten-list"></div>
-          </div>
-
-          <div class="dag-sec">
-            <div class="dag-sec-title">Dagnotitie</div>
-            <div class="dagnote-box">
-              <textarea id="dagnote-inp" placeholder="Hoe ging vandaag? Wat moet morgen als eerste gebeuren?"></textarea>
-            </div>
-            <div style="margin-top:8px;text-align:right">
-              <button class="btn-p" style="padding:8px 16px" onclick="saveDagnotitie()">Notitie opslaan</button>
+              <div class="dash-item" onclick="showPage('claude',null)" style="padding:8px 14px;cursor:pointer;display:flex;align-items:center;gap:8px" onmouseover="this.style.background='#f9f7f2'" onmouseout="this.style.background=''">
+                <i class="ti ti-sparkles" style="font-size:13px;color:var(--olive)" aria-hidden="true"></i>
+                <div><div style="font-size:11px;font-weight:600;color:#2a3320">Vraag Claude om hulp</div><div style="font-size:9px;color:#9a9080">Dagplanning, mails, klantinzichten</div></div>
+              </div>
             </div>
           </div>
         </div>
@@ -1482,6 +1449,29 @@ let filter='all',sortKey='ld',search='',branche='',page=1,takenFilter='open',lev
 const PER=30;
 let calYear,calMonth;
 
+
+function renderDashboard(){
+  const kl=klanten.filter(k=>k.klant_actief!==false).length;
+  const tk=taken.filter(t=>t.status==="open");
+  const lv=levertijden.filter(l=>l.status!=="gecommuniceerd");
+  const kc=klachten.filter(k=>k.status!=="opgelost");
+  const stil=klanten.filter(k=>k.klant_actief!==false&&daysSince(k.laatste_order)>90&&(k.status||"actief")==="actief");
+  if(document.getElementById("dk-kl"))document.getElementById("dk-kl").textContent=kl;
+  if(document.getElementById("dk-tk"))document.getElementById("dk-tk").textContent=tk.length;
+  if(document.getElementById("dk-lv"))document.getElementById("dk-lv").textContent=lv.length;
+  if(document.getElementById("dk-kc"))document.getElementById("dk-kc").textContent=kc.length;
+  if(document.getElementById("dk-lv-cnt"))document.getElementById("dk-lv-cnt").textContent=lv.length;
+  if(document.getElementById("dk-kc-cnt"))document.getElementById("dk-kc-cnt").textContent=kc.length;
+  if(document.getElementById("dk-tk-cnt"))document.getElementById("dk-tk-cnt").textContent=tk.filter(t=>t.deadline===TODAY).length;
+  const lvList=document.getElementById("dk-lv-list");
+  if(lvList)lvList.innerHTML=lv.length?lv.slice(0,5).map(l=>`<div onclick="showPage(&apos;levertijden&apos;,null)" style="padding:8px 14px;border-bottom:1px solid #e8e2d4;cursor:pointer;display:flex;align-items:center;gap:8px" onmouseover="this.style.background=&apos;#f9f7f2&apos;" onmouseout="this.style.background=&apos;&apos;"><i class="ti ti-package" style="font-size:13px;color:var(--muted2)"></i><div><div style="font-size:11px;font-weight:600;color:#2a3320">${l.klant_naam||"–"}</div><div style="font-size:9px;color:#9a9080">${l.omschrijving||"–"}</div></div>${levStatusBadge(l.status)}</div>`).join(""):"<div class=\"empty\">Geen open levertijden</div>";
+  const kcList=document.getElementById("dk-kc-list");
+  if(kcList)kcList.innerHTML=kc.length?kc.slice(0,5).map(k=>`<div onclick="showPage(&apos;klachten&apos;,null)" style="padding:8px 14px;border-bottom:1px solid #e8e2d4;cursor:pointer;display:flex;align-items:center;gap:8px" onmouseover="this.style.background=&apos;#f9f7f2&apos;" onmouseout="this.style.background=&apos;&apos;"><i class="ti ti-alert-circle" style="font-size:13px;color:var(--red)"></i><div><div style="font-size:11px;font-weight:600;color:#2a3320">${k.klant_naam||"–"}</div><div style="font-size:9px;color:#9a9080">${k.titel||k.omschrijving||"–"}</div></div>${klStatusBadge(k.status)}</div>`).join(""):"<div class=\"empty\">Geen open klachten</div>";
+  const tkList=document.getElementById("dk-tk-list");
+  if(tkList)tkList.innerHTML=tk.length?tk.sort((a,b)=>{const p={urgent:0,hoog:1,normaal:2};return(p[a.prioriteit]||2)-(p[b.prioriteit]||2);}).slice(0,5).map(t=>`<div onclick="showPage(&apos;taken&apos;,null)" style="padding:8px 14px;border-bottom:1px solid #e8e2d4;cursor:pointer;display:flex;align-items:center;gap:8px" onmouseover="this.style.background=&apos;#f9f7f2&apos;" onmouseout="this.style.background=&apos;&apos;"><i class="ti ti-checkbox" style="font-size:13px;color:var(--muted2)"></i><div><div style="font-size:11px;font-weight:600;color:#2a3320">${t.omschrijving||"–"}</div><div style="font-size:9px;color:#9a9080">${t.klant_naam||""}${t.deadline?" · "+fmtD(t.deadline):""}</div></div></div>`).join(""):"<div class=\"empty\">Geen open taken</div>";
+  const signalen=document.getElementById("dk-signalen");
+  if(signalen&&stil.length){const stilEl=document.createElement("div");stilEl.innerHTML=`<div onclick="setFilter(&apos;opvolgen&apos;,null);showPage(&apos;overzicht&apos;,null)" style="padding:8px 14px;border-bottom:1px solid #e8e2d4;cursor:pointer;display:flex;align-items:center;gap:8px"><i class="ti ti-clock" style="font-size:13px;color:var(--orange)"></i><div><div style="font-size:11px;font-weight:600;color:#2a3320">${stil.length} klanten 90+ dagen stil</div><div style="font-size:9px;color:#9a9080">Klik om te filteren</div></div></div>`;signalen.insertBefore(stilEl.firstChild,signalen.firstChild);}
+}
 async function boot(){
   const n=new Date(TODAY);calYear=n.getFullYear();calMonth=n.getMonth();
   try{
@@ -2434,7 +2424,7 @@ async function autoOpvolgen(){
 function closeOv(id,e){if(!e||e.target===document.getElementById(id))document.getElementById(id).classList.remove('open');}
 
 // PAGE NAV
-const PAGE_TITLES={overzicht:'Klantenoverzicht',mail:'Mail & Inbox',mijndag:'Mijn dag',taken:'Taken',levertijden:'Levertijden',klachten:'Klachten',deals:'Deals',kalender:'Kalender',agenda:'Agenda',notities:'Notities',claude:'Claude AI — Assistent',instellingen:'Instellingen'};
+const PAGE_TITLES={dashboard:'Dashboard',overzicht:'Klantenoverzicht',mail:'Mail & Inbox',mijndag:'Mijn dag',taken:'Taken',levertijden:'Levertijden',klachten:'Klachten',deals:'Deals',kalender:'Kalender',agenda:'Agenda',notities:'Notities',claude:'Claude AI — Assistent',instellingen:'Instellingen'};
 const BN_PAGE_MAP={overzicht:0,mijndag:1,taken:2,kalender:3};
 function showPage(id,btn){
   event&&event.preventDefault();
@@ -2452,6 +2442,7 @@ function showPage(id,btn){
   if(id==='klachten')renderKlachten();
   if(id==='mijndag')renderMijnDag();
   if(id==='deals')renderDeals();
+  if(id==='dashboard')renderDashboard();
   if(id==='mail')loadMail();
   if(id==='notities'){renderNotitieLijst();if(!activeNotitieId){const nts=getNotities();if(nts.length)openNotitie(nts[0].id);}}
   // sync bottom nav
@@ -2508,10 +2499,8 @@ function appendMailMsg(text,role){
 }
 
 function renderSbLinks(){
-  const list=document.getElementById('sb-links-list');if(!list)return;
-  const links=JSON.parse(localStorage.getItem('tbc_links')||'[]');
-  list.innerHTML=links.map((l,i)=>`<a href="${l.url}" target="_blank" style="display:flex;align-items:center;gap:7px;padding:5px 14px;font-size:11px;color:#6b5b4a;text-decoration:none;overflow:hidden"><i class="ti ti-external-link" style="font-size:11px;color:#b8ae9e;flex-shrink:0" aria-hidden="true"></i><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${l.naam}</span></a>`).join('');
-  renderInstLinks();
+  const list=document.getElementById('sb-links-list');if(list){const links=JSON.parse(localStorage.getItem('tbc_links')||'[]');list.innerHTML=links.map((l,i)=>`<a href="${l.url}" target="_blank" style="display:flex;align-items:center;gap:7px;padding:5px 14px;font-size:11px;color:#6b5b4a;text-decoration:none;overflow:hidden"><i class="ti ti-external-link" style="font-size:11px;color:#b8ae9e;flex-shrink:0" aria-hidden="true"></i><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${l.naam}</span></a>`).join('');}
+  const inst=document.getElementById('inst-links-list');if(inst){const links=JSON.parse(localStorage.getItem('tbc_links')||'[]');inst.innerHTML=links.length?links.map((l,i)=>`<div style="padding:11px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--sand3)"><i class="ti ti-external-link" style="font-size:14px;color:var(--muted)" aria-hidden="true"></i><div style="flex:1"><div style="font-size:12px;font-weight:600;color:var(--ink2)">${l.naam}</div><div style="font-size:10px;color:var(--muted)">${l.url}</div></div><button onclick="deleteLink(${i})" style="background:var(--redbg);color:var(--red);border:none;border-radius:5px;padding:4px 9px;font-size:10px;font-weight:600;cursor:pointer">Verwijder</button></div>`).join(''):'<div style="padding:14px;font-size:12px;color:var(--muted)">Nog geen snelle links.</div>';}
 }
 function renderInstLinks(){
   const el=document.getElementById('inst-links-list');if(!el)return;
@@ -2651,6 +2640,14 @@ function appendClaudeMsg(containerId,text,role,isTyping=false){
   return msg;
 }
 
+
+async function deleteAllKlanten(){
+  if(!confirm('Weet je zeker dat je alle klanten wilt verwijderen? Dit kan niet ongedaan worden.'))return;
+  try{
+    await sb('klanten?id=not.is.null',{method:'DELETE'});
+    klanten=[];render();updateStats();renderDashboard();toast('Alle klanten verwijderd');
+  }catch(e){toast('Fout bij verwijderen','err');}
+}
 // TOAST
 let tt;function toast(msg,type=''){const el=document.getElementById('toast');el.textContent=msg;el.className='toast show'+(type?' '+type:'');clearTimeout(tt);tt=setTimeout(()=>el.classList.remove('show'),2800);}
 
